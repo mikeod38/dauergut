@@ -7,5 +7,5 @@
 #' fun.data = fun_length, geom = "text", size = 3)
 fun_length<-function (x) {
   # annotate plot with sample size
-  return(data.frame(y=min(x), label = paste0("n=", length(x))))
+  return(data.frame(y=min(x), label = paste0("(", length(x),")")))
 }

@@ -1,0 +1,15 @@
+structure(list(mean.0.b0.hivar.1000x.biased.stan = structure(c(0.049, 
+0.056, 0.134, 0.164, 0.071, 0.078, 0.033, 0.039), .Names = c("t1.n", 
+"t2.n", "lm1.n", "lm2.n", "glmm1.n", "glmm2.n", "stan1.n", "stan2.n"
+)), mean.0.b1.hivar.1000x.biasStan = structure(c(0.056, 0.868, 
+0.185, 0.773, 0.148, 0.807, 0.045, 0.772), .Names = c("t1.n", 
+"t2.n", "lm1.n", "lm2.n", "glmm1.n", "glmm2.n", "stan1.n", "stan2.n"
+)), mean.neg2.2.b0.hivar.1000x.biasStan = structure(c(0.041, 
+0.049, 0.121, 0.085, 0.078, 0.056, 0.041, 0.028), .Names = c("t1.n", 
+"t2.n", "lm1.n", "lm2.n", "glmm1.n", "glmm2.n", "stan1.n", "stan2.n"
+)), mean.neg2.2.b1.hivar.1000x.biasStan = structure(c(0.042, 
+0.737, 0.087, 0.758, 0.133, 0.733, 0.042, 0.694), .Names = c("t1.n", 
+"t2.n", "lm1.n", "lm2.n", "glmm1.n", "glmm2.n", "stan1.n", "stan2.n"
+))), .Names = c("mean.0.b0.hivar.1000x.biased.stan", "mean.0.b1.hivar.1000x.biasStan", 
+"mean.neg2.2.b0.hivar.1000x.biasStan", "mean.neg2.2.b1.hivar.1000x.biasStan"
+))

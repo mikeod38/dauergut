@@ -24,13 +24,17 @@ plot_CIs<-function (df, title, plot.contrasts, plot.contrasts.2, ypos, type, off
   #set common values for all plots:
   box.width <- 0.3
   point.size <- 1
-  line.width <- 0.2
-  text.size <- 3
+  line.width <- 0.15
+  text.size <- 4
   p <- ggplot(df, aes(x=genotype)) + #x-layer
     theme_my +
-    geom_point(data=mixed, aes(x=x.pos, y=mean), colour="blue", size=point.size) + #model mean
     geom_errorbar(data=mixed, aes(x=x.pos,y=mean, ymin=lower.CL, ymax=upper.CL),
-                  width=.1,colour ="blue", lwd=line.width) + #95% confint
+                  width=0,colour ="grey", lwd=line.width) + #90% cred int for 95% one-sided H0
+    geom_errorbar(data=mixed, aes(x=x.pos,y=mean, ymin = lower.25, ymax = upper.75),
+                  width=0,colour = "darkgrey", lwd = line.width+0.7) + #75% cred interval
+    geom_segment(data = mixed, aes(x = x.pos-0.005*nrow(mixed),
+                                   y = mean, xend = x.pos+0.005*nrow(mixed), 
+                                   yend = mean), colour = "darkgrey") + 
     scale_x_discrete(labels=function(x) sub(" ","\n",x,fixed=TRUE)) +
     stat_summary(aes(x=genotype, y=ypos), geom="text", label=plot.contrasts, show.legend = TRUE, size=text.size) + # pvalues
     theme(axis.text.x = element_text(size = 16),
@@ -39,37 +43,79 @@ plot_CIs<-function (df, title, plot.contrasts, plot.contrasts.2, ypos, type, off
           axis.title = element_text(size=16))
   if(type == "dauer") {
     p1 <- p + 
-      geom_boxplot(aes(y=pct), width=box.width, outlier.shape=NA, lwd=line.width, fill="grey") +
-      geom_point(aes(y=pct),size=point.size-(0.7*point.size),alpha=0.75) + 
+      geom_dotplot(aes(y=pct),binwidth=.015, binaxis="y", position="dodge", stackdir="center", size =.3) +
+      stat_summary(aes(y=pct),fun.y = median, fun.ymin = median, fun.ymax = median,
+                  geom = "crossbar", width = 0.25, lwd = line.width) +
       labs(title = title,
+           subtitle="dauer plot",
            y = "proportion dauer",
            x = "genotype"
       ) +
       scale_y_continuous(breaks=c(0,0.25,0.5,0.75, 1.0))
   } else {#roaming plots
     if(type == "grid") {
-      p1 <- p + geom_boxplot(aes(y=n_entries), width=box.width, outlier.shape=NA, lwd=line.width, fill = "#33CCFF") +
-        geom_point(aes(y=n_entries), size=point.size-(0.7*point.size),alpha=0.75) + 
+      p1 <- p + 
+        #geom_boxplot(aes(y=n_entries), width=box.width, outlier.shape=NA, lwd=line.width, fill = "#33CCFF") +
+        geom_dotplot(aes(y=n_entries), binaxis = "y",
+                     binwidth = 7.5,
+                     stackdir = "center",
+                     colour = "#482677FF",
+                     fill = "#482677FF") +
+        # geom_quasirandom(aes(y=n_entries),colour = "grey", cex=1,
+        #                  width = 0,size=0.3*point.size,
+        #                  method = 'smiley') +
+        #geom_point(aes(y=n_entries), size=0.3*point.size)) + 
+        stat_summary(aes(y=n_entries),fun.y = median, 
+                     fun.ymin = function(z) {quantile(z,0.25)}, 
+                     fun.ymax = function(z) {quantile(z,0.75)},
+                     geom = "errorbar", width = 0.15, lwd = line.width) +
+        stat_summary(aes(y=n_entries),fun.y = median, 
+                     fun.ymin = median, 
+                     fun.ymax = median,
+                     geom = "crossbar", width = 0.25, lwd = line.width+0.2) +
+        #stat_boxplot(aes(y=n_entries), geom ='errorbar') +
         labs(title = title,subtitle="roaming plot",y = "grid entries",x = "genotype")
     } else {#GFP expression plots
       if(type == "GFP") {
-        p1 <- p + geom_boxplot(aes(y=cell.norm),width=box.width, outlier.shape=NA, lwd=line.width, alpha = 0.75, fill="#339900") +
-        #p1 <- p + geom_violin(aes(y=cell.norm), outlier.shape=NA, lwd=line.width, alpha = 0.75, fill="#339900") +
-          geom_quasirandom(aes(y=cell.norm),width = 0.05, method = 'smiley', size=point.size-(0.7*point.size),alpha=0.75) + 
+        p1 <- p +
+          geom_quasirandom(aes(y=cell.norm),colour = "#339900", cex=1,
+                           width = 0.075,size=0.3*point.size,
+                           method = 'smiley') +
+          stat_summary(aes(y=cell.norm),fun.y = median, 
+                       fun.ymin = function(z) {quantile(z,0.25)}, 
+                       fun.ymax = function(z) {quantile(z,0.75)},
+                       geom = "errorbar", width = 0.15, lwd = line.width) +
+          stat_summary(aes(y=cell.norm),fun.y = median, 
+                       fun.ymin = median, 
+                       fun.ymax = median,
+                       geom = "crossbar", width = 0.25, lwd = line.width+0.3) +
           labs(title = title,subtitle="GFP plot",y = "normalized expression",x = "genotype")
       } else {#mRNA plots
-        p1 <- p + geom_boxplot(aes(y=cell.norm),width=box.width, outlier.shape=NA, lwd=line.width, alpha = 0.75, fill="#990000") +
-          geom_quasirandom(aes(y=cell.norm),width = 0.05, method = 'smiley',size=point.size-(0.7*point.size),alpha=0.75) + 
-          labs(title = title,subtitle ="mRNA FISH plot", y = "normalized expression",x = "genotype")
+        p1 <- p +
+          geom_quasirandom(aes(y=cell.norm),colour = "#990000", cex=1,
+                           width = 0.075,size=0.3*point.size,
+                           method = 'smiley') +
+          stat_summary(aes(y=cell.norm),fun.y = median, 
+                       fun.ymin = function(z) {quantile(z,0.25)}, 
+                       fun.ymax = function(z) {quantile(z,0.75)},
+                       geom = "errorbar", width = 0.15, lwd = line.width) +
+          stat_summary(aes(y=cell.norm),fun.y = median, 
+                       fun.ymin = median, 
+                       fun.ymax = median,
+                       geom = "crossbar", width = 0.25, lwd = line.width+0.2) +
+          labs(title = title,subtitle="mRNA plot",y = "normalized expression",x = "genotype")
+          # geom_boxplot(aes(y=cell.norm),width=box.width, outlier.shape=NA, lwd=line.width, alpha = 0.75, fill="#990000") +
+          # geom_quasirandom(aes(y=cell.norm),width = 0.05, method = 'smiley',size=point.size-(0.7*point.size),alpha=0.75) + 
+          # labs(title = title,subtitle ="mRNA FISH plot", y = "normalized expression",x = "genotype")
       }
     }
   }
   if(missing(plot.contrasts.2)) {
-    p1 + stat_summary(aes(x=as.numeric(as.factor(genotype)) + 0.3, y=0),
-                      fun.data = fun_length, geom = "text", size = 3)
+    p1 + stat_summary(aes(x=as.numeric(as.factor(genotype)) + 0.3, y=-.05),
+                      fun.data = fun_length, geom = "text", size = text.size)
   } else { # add secondary comparisons
     p1 + stat_summary(aes(x=genotype, y=ypos-offset), geom="text", label=plot.contrasts.2, size=text.size, colour="red") +
-      stat_summary(aes(x=as.numeric(as.factor(genotype)) + 0.3, y=0),
-                   fun.data = fun_length, geom = "text", size = 3)
+      stat_summary(aes(x=as.numeric(as.factor(genotype)) + 0.3, y=-.05),
+                   fun.data = fun_length, geom = "text", size = text.size-1)
   }
 }
