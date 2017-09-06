@@ -224,7 +224,7 @@ settings <- list(I = -2.2 #population control intercept (in logit). 0 = p(0.5)
 )
 
 #check data distributions with sample simulations
-(p <- sim_dauer_unbal_biased(c(settings, do.plot = TRUE)))
+(p <- sim_dauer_unbal_biased(c(settings, do.plot = TRUE, do.stan = FALSE)))
 (simulation <- sim_dauer_unbal_biased(c(settings, do.plot = FALSE, do.stan = TRUE)))
 
 ############ for parallel sampling below below ###########
@@ -266,6 +266,7 @@ mutate(dataset = rep(1:(nrow(.)/length(levels(simulation$model))),each = length(
                        Fp=as.numeric(as.character(Fp)),
                        `Chisq.p` = as.numeric(as.character(`Chisq.p`))
 ) %>% `attr<-`('settings', unlist(settings[1:9])))
+
 
 
 

@@ -1,0 +1,420 @@
+---
+title: "supplemental data"
+author: "Mike O'Donnell"
+date: "9/6/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+<!-- ##__Supplemental Fig 5 Candidate screen for genes influencing 27º dauer formation__{.tabset} -->
+
+<!-- ###S1A -->
+
+<!-- ```{r cand screen data load} -->
+<!-- folder<-'fig4_cand_screen' -->
+<!-- file<-'fig5_CandScreen_allbinary.csv' -->
+<!-- filepath<-file.path(pathname, folder, file) -->
+<!-- strains<-c("N2","flp-8","ins-15","egl-3","pdfr-1","egl-21(n476)","flp-13", -->
+<!-- "flp-5","flp-1","nlp-24","flp-19","aex-6","npr-1","ins-27","ins-7", -->
+<!-- "tdc-1","flp-18","tyra-3","ins-6","flp-14","scd-2(ok565)","tph-1", -->
+<!-- "aex-5","ins-35","bli-4","daf-28") -->
+<!-- screen<-read.csv(filepath, header=TRUE) %>% mutate(pct=as.numeric(paste(dauer/(dauer+ar+pd+non))), -->
+<!--                                                    n = as.numeric(paste(dauer+ar+pd+non)), -->
+<!--                                                    strainDate = interaction(genotype, day), -->
+<!--                                                    plateID = interaction(strainDate, plate)) -->
+
+<!-- screen<-subset(screen, genotype %in% strains) -->
+<!-- screen$genotype<-factor(screen$genotype, levels = strains) -->
+
+<!-- #reorder based on every mean value except N2 -->
+<!-- screen.noN2<-subset(screen, genotype != "N2") -->
+<!-- screen.noN2$genotype<-factor(screen.noN2$genotype) -->
+<!-- newlevels<-with(screen.noN2, reorder(genotype, pct, median)) -->
+<!-- strains<-c("N2", levels(newlevels)) -->
+<!-- screen$genotype<-factor(screen$genotype, -->
+<!--                             levels=strains) -->
+<!-- screen$sample<-interaction(screen$genotype, screen$day, screen$plate) -->
+<!-- screen$plate<-as.factor(screen$plate) -->
+<!-- screen$n<-as.numeric(paste(screen$dauer+screen$ar+screen$pd+screen$non)) -->
+<!-- screen$non.dauer<-as.numeric(paste(screen$ar+screen$pd+screen$non)) -->
+<!-- ``` -->
+
+<!-- ```{r cand screen glmm, cache=TRUE} -->
+<!-- glm<-glm(screen, formula = cbind(dauer,non.dauer) ~ genotype, family = binomial) -->
+<!-- glm.qb<-glm(screen, formula =pct ~ genotype, family = quasibinomial, weights = n) -->
+<!-- #remove extreme deviance residuals (ie outliers) -->
+<!-- absresid<-abs(glm.qb$residuals) -->
+<!-- q <- quantile(absresid, probs = 0.95) -->
+<!-- newdata <- screen[which(absresid<q),] -->
+<!-- glmm<-glmer(newdata, formula = cbind(dauer,non.dauer) ~ genotype + (1|strainDate/sample),family = binomial, control=glmerControl(optimizer="bobyqa")) -->
+<!-- relgrad<-with(glmm@optinfo$derivs,solve(Hessian,gradient)) #convergence failure -->
+<!-- max(abs(relgrad)) #less than or nearly 0.001, so not bad. Will use this mod.  -->
+
+
+<!-- # absresid<-abs(glm$residuals) -->
+<!-- # q <- quantile(absresid, probs = 0.95) -->
+<!-- # newdata <- screen[which(absresid<q),] -->
+<!-- #refit  -->
+<!-- # glm.qb<-glm(newdata, formula = pct ~ genotype, family=quasibinomial) -->
+<!-- # glm<-glm(newdata, formula = cbind(dauer,non.dauer) ~ day + genotype,family = binomial) -->
+
+<!-- ``` -->
+
+<!-- ```{r cand screen plot, fig.width=10} -->
+<!-- library(dplyr) -->
+<!-- contrasts<-dauergut::dunnett_contrasts(glmm, ref = 1, "genotype") -->
+<!-- # contrasts$sig<- -->
+<!-- #   if_else( -->
+<!-- #   (contrasts["p.value"] < 0.01) & (contrasts["odds.ratio"] < 1), -->
+<!-- #     "#FDE725FF", -->
+<!-- #     if_else( -->
+<!-- #       (contrasts["p.value"] < 0.01) & (contrasts["odds.ratio"] >1), -->
+<!-- #         "#440154FF", -->
+<!-- #           "white")) -->
+
+<!-- dauergut::plot_dauer_noCIs(screen, title='A candidate screen for 27º dauer phenotypes', fillsig = TRUE, contrasts = contrasts, level = 0.01) -->
+<!-- #plot_dauer_noCIs(screen, title='A candidate screen for 27º dauer phenotypes') -->
+<!-- #knitr::opts_chunk$set(cache = FALSE) -->
+<!-- ``` -->
+
+<!-- ###S1B  -->
+<!-- Neuropeptide signaling mutants (egl21 and pdfr-1?) suppress rict-1 -->
+
+
+<!-- ##__Supplemental 2 rict-1 mutants have increased pheromone responsiveness in ASI__{.tabset} -->
+
+<!-- Possibility is that food detection in ASI may be reduced in rict-1 leading to lower daf-7. Could also explain the increased pheromone sensitivity if C3 antagonizes direct food sensation in ASI.  -->
+
+<!-- ###S2A  -->
+
+<!-- ```{r tax-4 data, fig.width=4} -->
+<!-- strains<-c("N2", "tax4") -->
+<!-- p <- subset(d7GFP, genotype %in% strains & pheromone == 0 & temp == "27") %>% ggplot(aes(x=genotype, y=mean)) +  -->
+<!--   geom_boxplot(outlier.shape = NA, width=0.3) + -->
+<!--   geom_quasirandom(aes(alpha=0.5),cex=1, width = 0.2, method = 'smiley') + facet_grid(.~neuron) + theme_classic() + scale_color_viridis(discrete = TRUE) + -->
+<!--   labs( -->
+<!--     title = "Sensory signaling is required for daf-7 expression in ASI", -->
+<!--     x = "temperature", -->
+<!--     y = "mean fluorescence", -->
+<!--     colour = "Temperature" -->
+<!--   ) -->
+<!-- p -->
+<!-- ``` -->
+
+<!-- ###S2B -->
+
+<!-- ```{r C3 daf-7 response in rict-1} -->
+<!-- strains<-c("N2", "mg360", "ft7") -->
+<!-- d7GFP<-read.csv(file.path(pathname, "data/2B_3A_daf7GFP.csv")) %>% filter(mean!=4095 & genotype %in% strains & date == "8_10_16" & temp == "25") %>%  -->
+<!--   mutate(genotype = factor(genotype, levels=strains), ID = as.character(ID)) %>% -->
+<!--   separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>%  -->
+<!--   mutate(genoID = paste(date, genotype, ID.A, sep = ":"), cell.norm = mean, type = factor("daf-7")) -->
+<!-- library(splines) -->
+
+<!-- p <- d7GFP %>% ggplot(aes(x=pheromone, y=mean)) + stat_smooth(data=subset(d7GFP, pheromone < 1000), method="lm") + -->
+<!--   stat_smooth(data=subset(d7GFP, pheromone > 1000), method="lm", colour = "red") + -->
+<!--   geom_boxplot(aes(group=pheromone, fill=pheromone), width=200, outlier.shape = NA) + geom_quasirandom(aes(alpha=0.5),cex=1, width = 30, method = 'smiley') + facet_grid(.~genotype) + theme_classic() + -->
+<!--   scale_fill_viridis(option="inferno", end=0.9, begin=0.1) +  -->
+<!--   labs( -->
+<!--     title = "Pheromone reduces daf-7 expression  -->
+<!--   to a similar extent as rict-1 mutation", -->
+<!--     x = "concentration of C3 (ascr#5) nM", -->
+<!--     y = "mean fluorescence" -->
+<!--   ) -->
+
+
+
+
+<!-- p -->
+<!-- ``` -->
+
+<!-- ```{r C3 daf-28 response} -->
+<!-- d28<-read.csv('/Users/mikeod/Dropbox/Temp_shareDocs/Dauer/rict-1_paper/Revised_project/daf-28_GFP_rict-1.csv') %>% -->
+<!--   filter(food == "OP50" & mean != 4095 & genotype %in% strains & date == "8_2_16") %>% mutate(genotype = factor(genotype, levels = c("N2", "mg360")), type = factor("daf-28")) -->
+
+
+<!-- pher.d7 <- d7GFP %>% dplyr::select(genotype,pheromone, neuron, mean, type) -->
+<!-- pher.d28 <- d28 %>% dplyr::select(genotype,pheromone, neuron, mean, type) -->
+
+<!-- pheromone <- bind_rows(pher.d7, pher.d28) %>% mutate(type = factor(type, levels = c("daf-7", "daf-28")), neuron = factor(neuron, levels = c("ASI", "ASJ"))) -->
+
+<!-- pheromone %>% filter(genotype == "N2" & pheromone < 2000) %>% ggplot(aes(x=pheromone, y=mean)) + geom_smooth(method="glm",family=gaussian(link="log")) + -->
+<!--   geom_boxplot(aes(group=pheromone, fill=pheromone), width=200, outlier.shape = NA) + geom_quasirandom(aes(alpha=0.5),cex=1, width = 30, method = 'smiley') + facet_grid(~type:neuron) + theme_my + -->
+<!--   scale_fill_viridis(option="inferno", end=0.9, begin=0.1) +  -->
+<!--   labs( -->
+<!--     title = "Pheromone reduces daf-7 expression  -->
+<!--   to a similar extent as rict-1 mutation", -->
+<!--     x = "concentration of C3 (ascr#5) nM", -->
+<!--     y = "mean fluorescence" -->
+<!--   ) -->
+
+
+<!-- ``` -->
+
+<!-- ##__storage__{.tabset} -->
+
+<!-- ###S3A - maybe don't include -->
+<!-- ```{r daf-7GFP rict-1 25v27} -->
+<!-- strains<-c("ft7") -->
+<!-- days<-c("11_23_16", "12_6_16") -->
+<!-- temps <- c("20", "25", "27") -->
+<!-- d7GFP<-read.csv(file.path(pathname, "data/3A_daf7GFP_nopeptone_plates.csv")) %>%  -->
+<!--   filter(mean!=4095 & -->
+<!--            genotype %in% strains & -->
+<!--            #date %in% days &  -->
+<!--            pheromone == 0 & -->
+<!--            food == "OP50" & -->
+<!--            temp %in% temps) %>%  -->
+<!--   mutate(genotype = factor(genotype, levels=strains), ID = as.character(ID)) %>% -->
+<!--   separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>%  -->
+<!--   mutate(genoID = as.factor(paste(date, genotype, ID.A, sep = ":")), cell.norm = mean) -->
+
+<!-- df <- d7GFP %>% group_by(genotype, date, plate, neuron, temp, genoID) %>% summarise(cell.norm = mean(cell.norm)) -->
+
+<!-- p<-df %>% ggplot(aes(x=temp, y=cell.norm)) + stat_smooth(method="lm") + -->
+<!--   geom_boxplot(aes(group=temp),width =0.6, outlier.shape = NA, fill="#339900") +  -->
+<!--   geom_quasirandom(size=1,width = 0.05,alpha=0.5, method = 'smiley') + theme_my_classic + labs( -->
+<!--   title = "daf-7 expression does not decrease at high temperatures", -->
+<!--   x = "temperature (ºC)", -->
+<!--   y = "mean intensity" -->
+<!-- ) + -->
+<!--   theme(axis.title.x = element_blank(), -->
+<!--         axis.text.x = element_text(size = 20), -->
+<!--         axis.text.y = element_text(size = 15), -->
+<!--         strip.text.x = element_text(size=20)) -->
+<!-- p -->
+
+<!-- lm<- lm(cell.norm ~ temp, data = d7GFP) -->
+<!-- ``` -->
+
+
+
+<!-- ##__Fig 1 mTOR complex components affect 27º dauer formation__{.tabset} -->
+
+<!-- ###1A -->
+
+<!-- ```{r hid dataload, warning=FALSE} -->
+<!-- strains<-c("N2", "hid2", "hid3", "hid4", "hid5", "hid6", "hid7") -->
+<!-- foods <- "OP50" -->
+<!-- hids<-read.csv(file.path(pathname, "data", "1A_hids.csv"), header=TRUE) %>% format_dauer(p.dauer = "exclude") %>% -->
+<!--   dplyr::filter(food == "OP50") -->
+<!-- ## generalized linear mixed model - see below  -->
+<!-- stan.glmm <- hids %>% run_dauer_stan -->
+
+<!-- #glmm.nest <- hids %>% dauer_glmm() -->
+<!-- lm <- hids %>% dauer_ANOVA() -->
+<!-- ``` -->
+
+
+<!-- ```{r hid plot,fig.width=5} -->
+<!-- contrasts<-dauergut::dunnett_contrasts(lm, ref.index = 1, "genotype") -->
+<!-- mixed <- stan.glmm %>% dauer_getStan_CIs() -->
+
+<!-- plot.contrasts<-c("",contrasts$prange[1:6]) -->
+
+<!-- dauergut::plot_CIs(hids, title='', plot.contrasts, ypos = 1.075, type = "dauer") -->
+<!-- ``` -->
+
+<!-- 1A. Animals were grown 60hrs post egg lay at 27º, proportion of dauers in each strain is shown. Increased dauer formation occurs in _hid_ mutants. Box and scatter plot show raw data. Bayesian 90% (grey) and 50% (red) credible intervals are shown on the right (see methods). All p-values reflect ANOVA with Dunnett post-hoc comparision to N2. n=6 experiments over 3 independent days. -->
+
+<!-- ```{r hid contrasts} -->
+<!-- knitr::kable(contrasts) -->
+<!-- ``` -->
+
+<!-- ```{r hid model evaluation} -->
+<!-- # model evaluation (see below - currently commented) suggests glmm.nest fixes overdispersion and residual quantiles over predicted values -->
+<!-- # library(DHARMa) -->
+<!-- # mods <- list(lm = lm(data = hids, pct ~ genotype), -->
+<!-- #              glm = glm(data = hids, cbind(dauer,non) ~ genotype, family = binomial), -->
+<!-- #              glmm = glmer(data = hids, cbind(dauer,non) ~ genotype +  (1|plateID), family=binomial, -->
+<!-- #                           control=glmerControl(optimizer="bobyqa")), -->
+<!-- #              glmm.strainDate = glmer(data = hids, cbind(dauer,non) ~ genotype +  (1|strainDate), family=binomial, -->
+<!-- #                           control=glmerControl(optimizer="bobyqa")), -->
+<!-- #              glmm.date = glmer(data = hids, cbind(dauer,non) ~ genotype + day + (1|plateID), family=binomial, -->
+<!-- #                           control=glmerControl(optimizer="bobyqa")), -->
+<!-- #              glmm.nest = glmer(data = hids, cbind(dauer,non) ~ genotype + (1|day/strainDate/plateID), family="binomial", control=glmerControl(optimizer="bobyqa"))) -->
+
+<!-- # takes a while to run -->
+<!--  # sim.resids<-lapply(mods[1:length(mods)], function(x) { -->
+<!--  #   simulationOutput <- simulateResiduals(fittedModel = x, n=250) -->
+<!--  #   #par(mfrow = c(2,2)) -->
+<!--  #   #plotResiduals(roam$genotype, simulationOutput$scaledResiduals) -->
+<!--  #   #plotResiduals(roam$date, simulationOutput$scaledResiduals) -->
+<!--  #   #plotResiduals(roam$strain, simulationOutput$scaledResiduals) -->
+<!--  #   return(simulationOutput) -->
+<!--  #   }) -->
+<!--  #  -->
+<!--  # for (i in sim.resids) { -->
+<!--  #   print(summary(i$fittedModel)) -->
+<!--  #   plotSimulatedResiduals(simulationOutput = i) -->
+<!--  # } -->
+
+<!-- # # check distribution of residuals by predictors (takes a while): -->
+<!-- # (mods.dispersion <- -->
+<!-- #   lapply(mods, function(x) { -->
+<!-- #   simulationOutput <- simulateResiduals(fittedModel = x, n=250, refit = T) -->
+<!-- #   testOverdispersion(simulationOutput = simulationOutput) -->
+<!-- # })) -->
+<!-- ``` -->
+<!-- ###1B -->
+
+<!-- GENE MODELS -->
+<!-- ![](./figures/let-363_gene_model.png) -->
+
+<!-- ![](./figures/daf-15_gene_model.png) -->
+
+
+
+<!-- ###1C  -->
+
+<!-- ```{r hid clone dataload} -->
+<!-- strains<-c("N2", "hid-6(sa711)", "let-363(R2556K)", "hid-7(sa752)", "daf-15(G1552A)") -->
+<!-- foods <- ("OP50") -->
+
+<!-- hids.2<-read.csv(file.path(pathname, "data", "1C_hid_crispr.csv"), header=TRUE) %>% format_dauer(p.dauer = "exclude") -->
+<!-- ##glmm -->
+<!-- #glmm<- hids.2 %>% dauer_glmm(.) -->
+<!-- #lm -->
+<!-- lm<-lm(data=hids.2, formula = pct ~ genotype) -->
+<!-- #stan -->
+<!-- stan.glmm <- hids.2 %>% run_dauer_stan -->
+
+<!-- ``` -->
+
+<!-- ```{r plot hid clone} -->
+<!-- contrasts<-dauergut::dunnett_contrasts(lm, ref.index = 1, "genotype") -->
+<!-- mixed <- stan.glmm %>% dauer_getStan_CIs() -->
+<!-- plot.contrasts<-c("",contrasts$prange[1:4]) -->
+
+<!-- dauergut::plot_CIs(hids.2, title='hid-6 and hid-7 are encoded by mTORC1 components', plot.contrasts, ypos = 1.075, type = "dauer") -->
+<!-- ``` -->
+
+<!-- 1C. _hid_ mutants alter mTORC1 components. Animals were grown 60hrs post egg lay at 27º, proportion of dauers in each strain is shown. Increased dauer formation occurs in _let-363_ and _daf-15_ mutants introduced by gene targeting. Box and scatter plot show raw data. Bayesian 90% (grey) and 50% (red) credible intervals are shown on the right (see methods). All p-values reflect ANOVA with Dunnett post-hoc comparision to N2. n≥6 experiments over 3 independent days. -->
+
+<!-- `r knitr::kable(contrasts)` -->
+
+<!-- ###1D -->
+
+<!-- ![](./figures/mTOR_model.png) -->
+
+
+<!-- ###1G -->
+
+<!-- ```{r rict-1 food data load} -->
+<!-- strains<-c("N2", "rict-1(mg360)", "rict-1(ft7)") -->
+<!-- #dates<-c("12_5_14", "12_19_14", "1_19_15","3_22_14", "2_25_14", "4_11_14") -->
+<!-- dates<-c("12_5_14", "12_19_14","3_22_14", "2_25_14", "4_11_14") -->
+<!-- foods <- c("OP50", "HB101") -->
+<!-- rict1.food<-read.csv(file.path(pathname, "data", "1E_1G_rict-1_TORC2.csv"), header=TRUE) %>% format_dauer(p.dauer = "exclude") %>% -->
+<!--   dplyr::filter(day %in% dates) %>% mutate(logit.p = car::logit(pct, adjust=0.01),  -->
+<!--                                            plate.ID = interaction(food, plateID)) -->
+
+<!-- rict1.food %>% ggplot(aes(x=food, y=pct)) + geom_boxplot() + stat_summary(aes(y=pct, group=day, colour = day), fun.y = mean, geom = "line") + facet_grid(.~genotype) -->
+
+<!-- #lm -->
+<!-- lm.add <- lm(pct ~ genotype + food, data = rict1.food) -->
+<!-- lm.int <- update(lm.add,.~. + genotype*food) -->
+<!-- #stan -->
+<!-- rict.food.groups <- rict1.food %>% mutate(group.id = interaction(genotype, food)) -->
+<!-- stan.glmm <- rict.food.groups %>% run_dauer_stan(type="dauer-grouped") -->
+
+<!-- ``` -->
+
+
+<!-- ```{r rict-1 food stats} -->
+<!-- contrasts<-dauergut::dunnett_contrasts(lm.int, ref.index = 1, factor = "genotype", interaction = "food") -->
+<!-- mixed<-stan.glmm %>% dauer_StanCIs_groups() -->
+
+<!-- plot.contrasts <- c("",contrasts$interaction$prange[1], "", contrasts$interaction$prange[2], "", contrasts$interaction$prange[3]) -->
+<!-- plot.contrasts.interaction <- summary(lm.int)$coefficients[,4][5:6] %>% data.frame() %>% mutate(p.value = c(.[[1]],.[[2]]), genotype = strains[2:3]) %>% dauergut::prange() -->
+
+<!-- index<-rep(seq_len(length(strains)), each = 2) -->
+
+<!-- plot.contrasts.H0 <- data.frame(cbind(food = foods, genotype = strains[index])) %>% -->
+<!--   mutate(prange = plot.contrasts) -->
+
+<!-- ggplot(rict1.food, aes(x=food)) + -->
+<!--   stat_summary(aes(y=pct, group=day), colour = "black", fun.y = mean, geom = "line", alpha = 0.2, linetype = 2) + -->
+<!--   geom_boxplot(width=0.3,aes(y=pct, fill=food), outlier.shape = NA, lwd=0.2, notch = FALSE) + -->
+<!--   geom_point(aes(y=pct), size = 0.7, alpha = 0.75) + -->
+<!--   labs(title = "rict-1 mutants are deficient in food suppression", -->
+<!--            y = "proportion dauer", -->
+<!--            x = "food") + -->
+<!--   facet_grid(.~genotype, switch="both") + -->
+<!--   scale_fill_manual(values = c("grey", "#FF9933")) + -->
+<!--       scale_y_continuous(breaks=c(0,0.25,0.5,0.75, 1.0)) + -->
+<!--       scale_x_discrete(labels=function(x) sub(" ","\n",x,fixed=TRUE)) + -->
+<!--   geom_errorbar(data=mixed, aes(x=x.pos,y=mean, ymin=lower.CL, ymax=upper.CL), -->
+<!--                   width=0,colour = "black", lwd=0.2) + #90% cred int for 95% one-sided H0 -->
+<!--   geom_errorbar(data=mixed, aes(x=x.pos,y=mean, ymin = lower.25, ymax = upper.75), -->
+<!--                   width=0,colour = "darkred", lwd = 0.2+0.7) + #50% cred interval -->
+<!--   geom_point(data=mixed, aes(x=x.pos, y=mean), colour="black", size=1) + #model mean -->
+<!--   geom_text(data = plot.contrasts.H0, aes(x=2, label = prange, y = 1.075, group = NULL), size = 3) + -->
+<!--   theme_my_classic +  -->
+<!--   theme(axis.title.x = element_blank(), -->
+<!--         axis.line.x = element_blank(), -->
+<!--         axis.ticks.x = element_blank(), -->
+<!--         axis.text.x = element_blank(), -->
+<!--         strip.text.x = element_text(size=10)) -->
+
+<!-- knitr::kable(car::Anova(lm.int), caption="significant interaction of genotype on food") -->
+
+<!-- # lsmip(lm.int, genotype ~ food, main="interaction plot") -->
+<!-- #  -->
+<!-- # plot(rict1.lsm, comparisons = TRUE, alpha = .05, main="confidence intervals") # showing confidence intervals and gap by which they cover zero -->
+<!-- #  -->
+<!-- # knitr::kable(summary(pairs(rict1.lsm)), caption="contrast matrix for food effect in rict-1 mutants") -->
+<!-- ``` -->
+
+
+
+<!-- ### food dauer data -->
+
+<!-- ```{r food data} -->
+<!-- strains <- "N2" -->
+<!-- foods <- c("OP50","HB101") -->
+<!-- food.df<-read.csv(file.path(pathname, "fig1-hids/data", "rict-1_food_allbinary.csv"), header=TRUE) %>% -->
+<!--   subset(genotype == strains) %>% mutate(genotype = factor(genotype, levels = strains), -->
+<!--                                          food = factor(food, levels = c("OP50", "HB101")), -->
+<!--                                          pct = as.numeric(paste(dauer/(dauer+non)))) #omitted arrest -->
+
+<!-- ##glmm -->
+<!-- glmm<-glmer(food.df, formula = cbind(dauer,non) ~ food + (1|day) + (1|food:day) + (1|food:day:plate), family=binomial, control=glmerControl(optimizer="bobyqa")) -->
+<!-- glmm.null<-glmer(food.df, formula = cbind(dauer,non) ~ 1 + (1|day) + (1|food:day) + (1|food:day:plate), family=binomial, control=glmerControl(optimizer="bobyqa")) -->
+<!-- food.chisq<-anova(glmm.null, glmm) -->
+<!-- ``` -->
+
+
+<!-- ```{r food plot,fig.width=5} -->
+<!-- # get contrasts and CIs (in function for all genotype comps) -->
+<!-- library(lsmeans) -->
+<!-- food.lsm.sum <- glmm %>% ref.grid(type="response") %>% lsmeans("food") %>% summary(level = 0.95, infer = TRUE, adjust = "Dunnett", type = "response") -->
+
+<!-- colnames(food.lsm.sum)<-c("genotype","mean", "SE", "df", "lower.CL", "upper.CL", "z.ratio", "p.value") -->
+
+<!-- mixed<-with(food.lsm.sum,data.frame(mean,lower.CL, upper.CL,SE)) %>% cbind(foods) -->
+<!-- mixed$foods<-factor(mixed$foods, levels = foods) -->
+<!-- mixed$x.pos<-(as.numeric(as.factor(mixed$foods)) + 0.3) -->
+
+<!-- contrasts <- glmm %>% ref.grid(type="response") %>% lsmeans("food") %>% contrast("trt.vs.ctrl", ref = 1) %>% summary() %>% prange() -->
+<!-- plot.contrasts<-c("",contrasts$prange[1]) -->
+
+<!-- ggplot(food.df, aes(x=food, y=pct)) + -->
+<!--   theme_my + -->
+<!--   geom_boxplot(width=0.3,aes(fill=food)) +  -->
+<!--   geom_point(data=mixed, aes(x=x.pos, y=mean), colour="blue") + -->
+<!--   geom_errorbar(data=mixed, aes(x=x.pos,y=mean, ymin=lower.CL, ymax=upper.CL), -->
+<!--               width=.1,colour ="blue") + -->
+<!--   stat_summary(aes(x=food, y=0.7), geom="text", label=plot.contrasts, size=3) + -->
+<!--   labs(title = "Food quality influences 27º dauer formation", -->
+<!--            y = "proportion dauer", -->
+<!--            x = "food") + -->
+<!--   scale_fill_viridis(discrete = TRUE)  -->
+
+<!-- ``` -->
+
+<!-- ```{r food contrasts} -->
+<!-- knitr::kable(food.chisq) -->
+<!-- ``` -->

@@ -51,7 +51,7 @@ plot_CIs<-function (df, title, plot.contrasts, plot.contrasts.2, ypos, type, off
            y = "proportion dauer",
            x = "genotype"
       ) +
-      scale_y_continuous(breaks=c(0,0.25,0.5,0.75, 1.0))
+      scale_y_continuous(breaks=c(0,0.25,0.5,0.75,1.0))
   } else {#roaming plots
     if(type == "grid") {
       p1 <- p + 

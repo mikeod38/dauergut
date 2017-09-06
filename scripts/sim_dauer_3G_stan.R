@@ -170,12 +170,12 @@ sim_dauer_3G_stan<-function(settings) {
 settings <- list(I = 0 #population control intercept (in logit). 0 = p(0.5)
                  ,nP = 6 # number of plates
                  ,nD = 3 # number of days
-                 ,sP = 0.3 # plate to plate variance (0.3)
-                 ,sD = 0 # day to day variance (0.2)
-                 ,sG = 0.2 # genotype variance due to culture history (logit) (0.2)
+                 ,sP = 0.1 # plate to plate variance (0.3)
+                 ,sD = 0.5 # day to day variance (0.2)
+                 ,sG = 0.5 # genotype variance due to culture history (logit) (0.2)
                  ,k = 60 # number animal per plate)
                  ,A = 0 # population A intercept (expt - genotype2)
-                 ,B = 1 #pop B intercept (expt - genotype2)
+                 ,B = 0 #pop B intercept (expt - genotype2)
 )
 
 #check data distributions with sample simulations
@@ -203,7 +203,11 @@ par.replicate <- function(cl, n, expr, simplify = FALSE) {
 }
 
 ##### sampling - n simulations ~ 1hr using 6 cores ######
-system.time(simulation <- do.call( rbind, par.replicate(cl,n=1000, sim_dauer_3G_stan(c(settings, do.plot = FALSE, do.stan = TRUE)), simplify=FALSE )))
+system.time(simulation <- do.call( rbind, par.replicate(cl,n=1000, 
+                                                        sim_dauer_3G_stan(c(settings, 
+                                                                            do.plot = FALSE, 
+                                                                            do.stan = TRUE)), 
+                                                        simplify=FALSE )))
 # output is a list of p.values (and/or binary cutoff with alpha < 0.05)
 # append attributes format to numeric
 simulation %<>% mutate(dataset = rep(1:(nrow(.)/length(levels(simulation$model))),each = length(levels(simulation$model))),
@@ -212,6 +216,7 @@ simulation %<>% mutate(dataset = rep(1:(nrow(.)/length(levels(simulation$model))
              Fp=as.numeric(as.character(Fp)),
              `Chisq.p` = as.numeric(as.character(`Chisq.p`))
 ) %>% `attr<-`('settings', unlist(settings[1:9]))
+
 
 
 
