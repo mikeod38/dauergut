@@ -8,7 +8,7 @@ Description: A collection of functions and data used in rict-1 dauer
     manuscript. 
 License: NA
 Encoding: UTF-8
-LazyData: true
+LazyData: yes
 Imports:
     knitr,
     dplyr,
@@ -29,3 +29,4 @@ Imports:
     rstanarm,
     MASS
 RoxygenNote: 6.0.1
+Suggests: testthat

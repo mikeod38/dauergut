@@ -15,15 +15,15 @@ getStan_CIs <- function(x,type,group,base,compare_gt) {
   # get estimated parameters from the model:
   if(missing(group)) { # for non-grouped data
     data <- cbind(summary(x)[1:length(strains),1] + summary(x)[1,1],
-                  posterior_interval(x, pars = "(Intercept)", regex_pars = "genotype", prob = 0.95) + summary(x)[1,1],
-                  posterior_interval(x, pars = "(Intercept)", regex_pars = "genotype", prob = 0.75) + summary(x)[1,1])
+                  rstanarm::posterior_interval(x, pars = "(Intercept)", regex_pars = "genotype", prob = 0.95) + summary(x)[1,1],
+                  rstanarm::posterior_interval(x, pars = "(Intercept)", regex_pars = "genotype", prob = 0.75) + summary(x)[1,1])
     data[1,] <- data[1,] - summary(x)[1,1] #same for  all non-grouped data
   } else {
     group.id <- levels(x$data$group.id) # same for all grouped data
     my_group <- x$data[,group]
     data <- cbind(summary(x)[1:length(group.id),1] + summary(x)[1,1],
-                  posterior_interval(x, pars = "(Intercept)", regex_pars = "group.id", prob = 0.95) + summary(x)[1,1],
-                  posterior_interval(x, pars = "(Intercept)", regex_pars = "group.id", prob = 0.75) + summary(x)[1,1])
+                  rstanarm::posterior_interval(x, pars = "(Intercept)", regex_pars = "group.id", prob = 0.95) + summary(x)[1,1],
+                  rstanarm::posterior_interval(x, pars = "(Intercept)", regex_pars = "group.id", prob = 0.75) + summary(x)[1,1])
     data[1,] <- data[1,] - summary(x)[1,1]
   }
   

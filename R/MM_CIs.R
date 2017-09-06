@@ -15,7 +15,7 @@ MM_CIs<-function(y,predictor) {
   strains <- y$xlevels
   y.rg<-lsmeans::ref.grid(y)
   y.lsm<-lsmeans::lsmeans(y, predictor)
-  y.lsm.sum<-lsmeans::summary(y.lsm,level = .95, infer=TRUE, adjust = "Tukey")
+  y.lsm.sum<-summary(y.lsm,level = .95, infer=TRUE, adjust = "Tukey")
   # mixed<-with(y.lsm.sum,data.frame(lsmean,lower.CL, upper.CL))
   colnames(y.lsm.sum)<-c(predictor,"mean", "SE", "df", "lower.CL", "upper.CL", "z.ratio", "p.value")
   mixed<-y.lsm.sum %>% dplyr::select(1, mean, lower.CL, upper.CL,SE)

@@ -11,9 +11,9 @@ tukey_contrasts<-function(x, factor) {
   #get post-hoc pairwise Tukey comparisons
   x.rg<-lsmeans::ref.grid(x, type = "response")
   if(length(strains) < 10) {
-  contrasts<-x.rg %>% lsmeans::lsmeans(factor) %>% lsmeans::pairs(adjust = "mvt") %>% lsmeans::summary() %>% prange()
+  contrasts<-x.rg %>% lsmeans::lsmeans(factor) %>% pairs(adjust = "mvt") %>% summary() %>% prange()
   } else {
-    contrasts<-x.rg %>% lsmeans(factor) %>% pairs(adjust = "fdr") %>% summary() %>% prange()
+    contrasts<-x.rg %>% lsmeans::lsmeans(factor) %>% pairs(adjust = "fdr") %>% summary() %>% prange()
   }
   return(contrasts)
 }

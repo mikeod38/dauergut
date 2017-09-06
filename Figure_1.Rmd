@@ -17,10 +17,26 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(message = FALSE)
 knitr::opts_chunk$set(warning = FALSE)
-devtools::install_github('mikeod38/dauergut')
 pathname = getwd()
 library(magrittr)
-library(dauergut)
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(ggbeeswarm)
+library(beeswarm)
+library(ggthemes)
+library(viridis)
+library(lme4)
+library(schoRsch)
+library(DHARMa)
+library(multcomp)
+library(tidyr)
+library(rstanarm)
+library(ggrepel)
+library(rstan)
+library(rstanarm)
+library(MASS)
+
 
 dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
 ```
@@ -35,16 +51,16 @@ dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
 strains<-c("N2", "rict-1(mg360)", "rict-1(ft7)", "sgk-1(ok538)", "akt-1(mg306)", "akt-2", "pkc-2")
 foods <- "OP50"
 
-TORC2<-read.csv(file.path(pathname, "data/1B_rict-1_TORC2.csv"), header=TRUE) %>% format_dauer(p.dauer = "non") #including partial/pd as non-dauer due to excess zeros. 
+TORC2<-read.csv(file.path(pathname, "data/1B_rict-1_TORC2.csv"), header=TRUE) %>% dauergut::format_dauer(p.dauer = "non") #including partial/pd as non-dauer due to excess zeros. 
 
 lm <- TORC2 %>% dauer_ANOVA()
 #stan
-stan.glmm <- TORC2 %>% run_dauer_stan
+stan.glmm <- TORC2 %>% dauergut::run_dauer_stan()
 ```
 
 ```{r plot TORC2}
 contrasts<-dauergut::dunnett_contrasts(lm, ref.index = 1, "genotype")
-mixed<-getStan_CIs(stan.glmm, type = "dauer")
+mixed<-dauergut::getStan_CIs(stan.glmm, type = "dauer")
 plot.contrasts<-c("",contrasts$prange[1:6])
 
 (p<-dauergut::plot_CIs(TORC2, title='mTORC2 prevents high temperature dauer formation', plot.contrasts, ypos = 1.075, type = "dauer"))
@@ -69,20 +85,20 @@ strains<-c("N2","rict-1(mg360)",
            "akt-1(mg306); ex[ges1]")
 foods = "OP50"
 
-gutresc<-read.csv(file.path(pathname, "data", "1C_ges-1_rescue_rict_sgk.csv")) %>% format_dauer(p.dauer = "non") %>% 
+gutresc<-read.csv(file.path(pathname, "data", "1C_ges-1_rescue_rict_sgk.csv")) %>% dauergut::format_dauer(p.dauer = "non") %>% 
   mutate(allele = factor(allele, levels = c("WT","mg360","ft7","ok538","mg306")))
 
-gutresc %<>% mutate(adj.pct = case_when(.$pct == 0 ~ 0.01, .$pct == 1 ~ 0.99, TRUE ~ .$pct))
+gutresc %<>% dplyr::mutate(adj.pct = case_when(.$pct == 0 ~ 0.01, .$pct == 1 ~ 0.99, TRUE ~ .$pct))
 
 lm <- gutresc %>% dauer_ANOVA()
-stan.glmm <- gutresc %>% run_dauer_stan
-  #gutresc[!gutresc$pct %in% c(0,1), ] %>% run_dauer_stan
+stan.glmm <- gutresc %>% dauergut::run_dauer_stan()
+
 
 ```
 
 ```{r gut resc plot, fig.width=6, fig.height=3}
 contrasts<-dauergut::tukey_contrasts(lm, "genotype") 
-mixed<-stan.glmm %>% getStan_CIs(type="dauer")
+mixed<-stan.glmm %>% dauergut::getStan_CIs(type="dauer")
 plot.contrasts<-c("",contrasts$prange[1], "", "", contrasts$prange[4], "","","", contrasts$prange[8],"",contrasts$prange[10],"")
 plot.contrasts.2<-c("", "",contrasts$prange[12:13],"",contrasts$prange[39:41],"", contrasts$prange[61],"", contrasts$prange[66])
 
