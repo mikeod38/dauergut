@@ -9,10 +9,9 @@
 #' @examples contrasts <- tukey_contrasts(glmm.fit, "genotype")
 tukey_contrasts<-function(x, factor) {
   #get post-hoc pairwise Tukey comparisons
-  library(lsmeans)
-  x.rg<-ref.grid(x, type = "response")
+  x.rg<-lsmeans::ref.grid(x, type = "response")
   if(length(strains) < 10) {
-  contrasts<-x.rg %>% lsmeans(factor) %>% pairs(adjust = "mvt") %>% summary() %>% prange()
+  contrasts<-x.rg %>% lsmeans::lsmeans(factor) %>% lsmeans::pairs(adjust = "mvt") %>% lsmeans::summary() %>% prange()
   } else {
     contrasts<-x.rg %>% lsmeans(factor) %>% pairs(adjust = "fdr") %>% summary() %>% prange()
   }

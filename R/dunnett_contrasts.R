@@ -11,16 +11,16 @@
 #' @examples contrasts<-dunnett_contrasts(fit, ref.index = 1, factor = "genotype", interaction = "food")
 dunnett_contrasts<-function(x, ref.index, factor, interaction) {
   #generates Dunnett contrasts for a given level of factor (use quotes for factor = ""), adjustment 
-  library(lsmeans)
-  x.rg <- ref.grid(x, type="response")
-  contrasts.1<-x.rg %>% lsmeans(factor) %>% contrast("trt.vs.ctrl", ref = ref.index) %>% summary(adjust = "mvt") %>%
+  x.rg <- lsmeans::ref.grid(x, type="response")
+  contrasts.1<-x.rg %>% lsmeans::lsmeans(factor) %>% lsmeans::contrast("trt.vs.ctrl", ref = ref.index) %>% 
+    lsmeans::summary(adjust = "mvt") %>%
     prange()
   if(missing(interaction)) {
     print("interaction term not indicated")
     return(contrasts.1)
   } else {
-    contrasts.2<- x.rg %>% lsmeans(interaction, by = factor) %>% pairs(by = factor) %>%
-      summary(adjust = "mvt", by=NULL) %>% prange()
+    contrasts.2<- x.rg %>% lsmenas::lsmeans(interaction, by = factor) %>% lsmeans::pairs(by = factor) %>%
+      lsmeans::summary(adjust = "mvt", by=NULL) %>% prange()
     return(list(factor = contrasts.1, interaction = contrasts.2))
   }
 }

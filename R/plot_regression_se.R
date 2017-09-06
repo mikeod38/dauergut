@@ -7,7 +7,6 @@
 #' @export 
 #' @examples plot_regression_se(C327, "mean.C3", "mean.HT","SEM.C3", "SEM.HT")
 plot_regression_se<-function(df, meanX, meanY, semX, semY) {
-  library(ggrepel)
   ySEmin = df[[meanY]]-df[[semY]]
   ySEmax = df[[meanY]]+df[[semY]]
   xSEmin = df[[meanX]]-df[[semX]]
@@ -21,7 +20,7 @@ plot_regression_se<-function(df, meanX, meanY, semX, semY) {
     geom_errorbarh(aes(xmin=xSEmin, xmax=xSEmax)) +
     coord_cartesian(ylim = c(-.05, 1), xlim=c(-.05,1)) + 
     geom_smooth(aes_string(x=meanX, y=meanY, group=1), method="lm", se=TRUE, alpha = 0.2) +
-    geom_text_repel(aes(label=genotype, colour=lat_abs),
+    ggrepel::geom_text_repel(aes(label=genotype, colour=lat_abs),
                     box.padding = unit(0.35, "lines"),
                     point.padding = unit(0.5, "lines"),
                     segment.color = 'grey50'

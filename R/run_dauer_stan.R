@@ -11,8 +11,7 @@
 
 run_dauer_stan <- function(df,type,parameters) {
 
-  library (rstan)
-  rstan_options (auto_write=TRUE)
+  rstan::rstan_options (auto_write=TRUE)
   options (mc.cores=parallel::detectCores ()) # Run on multiple cores
   
   if(missing(parameters)) {
@@ -23,7 +22,7 @@ run_dauer_stan <- function(df,type,parameters) {
   }
   
 if(missing(type)) {
-  mod <- stan_glmer(data=df,
+  mod <- rstanarm::stan_glmer(data=df,
   formula =  cbind(dauer, (n-dauer)) ~ genotype + (1|day) + (1|strainDate) + (1|plateID),
   family = binomial(link="logit"),
   chains = parameters$chains,
@@ -33,7 +32,7 @@ if(missing(type)) {
   control = list(adapt_delta=0.99))
 } else {
   if(type == "dauer-grouped") {
-    mod <- stan_glmer(formula = cbind(dauer, (n-dauer)) ~ 0 + group.id + (1|day) + (1|strainDate) + (1|plateID),
+    mod <- rstanarm::stan_glmer(formula = cbind(dauer, (n-dauer)) ~ 0 + group.id + (1|day) + (1|strainDate) + (1|plateID),
                data=df,
                family = binomial(link="logit"),
                chains = parameters$chains, 

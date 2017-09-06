@@ -8,8 +8,7 @@
 #' @export
 #' @examples outliers.q <- plot_outlier.resids(fit, noplot = TRUE)
 plot_outlier.resids <- function (lin.mod, noplot) {
-  library(MASS)
-  resid <- stdres(lin.mod)
+  resid <- MASS::stdres(lin.mod)
   absresid<-abs(resid)
   if (missing(noplot)) {
     par(mfrow = c(1,2))

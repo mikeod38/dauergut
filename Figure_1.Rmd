@@ -15,10 +15,9 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(message = FALSE)
 knitr::opts_chunk$set(warning = FALSE)
-devtools::install_github('mikeod38/dauergut', dependencies = TRUE)
+devtools::install_github('mikeod38/dauergut')
 pathname = getwd()
 library(magrittr)
 library(dauergut)

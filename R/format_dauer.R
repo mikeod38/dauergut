@@ -12,24 +12,24 @@
 format_dauer <- function(df, p.dauer) {
   
   df %<>% dplyr::filter(genotype %in% strains, food %in% foods) %>%
-    mutate(genotype = factor(genotype, levels=strains),
+    dplyr::mutate(genotype = factor(genotype, levels=strains),
        non.dauer = as.numeric(paste(pd + non)),
        strainDate = interaction(genotype, day),
        plateID = interaction(strainDate, plate),
        food = factor(food, levels = foods))
   
 if(p.dauer == "exclude" | missing(p.dauer)) {
-  df %<>% mutate(
+  df %<>% dplyr::mutate(
     n = as.numeric(paste(dauer + non)),
     pct = as.numeric(paste(dauer/n)))
 } else { 
   if(p.dauer == "non") {
-    df %<>% mutate(
+    df %<>% dplyr::mutate(
       n = as.numeric(paste(dauer + non.dauer)),
       pct = as.numeric(paste(dauer/n)))
   } else {
     if(p.dauer == "dauer") {
-      df %<>% mutate(
+      df %<>% dplyr::mutate(
         n = as.numeric(paste(dauer + non.dauer)),
         pct = as.numeric(paste((dauer+pd)/n)))
   }

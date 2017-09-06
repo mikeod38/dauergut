@@ -12,13 +12,12 @@ MM_CI_trans_dunnett<-function(y,predictor) {
     predictor <- "genotype"
   } else {
   }
-  library(lsmeans)
   strains <- levels(y@frame[[predictor]]) #grab levels of predictor factor from model
-  y.rg<-ref.grid(y, type="response")
-  y.lsm<-lsmeans(y.rg, predictor)
-  y.lsm.sum<-summary(y.lsm,level = .95, infer=TRUE, adjust = "mvt", type="response")
+  y.rg<-lsmeans::ref.grid(y, type="response")
+  y.lsm<-lsmeans::lsmeans(y.rg, predictor)
+  y.lsm.sum<-lsmeans::summary(y.lsm,level = .95, infer=TRUE, adjust = "mvt", type="response")
   colnames(y.lsm.sum)<-c(predictor,"mean", "SE", "df", "lower.CL", "upper.CL", "z.ratio", "p.value")
-  mixed<-y.lsm.sum %>% select(1, mean, lower.CL, upper.CL,SE)
+  mixed<-y.lsm.sum %>% dplyr::select(1, mean, lower.CL, upper.CL,SE)
   mixed$x.pos<-as.numeric(as.factor(mixed[[predictor]])) + 0.3
   return(mixed)
 }

@@ -49,10 +49,10 @@ add.quartiles <- function() {
 }
 
 figure.axes <- function() {
-  theme(axis.title.x = element_blank(),
-        axis.text.x = element_blank(),
-        axis.text.y = element_text(size = 15),
-        strip.text.x = element_blank())
+  theme(axis.title.x = ggplot2::element_blank(),
+        axis.text.x = ggplot2::element_blank(),
+        axis.text.y = ggplot2::element_text(size = 15),
+        strip.text.x = ggplot2::element_blank())
 }
 
 add.n.categorical <- function() {
@@ -77,16 +77,16 @@ add.Bayes.CI <- function() {
 
 
 #alt to theme classic
-theme_my_classic <- theme_classic() +
-  theme(axis.text.x=element_text(angle=45, hjust=1, size=12),legend.key = element_blank())
+theme_my_classic <- ggplot2::theme_classic() +
+  ggplot2::theme(axis.text.x=ggplot2::element_text(angle=45, hjust=1, size=12),legend.key = ggplot2::element_blank())
 
 #plotting theme I use for most plots
-theme_my <- theme_bw() + theme(
-  axis.line        = element_line(colour = "black"),
-  panel.grid.major = element_blank(), 
-  panel.grid.minor = element_blank(),
-  panel.border     = element_blank(),
-  strip.background = element_blank(),
-  legend.key       = element_blank(), 
-  axis.text.x=element_text(angle=45, hjust=1, size=12)
+theme_my <- ggplot2::theme_bw() + ggplot2::theme(
+  axis.line        = ggplot2::element_line(colour = "black"),
+  panel.grid.major = ggplot2::element_blank(), 
+  panel.grid.minor = ggplot2::element_blank(),
+  panel.border     = ggplot2::element_blank(),
+  strip.background = ggplot2::element_blank(),
+  legend.key       = ggplot2::element_blank(), 
+  axis.text.x=ggplot2::element_text(angle=45, hjust=1, size=12)
 )

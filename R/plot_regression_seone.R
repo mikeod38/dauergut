@@ -13,7 +13,7 @@ plot_regression_seone<-function(df, meanX, meanY, semX) {
     coord_cartesian(xlim=c(-.05,0.9)) + 
     theme_my +
     geom_smooth(aes_string(x=meanX, y=meanY, group=1), method="lm", se=TRUE, alpha = 0.2) +
-    geom_text_repel(aes(label=genotype),
+    ggrepel::geom_text_repel(aes(label=genotype),
                     box.padding = unit(0.35, "lines"),
                     point.padding = unit(0.5, "lines"),
                     segment.color = 'grey50'

@@ -23,7 +23,9 @@ Imports:
     DHARMa,
     multcomp,
     tidyr,
-    lsmeans,
     rstanarm,
-    ggrepel
+    ggrepel,
+    rstan,
+    rstanarm,
+    MASS
 RoxygenNote: 6.0.1
