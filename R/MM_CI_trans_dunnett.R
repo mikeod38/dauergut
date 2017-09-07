@@ -5,6 +5,7 @@
 #' using lsmeans package
 #' @param y input if model fit ie lm, glm, glmer etc...
 #' @param factor optional predictor variable for comparisons, defaults to "genotype"
+#' @importFrom magrittr "%>%"
 #' @export
 #' @examples mixed <- MM_CI_trans_dunnett(fit, predictor = "genotype")
 MM_CI_trans_dunnett<-function(y,predictor) {

@@ -5,6 +5,8 @@
 #' @param p.dauer include post an/or partial dauers. Arguments "exclude" (default) - not counted,
 #' "non" - animals are considered non-dauer in cases where 100% dauers are observed,
 #' "dauer" - animals are counted as dauers in cases where only partial dauers form (daf-16)
+#' @importFrom magrittr "%>%"
+#' @importFrom magrittr "%<>%"
 #' @export
 #' @examples df %>% format_dauer(p.dauer = "exclude")
 #' 

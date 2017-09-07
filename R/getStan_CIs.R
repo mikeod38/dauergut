@@ -7,6 +7,8 @@
 #' @param base optional argument for log models - base of log function
 #' @param compare_gt optional argument for group-level effect - if true, genotype is compared at each level of condition, if blank,
 #' then condition effects are returned. 
+#' @importFrom magrittr "%>%"
+#' @importFrom magrittr "%<>%"
 #' @export
 #' @examples getStan_CIs(stan.glmm, type = "log", group = "food", base = 10, compare_gt = TRUE)
 #' 

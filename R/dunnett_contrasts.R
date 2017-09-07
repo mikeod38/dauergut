@@ -7,6 +7,7 @@
 #' using names(<fit>$coefficients) for lm or glm obj or names(fixef(<fit>)) for mixed models
 #' @param interaction optional term for interaction predictor if relevant. 
 #' @param factor predictor variable for comparisons, usually a group ie genotype
+#' @importFrom magrittr "%>%"
 #' @export
 #' @examples contrasts<-dunnett_contrasts(fit, ref.index = 1, factor = "genotype", interaction = "food")
 dunnett_contrasts<-function(x, ref.index, factor, interaction) {

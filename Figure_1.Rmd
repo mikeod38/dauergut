@@ -36,7 +36,8 @@ library(ggrepel)
 library(rstan)
 library(rstanarm)
 library(MASS)
-
+devtools::install_github("mikeod38/dauergut")
+library(dauergut)
 
 dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
 ```

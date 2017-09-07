@@ -6,6 +6,7 @@
 #' are asymptotic confidence intervals. 
 #' @param y input if model fit ie lm, glm, glmer etc...
 #' @param predictor optional predictor variable for comparisons, defaults to "genotype"
+#' @importFrom magrittr "%>%"
 #' @export
 #' @examples mixed <- MM_CI_trans_Tukey(fit, predictor = "genotype")
 MM_CI_trans_Tukey<-function(y,predictor) {
