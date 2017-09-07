@@ -1,0 +1,11 @@
+name: "Rictor/TORC2 mediates gut-to-brain signaling in the regulation of phenotypic plasticity in C.elegans"
+navbar:
+  title: "Rictor/TORC2 mediates gut-to-brain signaling in the regulation of phenotypic plasticity in C.elegans"
+  left:
+    - text: "home"
+      href: index.html
+    - text: "Figure 1"
+      href: Figure_1.html
+    - text: "Figure 2"
+      href: Figure_2.html
+  

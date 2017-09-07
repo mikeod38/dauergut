@@ -27,7 +27,8 @@ Imports:
     ggrepel,
     rstan,
     rstanarm,
-    MASS
+    MASS,
+    png
 Depends:
     knitr,
     dplyr,

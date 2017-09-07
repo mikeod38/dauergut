@@ -1,0 +1,52 @@
+Package: dauergut
+Type: Package
+Title: Scripts for rict-1 dauer paper
+Version: 0.1.0
+Author: Mike O'Donnell
+Maintainer: The package maintainer <mikeod38@gmail.com>
+Description: A collection of functions and data used in rict-1 dauer
+    manuscript. 
+License: NA
+Encoding: UTF-8
+LazyData: yes
+Imports:
+    knitr,
+    dplyr,
+    ggplot2,
+    magrittr,
+    ggbeeswarm,
+    beeswarm,
+    ggthemes,
+    viridis,
+    lme4,
+    schoRsch,
+    DHARMa,
+    multcomp,
+    tidyr,
+    rstanarm,
+    ggrepel,
+    rstan,
+    rstanarm,
+    MASS,
+    png
+Depends:
+    knitr,
+    dplyr,
+    ggplot2,
+    magrittr,
+    ggbeeswarm,
+    beeswarm,
+    ggthemes,
+    viridis,
+    lme4,
+    schoRsch,
+    DHARMa,
+    multcomp,
+    tidyr,
+    rstanarm,
+    ggrepel,
+    rstan,
+    rstanarm,
+    MASS
+RoxygenNote: 6.0.1
+Suggests: testthat

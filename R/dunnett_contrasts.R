@@ -17,7 +17,6 @@ dunnett_contrasts<-function(x, ref.index, factor, interaction) {
     summary(adjust = "mvt") %>%
     prange()
   if(missing(interaction)) {
-    print("interaction term not indicated")
     return(contrasts.1)
   } else {
     contrasts.2<- x.rg %>% lsmeans::lsmeans(interaction, by = factor) %>% lsmeans::pairs(by = factor) %>%
