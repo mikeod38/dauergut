@@ -52,7 +52,7 @@ dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
 strains<-c("N2", "rict-1(mg360)", "rict-1(ft7)", "sgk-1(ok538)", "akt-1(mg306)", "akt-2", "pkc-2")
 foods <- "OP50"
 
-TORC2<-read.csv(file.path(pathname, "data/1B_rict-1_TORC2.csv"), header=TRUE) %>% dauergut::format_dauer(p.dauer = "non") #including partial/pd as non-dauer due to excess zeros. 
+TORC2<-read.csv(file.path(pathname, "extdata/1B_rict-1_TORC2.csv"), header=TRUE) %>% dauergut::format_dauer(p.dauer = "non") #including partial/pd as non-dauer due to excess zeros. 
 
 lm <- TORC2 %>% dauer_ANOVA()
 #stan
