@@ -10,13 +10,15 @@
 #' @name ggplot_layers
 NULL
 
+#' @export
 #' @rdname ggplot_layers
+#' 
 
 add.scatter <- function() {
   geom_quasirandom(aes(y=cell.norm),colour = "#339900", cex=1,
                    width = 0.075,size=0.3,
                    method = 'smiley')}
-
+#' @export
 #' @rdname ggplot_layers
 
 add.median <- function(width) {
@@ -31,6 +33,7 @@ add.median <- function(width) {
                geom = "crossbar", width = width, lwd = 0.35)
 }
 
+#' @export
 #' @rdname ggplot_layers
 
 add.median.dauer <- function(width) {
@@ -45,6 +48,7 @@ add.median.dauer <- function(width) {
                geom = "crossbar", width = width, lwd = 0.35)
 }
 
+#' @export
 #' @rdname ggplot_layers
 
 add.quartiles <- function() {
@@ -54,6 +58,7 @@ add.quartiles <- function() {
                geom = "errorbar", width = 0.15, lwd = 0.15)
 }
 
+#' @export
 #' @rdname ggplot_layers
 
 figure.axes <- function() {
@@ -63,6 +68,7 @@ figure.axes <- function() {
         strip.text.x = ggplot2::element_blank())
 }
 
+#' @export
 #' @rdname ggplot_layers
 
 add.n.categorical <- function() {
@@ -70,7 +76,7 @@ add.n.categorical <- function() {
                fun.data = fun_length, geom = "text", size = 3)
 }
 
-
+#' @export
 #' @rdname ggplot_layers
 
 add.n <- function() {
@@ -78,6 +84,7 @@ add.n <- function() {
                fun.data = fun_length, geom = "text", size = 3)
 }
 
+#' @export
 #' @rdname ggplot_layers
 
 add.Bayes.CI <- function() {
@@ -90,12 +97,13 @@ add.Bayes.CI <- function() {
                                       yend = mean), colour = "darkgrey"))
 }
 
+#' @export
 #' @rdname ggplot_layers
 #alt to theme classic
 theme_my_classic <- ggplot2::theme_classic() +
   ggplot2::theme(axis.text.x=ggplot2::element_text(angle=45, hjust=1, size=12),legend.key = ggplot2::element_blank())
 
-
+#' @export
 #' @rdname ggplot_layers
 #plotting theme I use for most plots
 theme_my <- ggplot2::theme_bw() + ggplot2::theme(
