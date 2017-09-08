@@ -10,12 +10,16 @@
 #' @name ggplot_layers
 NULL
 
+#' @export
 #' @rdname ggplot_layers
+#' 
 
 add.scatter <- function() {
   geom_quasirandom(aes(y=cell.norm),colour = "#339900", cex=1,
                    width = 0.075,size=0.3,
                    method = 'smiley')}
+#' @export
+#' @rdname ggplot_layers
 
 add.median <- function(width) {
   if(missing(width)) {
@@ -29,6 +33,9 @@ add.median <- function(width) {
                geom = "crossbar", width = width, lwd = 0.35)
 }
 
+#' @export
+#' @rdname ggplot_layers
+
 add.median.dauer <- function(width) {
   if(missing(width)) {
     width = 0.25
@@ -41,12 +48,18 @@ add.median.dauer <- function(width) {
                geom = "crossbar", width = width, lwd = 0.35)
 }
 
+#' @export
+#' @rdname ggplot_layers
+
 add.quartiles <- function() {
   stat_summary(aes(y=cell.norm),fun.y = median,
                fun.ymin = function(z) {quantile(z,0.25)},
                fun.ymax = function(z) {quantile(z,0.75)},
                geom = "errorbar", width = 0.15, lwd = 0.15)
 }
+
+#' @export
+#' @rdname ggplot_layers
 
 figure.axes <- function() {
   theme(axis.title.x = ggplot2::element_blank(),
@@ -55,15 +68,24 @@ figure.axes <- function() {
         strip.text.x = ggplot2::element_blank())
 }
 
+#' @export
+#' @rdname ggplot_layers
+
 add.n.categorical <- function() {
   stat_summary(aes(x=as.numeric(as.factor(genotype)) + 0.3, y=0),
                fun.data = fun_length, geom = "text", size = 3)
 }
 
+#' @export
+#' @rdname ggplot_layers
+
 add.n <- function() {
   stat_summary(aes(x=temp + 0.3, y=0),
                fun.data = fun_length, geom = "text", size = 3)
 }
+
+#' @export
+#' @rdname ggplot_layers
 
 add.Bayes.CI <- function() {
   list(geom_errorbar(data=mixed, aes(x=x.pos,y=mean, ymin=lower.CL, ymax=upper.CL),
@@ -75,11 +97,14 @@ add.Bayes.CI <- function() {
                                       yend = mean), colour = "darkgrey"))
 }
 
-
+#' @export
+#' @rdname ggplot_layers
 #alt to theme classic
 theme_my_classic <- ggplot2::theme_classic() +
   ggplot2::theme(axis.text.x=ggplot2::element_text(angle=45, hjust=1, size=12),legend.key = ggplot2::element_blank())
 
+#' @export
+#' @rdname ggplot_layers
 #plotting theme I use for most plots
 theme_my <- ggplot2::theme_bw() + ggplot2::theme(
   axis.line        = ggplot2::element_line(colour = "black"),
