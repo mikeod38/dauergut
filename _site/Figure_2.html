@@ -15,7 +15,7 @@
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
@@ -98,34 +98,34 @@ button.code-folding-btn:focus {
 <style type="text/css">
 /* padding for bootstrap navbar */
 body {
-  padding-top: 60px;
+  padding-top: 51px;
   padding-bottom: 40px;
 }
 /* offset scroll position for anchor links (for fixed navbar)  */
 .section h1 {
-  padding-top: 65px;
-  margin-top: -65px;
+  padding-top: 56px;
+  margin-top: -56px;
 }
 
 .section h2 {
-  padding-top: 65px;
-  margin-top: -65px;
+  padding-top: 56px;
+  margin-top: -56px;
 }
 .section h3 {
-  padding-top: 65px;
-  margin-top: -65px;
+  padding-top: 56px;
+  margin-top: -56px;
 }
 .section h4 {
-  padding-top: 65px;
-  margin-top: -65px;
+  padding-top: 56px;
+  margin-top: -56px;
 }
 .section h5 {
-  padding-top: 65px;
-  margin-top: -65px;
+  padding-top: 56px;
+  margin-top: -56px;
 }
 .section h6 {
-  padding-top: 65px;
-  margin-top: -65px;
+  padding-top: 56px;
+  margin-top: -56px;
 }
 </style>
 
@@ -298,7 +298,7 @@ img.path &lt;- file.path(pathname,&quot;figures/2A_daf7GFP.png&quot;)</code></pr
 <td align="right">0.0447683</td>
 <td align="right">122</td>
 <td align="right">-3.3603231</td>
-<td align="right">0.0029443</td>
+<td align="right">0.0029600</td>
 <td align="left">**</td>
 </tr>
 <tr class="odd">
@@ -307,7 +307,7 @@ img.path &lt;- file.path(pathname,&quot;figures/2A_daf7GFP.png&quot;)</code></pr
 <td align="right">0.0463634</td>
 <td align="right">122</td>
 <td align="right">0.3268511</td>
-<td align="right">0.9772207</td>
+<td align="right">0.9772204</td>
 <td align="left">p~0.98</td>
 </tr>
 </tbody>
@@ -381,8 +381,9 @@ colnames(cells) &lt;- c(&quot;ID&quot;, &quot;sample&quot;, &quot;cell.mean&quot
 daf7FISH &lt;- merge(cells, background,by=&quot;ID&quot;) %&gt;%
   mutate(cell.norm = cell.mean - mean(background),
          cell.diffnorm = cell.mean - background,
-         cell.ratioNorm = cell.mean / background)</code></pre>
-<pre class="r"><code>#simple lm
+         cell.ratioNorm = cell.mean / background)
+
+#simple lm
 lm&lt;-lm(data=daf7FISH, formula=cell.norm~genotype)
 #check for outliers
 daf7FISH &lt;- dauergut::flag_outliers(lm, daf7FISH, threshold = 4, noplot = TRUE)
@@ -392,81 +393,6 @@ lm.1&lt;-lm(data=daf7FISH[daf7FISH$outlier.status == FALSE,], formula=cell.norm~
 #anova(lm.0, lm.1) p ~ 0.013
 
 stanlm &lt;- stan_glm(cell.norm ~ genotype, data = daf7FISH[daf7FISH$outlier.status == FALSE,])</code></pre>
-<pre><code>## 
-## SAMPLING FOR MODEL &#39;continuous&#39; NOW (CHAIN 1).
-## 
-## Chain 1, Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 1, Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 1, Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 1, Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 1, Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 1, Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 1, Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 1, Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 1, Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 1, Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 1, Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 1, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.098515 seconds (Warm-up)
-##                0.086177 seconds (Sampling)
-##                0.184692 seconds (Total)
-## 
-## 
-## SAMPLING FOR MODEL &#39;continuous&#39; NOW (CHAIN 2).
-## 
-## Chain 2, Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 2, Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 2, Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 2, Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 2, Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 2, Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 2, Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 2, Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 2, Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 2, Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 2, Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 2, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.0975 seconds (Warm-up)
-##                0.084984 seconds (Sampling)
-##                0.182484 seconds (Total)
-## 
-## 
-## SAMPLING FOR MODEL &#39;continuous&#39; NOW (CHAIN 3).
-## 
-## Chain 3, Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 3, Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 3, Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 3, Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 3, Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 3, Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 3, Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 3, Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 3, Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 3, Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 3, Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 3, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.111556 seconds (Warm-up)
-##                0.089343 seconds (Sampling)
-##                0.200899 seconds (Total)
-## 
-## 
-## SAMPLING FOR MODEL &#39;continuous&#39; NOW (CHAIN 4).
-## 
-## Chain 4, Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 4, Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 4, Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 4, Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 4, Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 4, Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 4, Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 4, Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 4, Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 4, Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 4, Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 4, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.095857 seconds (Warm-up)
-##                0.097721 seconds (Sampling)
-##                0.193578 seconds (Total)</code></pre>
 <pre class="r"><code>strains &lt;- levels(daf7FISH$genotype)
 contrasts &lt;- dauergut::dunnett_contrasts(lm.1,ref.index = 1,&quot;genotype&quot;)
 mixed &lt;- stanlm %&gt;% dauergut::getStan_CIs()

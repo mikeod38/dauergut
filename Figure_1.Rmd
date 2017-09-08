@@ -5,10 +5,6 @@ output:
     code_folding: hide
     fig_height: 5
     fig_width: 7
-    theme: flatly
-  pdf_document:
-    always_allow_html: yes
-  word_document: default
 ---
 
 ```{r setup, include=FALSE}

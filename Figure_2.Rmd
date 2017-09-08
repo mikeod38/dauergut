@@ -5,10 +5,6 @@ output:
     code_folding: hide
     fig_height: 5
     fig_width: 7
-    theme: flatly
-  pdf_document:
-    always_allow_html: yes
-  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -119,7 +115,7 @@ knitr::kable(mixed[,c(6,1:5)], caption = "Bayesian credible intervals")
 
 ##2B
 
-```{r daf7 FISH dataload, message=FALSE}
+```{r daf7 FISH, message=FALSE}
 daf7FISH<-read.csv("extdata/2B_daf7FISH_4frames.csv") %>%
   separate(Label, c("method","group","sample"),sep = c("-"), extra = "drop") %>%
   separate(sample, c("sample", "type"),sep =":", extra = "drop") %>%
@@ -139,9 +135,7 @@ daf7FISH <- merge(cells, background,by="ID") %>%
   mutate(cell.norm = cell.mean - mean(background),
          cell.diffnorm = cell.mean - background,
          cell.ratioNorm = cell.mean / background)
-```
 
-```{r daf7FISH stats, warning=FALSE}
 #simple lm
 lm<-lm(data=daf7FISH, formula=cell.norm~genotype)
 #check for outliers

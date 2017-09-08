@@ -5,12 +5,6 @@ date: 9/7/2017
 output:
   html_document:
     theme: flatly
-  #   toc_depth: 2
-  #   toc_float: true
-  #   theme: flatly
-  # pdf_document:
-  #   always_allow_html: yes
-  # word_document: default
 ---
 
 "Hello website"
