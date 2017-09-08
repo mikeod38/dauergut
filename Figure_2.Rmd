@@ -41,6 +41,7 @@ library(dauergut)
 dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
 ```
 
+
 #__Figure 2 Intestinal mTORC2 regulates sensory neuron state__{.tabset}
 
 ##2A
@@ -101,20 +102,24 @@ p2
 
 </div>
 
-<div class="wrapper">
-  <p class="left"></p>
+
+
+
+<div style="float: right; width: 100%;">
+2A. Intesinal _rict-1_ regulates daf7GFP levels in ASI neurons. L1 animals were grown 18hrs post egg lay at 27º. Daf-7::GFP fluorescence quantification shows decreased expression in _rict-1_ mutants. Intestinal expression of _rict-1_ using the intestinal _ges-1_ promoter rescues daf-7::GFP expression. Box and scatter plot show raw data. Bayesian 90% (grey) and 50% (red) credible intervals are shown on the right (see methods). For _rict-1(mg360)_ and _rict-1(ft7)_, `r contrasts$prange[1]` and `r contrasts$prange[2]` compared to N2, respectively. For _ges-1_ rescue, `r rescue.p$prange` compared to _rict-1(ft7)_. n=3 independent experiments.
+
 </div>
 
-2A. Intesinal _rict-1_ regulates daf7GFP levels in ASI neurons. L1 animals were grown 18hrs post egg lay at 27º. Daf-7::GFP fluorescence quantification shows decreased expression in _rict-1_ mutants. Intestinal expression of _rict-1_ using the intestinal _ges-1_ promoter rescues daf-7::GFP expression. Box and scatter plot show raw data. Bayesian 90% (grey) and 50% (red) credible intervals are shown on the right (see methods). For _rict-1(mg360)_ and _rict-1(ft7)_, `r contrasts$prange[1]` and `r contrasts$prange[2]` compared to N2, respectively. For _ges-1_ rescue, `r rescue.p$prange` compared to _rict-1(ft7)_. n=3 independent experiments.
 
 ```{r 2A daf-7 stats}
 knitr::kable(contrasts, caption="Pairwise comparisons from mixed-effects model (Tukey)")
 knitr::kable(mixed[,c(6,1:5)], caption = "Bayesian credible intervals")
 ```
 
-###2B
 
-```{r daf7 FISH dataload}
+##2B
+
+```{r daf7 FISH dataload, message=FALSE}
 daf7FISH<-read.csv("extdata/2B_daf7FISH_4frames.csv") %>%
   separate(Label, c("method","group","sample"),sep = c("-"), extra = "drop") %>%
   separate(sample, c("sample", "type"),sep =":", extra = "drop") %>%
@@ -131,7 +136,7 @@ cells<-dplyr::filter(daf7FISH, type == "cell") %>% dplyr::select(ID, sample, mea
 colnames(cells) <- c("ID", "sample", "cell.mean", "genotype")
 
 daf7FISH <- merge(cells, background,by="ID") %>%
-  mutate(cell.norm = cell.mean - mean(background), 
+  mutate(cell.norm = cell.mean - mean(background),
          cell.diffnorm = cell.mean - background,
          cell.ratioNorm = cell.mean / background)
 ```
@@ -147,7 +152,6 @@ lm.1<-lm(data=daf7FISH[daf7FISH$outlier.status == FALSE,], formula=cell.norm~gen
 #anova(lm.0, lm.1) p ~ 0.013
 
 stanlm <- stan_glm(cell.norm ~ genotype, data = daf7FISH[daf7FISH$outlier.status == FALSE,])
-
 
 ```
 
@@ -166,185 +170,181 @@ dauergut::plot_CIs(daf7FISH[daf7FISH$outlier.status == FALSE,], title = "daf7 mR
 ```
 
 2B.  _Daf-7_ mRNA is reduced in _rict-1_ mutants. Animals were grown 18hrs post egg lay at 27º, then fixed prior to FISH. Intestinal expression of _rict-1_ using the intestinal _ges-1_ promoter rescues _daf-7_ expression. Box and scatter plot show raw data. Bayesian 90% (grey) and 50% (red) credible intervals are shown on the right (see methods). For _rict-1(mg360)_ and _rict-1(ft7)_, `r contrasts$prange[1]` and `r contrasts$prange[2]` compared to N2, respectively. For _ges-1_ rescue, `r rescue.p$prange` compared to _rict-1(ft7)_. n=2 independent experiments, pooled data.
-`r nrow(daf7FISH[daf7FISH$outlier.status == TRUE,])` outlier data points were removed in total. 
+`r nrow(daf7FISH[daf7FISH$outlier.status == TRUE,])` outlier data points were removed in total.
 
-<!-- ###2C  -->
+##2C
 
-<!-- rescue of rict-1 with daf-7 and daf-28 -->
+rescue of rict-1 with daf-7 and daf-28
 
-<!-- ```{r daf7/daf28 suppress rict-1} -->
+```{r daf7/daf28 suppress rict-1}
+foods <- "OP50"
+strains<-c("N2","rict-1(ft7)","rict-1(ft7); ex[ASI::daf7]","rict-1(ft7); ex[ASI::daf28]","rict-1(ft7); ex[ASJ::daf28]")
+daf7supp<-read.csv(file.path(pathname, "extdata/2C_daf7_daf28_suppression.csv")) %>% format_dauer(p.dauer = "non")
 
-<!-- strains<-c("N2","rict-1(ft7)","rict-1(ft7); ex[ASI::daf7]","rict-1(ft7); ex[ASI::daf28]","rict-1(ft7); ex[ASJ::daf28]") -->
-<!-- daf7supp<-read.csv(file.path(pathname, "extdata/2C_daf7_daf28_suppression.csv")) %>% format_dauer(p.dauer = "non") -->
+# daf7supp$genotype<- factor(daf7supp$genotype, levels = strains)
+# daf7supp$pct<-as.numeric(paste(daf7supp$dauer/(daf7supp$dauer+daf7supp$pd + daf7supp$non))) #omitted arrest
+# daf7supp$non.dauer<-as.numeric(paste(daf7supp$pd+daf7supp$non))
 
-<!-- # daf7supp$genotype<- factor(daf7supp$genotype, levels = strains) -->
-<!-- # daf7supp$pct<-as.numeric(paste(daf7supp$dauer/(daf7supp$dauer+daf7supp$pd + daf7supp$non))) #omitted arrest -->
-<!-- # daf7supp$non.dauer<-as.numeric(paste(daf7supp$pd+daf7supp$non)) -->
+lm <- daf7supp %>% dauer_ANOVA()
+#stan
+stan.glmm <- daf7supp %>% dauergut::run_dauer_stan()
+```
 
-<!-- lm <- daf7supp %>% dauer_ANOVA() -->
-<!-- #stan -->
-<!-- stan.glmm <- daf7supp %>% dauergut::run_dauer_stan() -->
-<!-- ``` -->
+```{r daf7/daf28 suppression plot, fig.width=4}
+foods <- "OP50"
+contrasts<-dauergut::tukey_contrasts(lm, "genotype")
+mixed<-stan.glmm %>% dauergut::getStan_CIs(type = "dauer")
+plot.contrasts<-c("",contrasts$prange[1],"","","")
+plot.contrasts.2<-c("", "", contrasts$prange[5:7]) #for rescue vs rict-1
 
-<!-- ```{r daf7/daf28 suppression plot, fig.width=4} -->
-<!-- foods <- "OP50" -->
-<!-- contrasts<-dauergut::tukey_contrasts(lm, "genotype") -->
-<!-- mixed<-stan.glmm %>% dauergut::getStan_CIs(type = "dauer") -->
-<!-- plot.contrasts<-c("",contrasts$prange[1],"","","") -->
-<!-- plot.contrasts.2<-c("", "", contrasts$prange[5:7]) #for rescue vs rict-1 -->
+(p<-dauergut::plot_CIs(daf7supp, title='daf-7 expression in ASI suppresses rict-1 dauer phenotype', plot.contrasts, plot.contrasts.2, ypos = 1.075, offset = 0, type = "dauer"))
+```
 
-<!-- (p<-dauergut::plot_CIs(daf7supp, title='daf-7 expression in ASI suppresses rict-1 dauer phenotype', plot.contrasts, plot.contrasts.2, ypos = 1.075, offset = 0, type = "dauer")) -->
-<!-- ``` -->
+##2D
 
-<!-- ###2D -->
+```{r load daf28GFP data}
+#days = as.factor(8:10) # days containing N2 and ft7 27º data
+days = as.factor(8:10)
+strains = c("N2", "ft7")
+foods = "OP50"
+d28<-read.csv('extdata/2D_3B_daf-28_GFP_rict-1.csv') %>%
+separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>%
+  subset(mean!=4095 & food == foods & temp == "27" & genotype %in% strains & pheromone == 0) %>%
+  mutate(day = as.factor(day), genotype = factor(genotype, levels = strains),
+         genoID = interaction(date,genotype, ID.A))
 
-<!-- ```{r load daf28GFP data} -->
-<!-- #days = as.factor(8:10) # days containing N2 and ft7 27º data -->
-<!-- days = as.factor(8:10) -->
-<!-- strains = c("N2", "ft7") -->
-<!-- foods = "OP50" -->
-<!-- d28<-read.csv('extdata/2D_3B_daf-28_GFP_rict-1.csv') %>% -->
-<!-- separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>% -->
-<!--   subset(mean!=4095 & food == foods & temp == "27" & genotype %in% strains & pheromone == 0) %>%  -->
-<!--   mutate(day = as.factor(day), genotype = factor(genotype, levels = strains), -->
-<!--          genoID = interaction(date,genotype, ID.A)) -->
+df <- d28 %>% subset(day %in% days) %>% group_by(date,genotype,neuron,genoID) %>% summarise(cell.norm = mean(mean)) %>%
+  data.frame() %>% mutate(group.id = interaction(genotype, neuron)) # take mean of each worm
 
-<!-- df <- d28 %>% subset(day %in% days) %>% group_by(date,genotype,neuron,genoID) %>% summarise(cell.norm = mean(mean)) %>% -->
-<!--   data.frame() %>% mutate(group.id = interaction(genotype, neuron)) # take mean of each worm -->
+```
 
-<!-- ``` -->
+```{r daf28 rict-1 plot, warning=FALSE, fig.width=8}
+#fit simple linmod to est outliers:
+log.tran<-lsmeans::make.tran(type="genlog", param = c(0,10)) #make log10 transformation
+lm1 <- with(log.tran, lm(linkfun(cell.norm) ~ neuron * genotype, data = df))
+df %<>% flag_outliers(lin.mod=lm1, threshold = 4, df = .)
 
-<!-- ```{r daf28 rict-1 plot, warning=FALSE, fig.width=8} -->
-<!-- #fit simple linmod to est outliers: -->
-<!-- lm1 <- with(log.tran, lm(linkfun(cell.norm) ~ neuron * genotype, data = df)) -->
-<!-- df %<>% flag_outliers(lin.mod=lm1, threshold = 4, df = .) -->
-<!-- #df.ASI <- df %>% dplyr::filter(neuron == "ASI") -->
-<!-- #df.ASJ <- df %>% dplyr::filter(neuron == "ASJ") -->
-<!-- # linear MM -->
-<!-- library(lsmeans) -->
-<!-- log.tran<-make.tran(type="genlog", param = c(0,10)) #make log10 transformation -->
-<!-- #lmm.ASI <- with(log.tran, lmer(linkfun(cell.norm) ~ neuron * genotype + (1|neuron:date) + (1|genotype:neuron:date), data = df.ASI[df$outlier.status==FALSE,])) -->
-<!-- #lmm.ASJ <- with(log.tran, lmer(linkfun(cell.norm) ~ neuron * genotype + (1|neuron:date) + (1|genotype:neuron:date), data = df.ASJ[df$outlier.status==FALSE,])) -->
-<!-- lm <- with(log.tran, lm(linkfun(cell.norm) ~ neuron * genotype, data = df[df$outlier.status==FALSE,])) -->
-<!-- stanlmer <- with(log.tran, stan_lmer(linkfun(cell.norm) ~ 1 + group.id + (1|date) + (1:group.id:date), data = df)) -->
+# linear MM
+lm <- with(log.tran, lm(linkfun(cell.norm) ~ neuron * genotype, data = df[df$outlier.status==FALSE,]))
+stanlmer <- with(log.tran, stan_lmer(linkfun(cell.norm) ~ 1 + group.id + (1|date) + (1:group.id:date), data = df))
 
-<!-- with(df[df$neuron == "ASI" & df$outlier.status == FALSE,], with(log.tran, t.test(cell.norm ~genotype))) -->
-<!-- with(df[df$neuron == "ASJ" & df$outlier.status == FALSE,], with(log.tran, t.test(cell.norm ~genotype))) -->
+with(df[df$neuron == "ASI" & df$outlier.status == FALSE,], with(log.tran, t.test(cell.norm ~genotype)))
+with(df[df$neuron == "ASJ" & df$outlier.status == FALSE,], with(log.tran, t.test(cell.norm ~genotype)))
 
 
-<!-- contrasts<-summary(lsmeans(lm, pairwise ~ genotype | neuron)$contrasts) %>% dauergut::prange() -->
-<!-- mixed <- stanlmer %>% getStan_CIs(type = "log", group = "neuron", base = 10, compare_gt = TRUE) -->
-<!-- plot.contrasts<-c("",contrasts$prange[1],"", contrasts$prange[2]) -->
+contrasts<-summary(lsmeans::lsmeans(lm, pairwise ~ genotype | neuron)$contrasts) %>% dauergut::prange()
+mixed <- stanlmer %>% getStan_CIs(type = "log", group = "neuron", base = 10, compare_gt = TRUE)
+plot.contrasts<-c("",contrasts$prange[1],"", contrasts$prange[2])
 
-<!-- #### plot ###### -->
-<!-- p<-(df %>% ggplot(aes(x=genotype, y = cell.norm)) + -->
-<!--   #### plot raw data and quartiles   -->
-<!--           geom_quasirandom(aes(y=cell.norm, pch = date),cex=1,colour = "#339900", -->
-<!--                            width = 0.075,size=0.3, -->
-<!--                            method = 'smiley') + -->
-<!--     guides(pch=FALSE) + -->
-<!--     list(add.median(width = 0.25), add.quartiles()) + -->
-<!-- labs(title = "daf-28 is also reduced in rict-1 mutants", -->
-<!--      subtitle = "GFP plot", -->
-<!--            y = "mean GFP intensity", x="genotype") + -->
-<!--   #### plot Bayesian credible intervals -->
-<!--   stat_summary(aes(x=genotype, group = genotype, y = 3500), geom="text", fun.data=box_annot, label=plot.contrasts, size = 6) + -->
-<!--   geom_errorbar(data=mixed, aes(x=x.pos,y=mean, ymin=lower.CL, ymax=upper.CL), -->
-<!--                   width=0,colour ="grey", lwd=0.2) + #90% cred int for 95% one-sided H0 -->
-<!--   geom_errorbar(data=mixed, aes(x=x.pos,y=mean, ymin = lower.25, ymax = upper.75), -->
-<!--                   width=0,colour = "darkgrey", lwd = 0.9) + #75% cred interval -->
-<!--       geom_segment(data = mixed, aes(x = x.pos-(0.007*nrow(mixed)), y = mean, xend = x.pos+(0.007*nrow(mixed)), yend = mean), colour = "darkgrey") +  -->
-<!--   stat_summary(aes(x=as.numeric(as.factor(genotype)) + 0.3,y=0,group = genotype), -->
-<!--                fun.data = fun_length, geom = "text",size = 4) + -->
-<!--   facet_grid(.~neuron, switch="both") + theme_my + -->
-<!--   theme(axis.text.y = element_text(size=12), -->
-<!--         axis.text.x = element_text(size = 16), -->
-<!--         axis.title = element_text(size=16), -->
-<!--         panel.spacing.x=unit(2,"lines"))) -->
+#### plot ######
+p<-(df %>% ggplot(aes(x=genotype, y = cell.norm)) +
+  #### plot raw data and quartiles
+          geom_quasirandom(aes(y=cell.norm, pch = date),cex=1,colour = "#339900",
+                           width = 0.075,size=0.3,
+                           method = 'smiley') +
+    guides(pch=FALSE) +
+    list(dauergut::add.median(width = 0.25), dauergut::add.quartiles()) +
+labs(title = "daf-28 is also reduced in rict-1 mutants",
+     subtitle = "GFP plot",
+           y = "mean GFP intensity", x="genotype") +
+  #### plot Bayesian credible intervals
+  stat_summary(aes(x=genotype, group = genotype, y = 3500), geom="text", fun.data=box_annot, label=plot.contrasts, size = 6) +
+  geom_errorbar(data=mixed, aes(x=x.pos,y=mean, ymin=lower.CL, ymax=upper.CL),
+                  width=0,colour ="grey", lwd=0.2) + #90% cred int for 95% one-sided H0
+  geom_errorbar(data=mixed, aes(x=x.pos,y=mean, ymin = lower.25, ymax = upper.75),
+                  width=0,colour = "darkgrey", lwd = 0.9) + #75% cred interval
+      geom_segment(data = mixed, aes(x = x.pos-(0.007*nrow(mixed)), y = mean, xend = x.pos+(0.007*nrow(mixed)), yend = mean), colour = "darkgrey") +
+  stat_summary(aes(x=as.numeric(as.factor(genotype)) + 0.3,y=0,group = genotype),
+               fun.data = fun_length, geom = "text",size = 4) +
+  facet_grid(.~neuron, switch="both") + theme_my +
+  theme(axis.text.y = element_text(size=12),
+        axis.text.x = element_text(size = 16),
+        axis.title = element_text(size=16),
+        panel.spacing.x=unit(2,"lines")))
 
-<!-- # knitr::kable(summary(lsmeans(lm3, pairwise ~ genotype | neuron, type = "response"))$contrasts) -->
+# knitr::kable(summary(lsmeans(lm3, pairwise ~ genotype | neuron, type = "response"))$contrasts)
 
 
 
 
-<!-- ``` -->
+```
 
-<!-- ###S1A -->
+##S1A
 
-<!-- ```{r daf-16 suppresion} -->
-<!-- strains<-c("N2","rict-1(mg360)","rict-1;daf-16") -->
-<!-- foods <- "OP50" -->
-<!-- daf16supp<-read.csv(file.path(pathname, "extdata/S1A_daf16_suppression.csv")) %>% format_dauer(.,p.dauer = "dauer") -->
+```{r daf-16 suppresion}
+strains<-c("N2","rict-1(mg360)","rict-1;daf-16")
+foods <- "OP50"
+daf16supp<-read.csv(file.path(pathname, "extdata/S1A_daf16_suppression.csv")) %>% format_dauer(.,p.dauer = "dauer")
 
-<!-- # daf28supp$genotype<- factor(daf28supp$genotype, levels = strains) -->
-<!-- # daf28supp$pct<-as.numeric(paste(daf28supp$dauer/(daf28supp$dauer+daf28supp$pd + daf28supp$non))) #omitted arrest -->
-<!-- # daf28supp$non.dauer<-as.numeric(paste(daf28supp$pd+daf28supp$non)) -->
-<!-- lm <- daf16supp %>% dauer_ANOVA() -->
-<!-- #stan -->
-<!-- stan.glmm <- daf16supp %>% stan_glmer(formula = cbind((dauer+pd), (n-(dauer+pd))) ~ genotype + (1|day) + (1|strainDate) + (1|plateID), -->
-<!--                        data=., -->
-<!--                        family = binomial(link="logit"), -->
-<!--                        chains = 3, cores =4, seed = 2000,iter=6000, -->
-<!--                        control = list(adapt_delta=0.99)) -->
-<!-- ``` -->
+# daf28supp$genotype<- factor(daf28supp$genotype, levels = strains)
+# daf28supp$pct<-as.numeric(paste(daf28supp$dauer/(daf28supp$dauer+daf28supp$pd + daf28supp$non))) #omitted arrest
+# daf28supp$non.dauer<-as.numeric(paste(daf28supp$pd+daf28supp$non))
+lm <- daf16supp %>% dauer_ANOVA()
+#stan
+stan.glmm <- daf16supp %>% stan_glmer(formula = cbind((dauer+pd), (n-(dauer+pd))) ~ genotype + (1|day) + (1|strainDate) + (1|plateID),
+                       data=.,
+                       family = binomial(link="logit"),
+                       chains = 3, cores =4, seed = 2000,iter=6000,
+                       control = list(adapt_delta=0.99))
+```
 
-<!-- ```{r daf-16 suppression plot} -->
-<!-- contrasts<-dauergut::tukey_contrasts(lm, "genotype") -->
-<!-- mixed<-stan.glmm %>% getStan_CIs(type="dauer") -->
-<!-- plot.contrasts<-c("",contrasts$prange[1],"") -->
-<!-- plot.contrasts.2<-c("", "", contrasts$prange[3]) #for rescue vs rict-1 -->
+```{r daf-16 suppression plot}
+contrasts<-dauergut::tukey_contrasts(lm, "genotype")
+mixed<-stan.glmm %>% getStan_CIs(type="dauer")
+plot.contrasts<-c("",contrasts$prange[1],"")
+plot.contrasts.2<-c("", "", contrasts$prange[3]) #for rescue vs rict-1
 
-<!-- (p<-dauergut::plot_CIs(daf16supp, title='rict-1 acts in the insulin pathway to inhibit dauer formation', plot.contrasts, plot.contrasts.2, ypos = 1.075, offset = 0, type = "dauer")) -->
-<!-- ``` -->
+(p<-dauergut::plot_CIs(daf16supp, title='rict-1 acts in the insulin pathway to inhibit dauer formation', plot.contrasts, plot.contrasts.2, ypos = 1.075, offset = 0, type = "dauer"))
+```
 
-<!-- ###S1B -->
-<!-- ```{r rict-1 pheromone response} -->
-<!-- strains <- c("N2", "rict-1(ft7)") -->
-<!-- foods <- "OP50" -->
-<!-- rictC3 <- read.csv(file.path(pathname, 'extdata/S3C_rict1Pheromone.csv')) %>% format_dauer(p.dauer = "exclude") %>% mutate(plateID = interaction(plateID,concentration.uM.)) -->
+##S1B
+```{r rict-1 pheromone response}
+strains <- c("N2", "rict-1(ft7)")
+foods <- "OP50"
+rictC3 <- read.csv(file.path(pathname, 'extdata/S3C_rict1Pheromone.csv')) %>% format_dauer(p.dauer = "exclude") %>% mutate(plateID = interaction(plateID,concentration.uM.))
 
-<!-- glm <- glm(data = rictC3, cbind(dauer, non) ~ concentration.uM. * genotype, family = binomial) -->
-<!-- glmm <- glmer(data = rictC3, cbind(dauer, non) ~ concentration.uM. + genotype + (1|day/plateID), family = binomial) -->
-<!-- brms.glmm <- brms::brm(data = rictC3, formula= dauer | trials(n) ~ concentration.uM. + genotype + (1|plateID), family = binomial) -->
+glm <- glm(data = rictC3, cbind(dauer, non) ~ concentration.uM. * genotype, family = binomial)
+glmm <- glmer(data = rictC3, cbind(dauer, non) ~ concentration.uM. + genotype + (1|day/plateID), family = binomial)
+brms.glmm <- brms::brm(data = rictC3, formula= dauer | trials(n) ~ concentration.uM. + genotype + (1|plateID), family = binomial)
 
-<!-- newdata = data.frame(genotype = rep(strains, each = 241), concentration.uM. = rep(seq(0,2.4, by = 0.01),2),plateID = rep(0, 482), n = rep(60, 482)) -->
+newdata = data.frame(genotype = rep(strains, each = 241), concentration.uM. = rep(seq(0,2.4, by = 0.01),2),plateID = rep(0, 482), n = rep(60, 482))
 
-<!-- predictions <- predict(glm, newdata = newdata, type = "response", se.fit = TRUE) -->
-<!-- glmm.predict <- predict(glmm,newdata=newdata,type = "response", re.form = NA) #re.form = ~0) -->
-<!-- brms.predict <- predict(brms.glmm,newdata=newdata,type = "response", re.form = NA, allow_new_levels = TRUE) -->
+predictions <- predict(glm, newdata = newdata, type = "response", se.fit = TRUE)
+glmm.predict <- predict(glmm,newdata=newdata,type = "response", re.form = NA) #re.form = ~0)
+brms.predict <- predict(brms.glmm,newdata=newdata,type = "response", re.form = NA, allow_new_levels = TRUE)
 
-<!-- newdata1 <- cbind(newdata, predictions) -->
-<!-- newdata1 %<>% mutate(lower = (fit - se.fit), upper = (fit + se.fit), pct = fit) -->
-<!-- newdata2 <- cbind(newdata, glmm.predict) %>% mutate(pct = glmm.predict) -->
-<!-- newdata3 <- cbind(newdata, brms.predict) %>% mutate(pct = Estimate/n) -->
-<!-- #newdata3 <- effects::effect(newdata, glmm) -->
+newdata1 <- cbind(newdata, predictions)
+newdata1 %<>% mutate(lower = (fit - se.fit), upper = (fit + se.fit), pct = fit)
+newdata2 <- cbind(newdata, glmm.predict) %>% mutate(pct = glmm.predict)
+newdata3 <- cbind(newdata, brms.predict) %>% mutate(pct = Estimate/n)
+#newdata3 <- effects::effect(newdata, glmm)
 
-<!-- #get odds-ratio -->
-<!-- mfx::logitor(glm, data = rictC3) # OR ~ 21.3  -->
+#get odds-ratio
+mfx::logitor(glm, data = rictC3) # OR ~ 21.3
 
 
-<!-- (p<-rictC3 %>% ggplot(aes(x=concentration.uM.,y = pct)) + -->
-<!--   geom_ribbon(data = newdata1,aes(ymin=lower, ymax=upper,fill=genotype), alpha=0.3) +  -->
-<!--   geom_line(data = newdata2,aes(x = concentration.uM., y = pct),colour = "red") + -->
-<!--     geom_line(data = newdata3,aes(x = concentration.uM., y = pct), colour = "green") + -->
-<!--   geom_point(aes(y=pct), size = 0.6, alpha = 0.75, width = 0.05) + -->
-<!--   add.median.dauer() + -->
-<!--   #geom_line(data = newdata2,aes(x = concentration.uM., y = pct), colour = "green") +  -->
-<!--   labs(y = "proportion dauer") + -->
-<!--   facet_grid(.~genotype) + -->
-<!--   scale_fill_manual(values = c("grey", "lightblue")) + -->
-<!--   scale_colour_manual(values = c("grey", "lightblue")) + -->
-<!--   geom_text(aes(y = 1.075, x=concentration.uM.), label = "") + -->
-<!--     coord_cartesian(ylim = c(-.005,1.075)) + -->
-<!--       scale_y_continuous(breaks=c(0,0.25,0.5,0.75,1)) + -->
-<!--   theme_my_classic +  -->
-<!--   theme(#axis.title.x = element_blank(), -->
-<!--         axis.text.x = element_blank(), -->
-<!--         axis.text.y = element_text(size=16), -->
-<!--         axis.title.y = element_text(size =20), -->
-<!--         strip.text.x = element_blank(), -->
-<!--         panel.spacing = unit(2,"lines")) +  -->
-<!--     stat_summary(aes(x=concentration.uM. + 0.3, y=-.025), -->
-<!--                       fun.data = fun_length, geom = "text", size = 4) -->
-<!-- ) -->
-<!-- ``` -->
+(p<-rictC3 %>% ggplot(aes(x=concentration.uM.,y = pct)) +
+  geom_ribbon(data = newdata1,aes(ymin=lower, ymax=upper,fill=genotype), alpha=0.3) +
+  geom_line(data = newdata2,aes(x = concentration.uM., y = pct),colour = "red") +
+    geom_line(data = newdata3,aes(x = concentration.uM., y = pct), colour = "green") +
+  geom_point(aes(y=pct), size = 0.6, alpha = 0.75, width = 0.05) +
+  add.median.dauer() +
+  #geom_line(data = newdata2,aes(x = concentration.uM., y = pct), colour = "green") +
+  labs(y = "proportion dauer") +
+  facet_grid(.~genotype) +
+  scale_fill_manual(values = c("grey", "lightblue")) +
+  scale_colour_manual(values = c("grey", "lightblue")) +
+  geom_text(aes(y = 1.075, x=concentration.uM.), label = "") +
+    coord_cartesian(ylim = c(-.005,1.075)) +
+      scale_y_continuous(breaks=c(0,0.25,0.5,0.75,1)) +
+  theme_my_classic +
+  theme(#axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_text(size=16),
+        axis.title.y = element_text(size =20),
+        strip.text.x = element_blank(),
+        panel.spacing = unit(2,"lines")) +
+    stat_summary(aes(x=concentration.uM. + 0.3, y=-.025),
+                      fun.data = fun_length, geom = "text", size = 4)
+)
+```

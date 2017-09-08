@@ -248,9 +248,8 @@ rescue.test &lt;- d7GFP %&gt;% subset(genotype %in% c(&quot;ft7&quot;, &quot;ft7
 rescue.p &lt;- data.frame(p.value = rescue.test$p.value) %&gt;% dauergut::prange()
 
 #H0, all genotypes = N2
-contrasts&lt;-dauergut::dunnett_contrasts(lm, ref.index = 1, &quot;genotype&quot;)</code></pre>
-<pre><code>## [1] &quot;interaction term not indicated&quot;</code></pre>
-<pre class="r"><code>mixed &lt;- stanlmer %&gt;% getStan_CIs(type = &quot;log&quot;, base = 10)
+contrasts&lt;-dauergut::dunnett_contrasts(lm, ref.index = 1, &quot;genotype&quot;)
+mixed &lt;- stanlmer %&gt;% getStan_CIs(type = &quot;log&quot;, base = 10)
 
 plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:2],&quot;&quot;)
 plot.contrasts.2 &lt;- c(&quot;&quot;, &quot;&quot;, &quot;&quot;, rescue.p$prange)
@@ -299,7 +298,7 @@ img.path &lt;- file.path(pathname,&quot;figures/2A_daf7GFP.png&quot;)</code></pr
 <td align="right">0.0447683</td>
 <td align="right">122</td>
 <td align="right">-3.3603231</td>
-<td align="right">0.0029056</td>
+<td align="right">0.0029965</td>
 <td align="left">**</td>
 </tr>
 <tr class="odd">
@@ -308,7 +307,7 @@ img.path &lt;- file.path(pathname,&quot;figures/2A_daf7GFP.png&quot;)</code></pr
 <td align="right">0.0463634</td>
 <td align="right">122</td>
 <td align="right">0.3268511</td>
-<td align="right">0.9772180</td>
+<td align="right">0.9772185</td>
 <td align="left">p~0.98</td>
 </tr>
 </tbody>
@@ -361,126 +360,47 @@ img.path &lt;- file.path(pathname,&quot;figures/2A_daf7GFP.png&quot;)</code></pr
 </tr>
 </tbody>
 </table>
-</div>
-<div id="b" class="section level2">
-<h2>2B</h2>
-<pre class="r"><code>daf7FISH&lt;-read.csv(&quot;extdata/2B_daf7FISH_4frames.csv&quot;) %&gt;%
-  separate(Label, c(&quot;method&quot;,&quot;group&quot;,&quot;sample&quot;),sep = c(&quot;-&quot;), extra = &quot;drop&quot;) %&gt;%
-  separate(sample, c(&quot;sample&quot;, &quot;type&quot;),sep =&quot;:&quot;, extra = &quot;drop&quot;) %&gt;%
-  mutate(genotype = data.frame(do.call(rbind, strsplit(as.vector(group), split = &quot;daf7_mRNA_L1_27d_&quot;)))[,2]) %&gt;%
-  mutate(ID = interaction(genotype, sample)) %&gt;%
-  mutate(genotype = factor(genotype, levels = c(&quot;N2&quot;, &quot;ft7&quot;, &quot;mg360&quot;, &quot;mg360resc&quot;)))
-
-#measured background fluorescence of each of 4 frames to normalize the sum projection of the neuron
-#merge to add mean background value to each row:
-background &lt;- filter(daf7FISH, type == &quot;background&quot;) %&gt;% dplyr::select(ID, mean)
-colnames(background) &lt;- c(&quot;ID&quot;, &quot;background&quot;)
-
-cells&lt;-dplyr::filter(daf7FISH, type == &quot;cell&quot;) %&gt;% dplyr::select(ID, sample, mean, genotype)
-colnames(cells) &lt;- c(&quot;ID&quot;, &quot;sample&quot;, &quot;cell.mean&quot;, &quot;genotype&quot;)
-
-daf7FISH &lt;- merge(cells, background,by=&quot;ID&quot;) %&gt;%
-  mutate(cell.norm = cell.mean - mean(background), 
-         cell.diffnorm = cell.mean - background,
-         cell.ratioNorm = cell.mean / background)</code></pre>
-<pre class="r"><code>#simple lm
-lm&lt;-lm(data=daf7FISH, formula=cell.norm~genotype)
-#check for outliers
-daf7FISH &lt;- dauergut::flag_outliers(lm, daf7FISH, threshold = 4, noplot = TRUE)
-
-lm.0&lt;-lm(data=daf7FISH[daf7FISH$outlier.status == FALSE,], formula=cell.norm~1)
-lm.1&lt;-lm(data=daf7FISH[daf7FISH$outlier.status == FALSE,], formula=cell.norm~genotype)
-#anova(lm.0, lm.1) p ~ 0.013
-
-stanlm &lt;- stan_glm(cell.norm ~ genotype, data = daf7FISH[daf7FISH$outlier.status == FALSE,])</code></pre>
-<pre><code>## 
-## SAMPLING FOR MODEL &#39;continuous&#39; NOW (CHAIN 1).
-## 
-## Chain 1, Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 1, Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 1, Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 1, Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 1, Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 1, Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 1, Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 1, Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 1, Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 1, Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 1, Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 1, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.113747 seconds (Warm-up)
-##                0.082832 seconds (Sampling)
-##                0.196579 seconds (Total)
-## 
-## 
-## SAMPLING FOR MODEL &#39;continuous&#39; NOW (CHAIN 2).
-## 
-## Chain 2, Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 2, Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 2, Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 2, Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 2, Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 2, Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 2, Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 2, Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 2, Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 2, Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 2, Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 2, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.100286 seconds (Warm-up)
-##                0.078175 seconds (Sampling)
-##                0.178461 seconds (Total)
-## 
-## 
-## SAMPLING FOR MODEL &#39;continuous&#39; NOW (CHAIN 3).
-## 
-## Chain 3, Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 3, Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 3, Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 3, Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 3, Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 3, Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 3, Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 3, Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 3, Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 3, Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 3, Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 3, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.099415 seconds (Warm-up)
-##                0.084772 seconds (Sampling)
-##                0.184187 seconds (Total)
-## 
-## 
-## SAMPLING FOR MODEL &#39;continuous&#39; NOW (CHAIN 4).
-## 
-## Chain 4, Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 4, Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 4, Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 4, Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 4, Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 4, Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 4, Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 4, Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 4, Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 4, Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 4, Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 4, Iteration: 2000 / 2000 [100%]  (Sampling)
-##  Elapsed Time: 0.098862 seconds (Warm-up)
-##                0.086877 seconds (Sampling)
-##                0.185739 seconds (Total)</code></pre>
-<pre class="r"><code>strains &lt;- levels(daf7FISH$genotype)
-contrasts &lt;- dauergut::dunnett_contrasts(lm.1,ref.index = 1,&quot;genotype&quot;)</code></pre>
-<pre><code>## [1] &quot;interaction term not indicated&quot;</code></pre>
-<pre class="r"><code>mixed &lt;- stanlm %&gt;% dauergut::getStan_CIs()
-rescue.test &lt;- daf7FISH[daf7FISH$outlier.status == FALSE,] %&gt;% subset(genotype %in% c(&quot;mg360&quot;, &quot;mg360resc&quot;)) %$% t.test(cell.norm ~ genotype)
-rescue.p &lt;- data.frame(p.value = rescue.test$p.value) %&gt;% dauergut::prange()
-
-plot.contrasts &lt;- c(&quot;&quot;, contrasts$prange[1:2],&quot;&quot;)
-plot.contrasts.2 &lt;- c(&quot;&quot;, &quot;&quot;, &quot;&quot;, rescue.p$prange)
-
-dauergut::plot_CIs(daf7FISH[daf7FISH$outlier.status == FALSE,], title = &quot;daf7 mRNA is reduced in rict-1 mutants&quot;, plot.contrasts = plot.contrasts, plot.contrasts.2 = plot.contrasts.2, ypos = 150, offset = 0, type = &quot;expression&quot;)</code></pre>
-<p><img src="Figure_2_files/figure-html/plot%20daf7FISH-1.png" width="672" /></p>
-<p>2B. <em>Daf-7</em> mRNA is reduced in <em>rict-1</em> mutants. Animals were grown 18hrs post egg lay at 27º, then fixed prior to FISH. Intestinal expression of <em>rict-1</em> using the intestinal <em>ges-1</em> promoter rescues <em>daf-7</em> expression. Box and scatter plot show raw data. Bayesian 90% (grey) and 50% (red) credible intervals are shown on the right (see methods). For <em>rict-1(mg360)</em> and <em>rict-1(ft7)</em>, p~0.04 and p~0.032 compared to N2, respectively. For <em>ges-1</em> rescue, p~0.038 compared to <em>rict-1(ft7)</em>. n=2 independent experiments, pooled data. 2 outlier data points were removed in total.</p>
+<!-- ##2B -->
+<!-- ```{r daf7 FISH dataload, message=FALSE} -->
+<!-- daf7FISH<-read.csv("extdata/2B_daf7FISH_4frames.csv") %>% -->
+<!--   separate(Label, c("method","group","sample"),sep = c("-"), extra = "drop") %>% -->
+<!--   separate(sample, c("sample", "type"),sep =":", extra = "drop") %>% -->
+<!--   mutate(genotype = data.frame(do.call(rbind, strsplit(as.vector(group), split = "daf7_mRNA_L1_27d_")))[,2]) %>% -->
+<!--   mutate(ID = interaction(genotype, sample)) %>% -->
+<!--   mutate(genotype = factor(genotype, levels = c("N2", "ft7", "mg360", "mg360resc"))) -->
+<!-- #measured background fluorescence of each of 4 frames to normalize the sum projection of the neuron -->
+<!-- #merge to add mean background value to each row: -->
+<!-- background <- filter(daf7FISH, type == "background") %>% dplyr::select(ID, mean) -->
+<!-- colnames(background) <- c("ID", "background") -->
+<!-- cells<-dplyr::filter(daf7FISH, type == "cell") %>% dplyr::select(ID, sample, mean, genotype) -->
+<!-- colnames(cells) <- c("ID", "sample", "cell.mean", "genotype") -->
+<!-- daf7FISH <- merge(cells, background,by="ID") %>% -->
+<!--   mutate(cell.norm = cell.mean - mean(background),  -->
+<!--          cell.diffnorm = cell.mean - background, -->
+<!--          cell.ratioNorm = cell.mean / background) -->
+<!-- ``` -->
+<!-- ```{r daf7FISH stats, warning=FALSE} -->
+<!-- #simple lm -->
+<!-- lm<-lm(data=daf7FISH, formula=cell.norm~genotype) -->
+<!-- #check for outliers -->
+<!-- daf7FISH <- dauergut::flag_outliers(lm, daf7FISH, threshold = 4, noplot = TRUE) -->
+<!-- lm.0<-lm(data=daf7FISH[daf7FISH$outlier.status == FALSE,], formula=cell.norm~1) -->
+<!-- lm.1<-lm(data=daf7FISH[daf7FISH$outlier.status == FALSE,], formula=cell.norm~genotype) -->
+<!-- #anova(lm.0, lm.1) p ~ 0.013 -->
+<!-- stanlm <- stan_glm(cell.norm ~ genotype, data = daf7FISH[daf7FISH$outlier.status == FALSE,]) -->
+<!-- ``` -->
+<!-- ```{r plot daf7FISH} -->
+<!-- strains <- levels(daf7FISH$genotype) -->
+<!-- contrasts <- dauergut::dunnett_contrasts(lm.1,ref.index = 1,"genotype") -->
+<!-- mixed <- stanlm %>% dauergut::getStan_CIs() -->
+<!-- rescue.test <- daf7FISH[daf7FISH$outlier.status == FALSE,] %>% subset(genotype %in% c("mg360", "mg360resc")) %$% t.test(cell.norm ~ genotype) -->
+<!-- rescue.p <- data.frame(p.value = rescue.test$p.value) %>% dauergut::prange() -->
+<!-- plot.contrasts <- c("", contrasts$prange[1:2],"") -->
+<!-- plot.contrasts.2 <- c("", "", "", rescue.p$prange) -->
+<!-- dauergut::plot_CIs(daf7FISH[daf7FISH$outlier.status == FALSE,], title = "daf7 mRNA is reduced in rict-1 mutants", plot.contrasts = plot.contrasts, plot.contrasts.2 = plot.contrasts.2, ypos = 150, offset = 0, type = "expression") -->
+<!-- ``` -->
+<!-- 2B.  _Daf-7_ mRNA is reduced in _rict-1_ mutants. Animals were grown 18hrs post egg lay at 27º, then fixed prior to FISH. Intestinal expression of _rict-1_ using the intestinal _ges-1_ promoter rescues _daf-7_ expression. Box and scatter plot show raw data. Bayesian 90% (grey) and 50% (red) credible intervals are shown on the right (see methods). For _rict-1(mg360)_ and _rict-1(ft7)_, *** and ** compared to N2, respectively. For _ges-1_ rescue, *** compared to _rict-1(ft7)_. n=2 independent experiments, pooled data. -->
+<!-- 2 outlier data points were removed in total.  -->
 <!-- ###2C -->
 <!-- rescue of rict-1 with daf-7 and daf-28 -->
 <!-- ```{r daf7/daf28 suppress rict-1} -->
