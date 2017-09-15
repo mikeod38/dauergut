@@ -17,7 +17,7 @@
 #' @param offset position to offset plot.contrast.2 on the y response scale. 
 #' @export
 #' @examples plot_CIs(df, "GFP plot", plot.contrasts = contrasts, ypos = 500, type = "GFP", offset = 100)
-plot_CIs<-function (df, title, plot.contrasts, plot.contrasts.2, ypos, type, offset) {
+plot_CIs<-function (df, title, plot.contrasts, plot.contrasts.2, ypos, type, offset, labels) {
   #generate plots for different types of data
   #all using genotype as predictor factor
   #type = "dauer" or "grid" or "GFP" or mRNA expression plot
@@ -37,13 +37,13 @@ plot_CIs<-function (df, title, plot.contrasts, plot.contrasts.2, ypos, type, off
                                    yend = mean), colour = "darkgrey") + 
     scale_x_discrete(labels=function(x) sub(" ","\n",x,fixed=TRUE)) +
     stat_summary(aes(x=genotype, y=ypos), geom="text", label=plot.contrasts, show.legend = TRUE, size=text.size) + # pvalues
-    theme(axis.text.x = element_text(size = 16),
+    theme(axis.text.x = element_text(size = 12),
           axis.text.y = element_text(size = 12),
           axis.line = element_line(size=0.2),
           axis.title = element_text(size=16))
   if(type == "dauer") {
     p1 <- p + 
-      geom_dotplot(aes(y=pct),binwidth=.015, binaxis="y", position="dodge", stackdir="center", size =.3) +
+      geom_dotplot(aes(y=pct, x = genotype),binwidth=.015, binaxis="y", position="dodge", stackdir="center", size =.3) +
       stat_summary(aes(y=pct),fun.y = median, fun.ymin = median, fun.ymax = median,
                   geom = "crossbar", width = 0.25, lwd = line.width) +
       labs(title = title,
@@ -112,10 +112,14 @@ plot_CIs<-function (df, title, plot.contrasts, plot.contrasts.2, ypos, type, off
   }
   if(missing(plot.contrasts.2)) {
     p1 + stat_summary(aes(x=as.numeric(as.factor(genotype)) + 0.3, y=-.05),
-                      fun.data = fun_length, geom = "text", size = text.size)
+                      fun.data = fun_length, geom = "text", size = text.size) +
+      scale_x_discrete(labels = labels) + 
+      theme(axis.text.x = element_text(face = "italic"))
   } else { # add secondary comparisons
     p1 + stat_summary(aes(x=genotype, y=ypos-offset), geom="text", label=plot.contrasts.2, size=text.size, colour="red") +
       stat_summary(aes(x=as.numeric(as.factor(genotype)) + 0.3, y=-.05),
-                   fun.data = fun_length, geom = "text", size = text.size-1)
+                   fun.data = fun_length, geom = "text", size = text.size-1) +
+      scale_x_discrete(labels = labels) + 
+      theme(axis.text.x = element_text(face = "italic"))
   }
 }

@@ -36,7 +36,7 @@ dauer_ANOVA <- .%>% lm(data = ., formula = pct ~ genotype)
 strains<-c("N2", "rict-1(mg360)", "rict-1(ft7)", "sgk-1(ok538)", "akt-1(mg306)", "akt-2", "pkc-2")
 foods <- "OP50"
 
-TORC2<-read.csv(file.path(pathname, "data/1B_rict-1_TORC2.csv"), header=TRUE) %>% format_dauer(p.dauer = "non") #including partial/pd as non-dauer due to excess zeros. 
+TORC2<-read.csv(file.path(pathname, "extdata/1B_rict-1_TORC2.csv"), header=TRUE) %>% format_dauer(p.dauer = "non") #including partial/pd as non-dauer due to excess zeros. 
 
 lm <- TORC2 %>% dauer_ANOVA()
 #stan
@@ -106,7 +106,7 @@ Image of daf-7 expression
 ```{r daf7 data load, warning=FALSE} 
 strains<-c("N2","mg360","ft7","ft7_ges1resc")
 dates<-c("10_22_16", "11_9_16", "11_23_16") #dropped "12_6_16" due to missingness
-d7GFP<-read.csv("data/2A_daf7GFP.csv") %>% filter(mean!=4095 & genotype %in% strains & date %in% dates & temp == "27" & food == "OP50") %>% mutate(genotype = factor(genotype, levels=strains), ID = as.character(ID)) %>%
+d7GFP<-read.csv("extdata/2A_daf7GFP.csv") %>% filter(mean!=4095 & genotype %in% strains & date %in% dates & temp == "27" & food == "OP50") %>% mutate(genotype = factor(genotype, levels=strains), ID = as.character(ID)) %>%
   separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>% 
   mutate(genoID = paste(date, genotype, ID.A, sep = ":"), cell.norm = mean) #genoID is animal, 2 cells per animal measured.
 
@@ -159,7 +159,7 @@ knitr::kable(mixed[,c(6,1:5)], caption = "Bayesian credible intervals")
 ###2B
 
 ```{r daf7 FISH dataload}
-daf7FISH<-read.csv("data/2B_daf7FISH_4frames.csv") %>%
+daf7FISH<-read.csv("extdata/2B_daf7FISH_4frames.csv") %>%
   separate(Label, c("method","group","sample"),sep = c("-"), extra = "drop") %>%
   separate(sample, c("sample", "type"),sep =":", extra = "drop") %>%
   mutate(genotype = data.frame(do.call(rbind, strsplit(as.vector(group), split = "daf7_mRNA_L1_27d_")))[,2]) %>%
@@ -218,7 +218,7 @@ rescue of rict-1 with daf-7 and daf-28
 
 ```{r daf7/daf28 suppress rict-1}
 strains<-c("N2","rict-1(ft7)","rict-1(ft7); ex[ASI::daf7]","rict-1(ft7); ex[ASI::daf28]","rict-1(ft7); ex[ASJ::daf28]")
-daf7supp<-read.csv(file.path(pathname, "data/2C_daf7_daf28_suppression.csv")) %>% format_dauer(p.dauer = "non")
+daf7supp<-read.csv(file.path(pathname, "extdata/2C_daf7_daf28_suppression.csv")) %>% format_dauer(p.dauer = "non")
 
 # daf7supp$genotype<- factor(daf7supp$genotype, levels = strains)
 # daf7supp$pct<-as.numeric(paste(daf7supp$dauer/(daf7supp$dauer+daf7supp$pd + daf7supp$non))) #omitted arrest
@@ -245,7 +245,7 @@ plot.contrasts.2<-c("", "", contrasts$prange[5:7]) #for rescue vs rict-1
 days = as.factor(8:10)
 strains = c("N2", "ft7")
 foods = "OP50"
-d28<-read.csv('data/2D_3B_daf-28_GFP_rict-1.csv') %>%
+d28<-read.csv('extdata/2D_3B_4B_daf-28_GFP_rict-1.csv') %>%
 separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>%
   subset(mean!=4095 & food == foods & temp == "27" & genotype %in% strains & pheromone == 0) %>% 
   mutate(day = as.factor(day), genotype = factor(genotype, levels = strains),
@@ -316,7 +316,7 @@ labs(title = "daf-28 is also reduced in rict-1 mutants",
 ```{r daf-16 suppresion}
 strains<-c("N2","rict-1(mg360)","rict-1;daf-16")
 foods <- "OP50"
-daf16supp<-read.csv(file.path(pathname, "data/S1A_daf16_suppression.csv")) %>% format_dauer(.,p.dauer = "dauer")
+daf16supp<-read.csv(file.path(pathname, "extdata/S1A_daf16_suppression.csv")) %>% format_dauer(.,p.dauer = "dauer")
 
 # daf28supp$genotype<- factor(daf28supp$genotype, levels = strains)
 # daf28supp$pct<-as.numeric(paste(daf28supp$dauer/(daf28supp$dauer+daf28supp$pd + daf28supp$non))) #omitted arrest
@@ -343,7 +343,7 @@ plot.contrasts.2<-c("", "", contrasts$prange[3]) #for rescue vs rict-1
 ```{r rict-1 pheromone response}
 strains <- c("N2", "rict-1(ft7)")
 foods <- "OP50"
-rictC3 <- read.csv(file.path(pathname, 'data/S3C_rict1Pheromone.csv')) %>% format_dauer(p.dauer = "exclude") %>% mutate(plateID = interaction(plateID,concentration.uM.))
+rictC3 <- read.csv(file.path(pathname, 'extdata/S3C_rict1Pheromone.csv')) %>% format_dauer(p.dauer = "exclude") %>% mutate(plateID = interaction(plateID,concentration.uM.))
 
 glm <- glm(data = rictC3, cbind(dauer, non) ~ concentration.uM. * genotype, family = binomial)
 glmm <- glmer(data = rictC3, cbind(dauer, non) ~ concentration.uM. + genotype + (1|day/plateID), family = binomial)
@@ -404,7 +404,7 @@ strains = "N2"
 days<-c("11_23_16", "12_6_16")
 #days <- "11_23_16" # 12_6 was likely L2s based on the timing
 
-d7GFP<-read.csv(file.path(pathname, "data/3A_daf7GFP_nopeptone_plates.csv")) %>% filter(mean!=4095 & genotype %in% strains & date %in% days & pheromone == 0 & food == "OP50") %>% mutate(genotype = factor(genotype, levels=strains), ID = as.character(ID)) %>%
+d7GFP<-read.csv(file.path(pathname, "extdata/2A_3A_daf7GFP.csv")) %>% filter(mean!=4095 & genotype %in% strains & date %in% days & pheromone == 0 & food == "OP50") %>% mutate(genotype = factor(genotype, levels=strains), ID = as.character(ID)) %>%
   separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>% 
   mutate(genoID = as.factor(paste(date, genotype, ID.A, sep = ":")), cell.norm = mean)
 
@@ -426,7 +426,7 @@ p<-df %>% ggplot(aes(x=temp, y=cell.norm)) +
         strip.text.x = element_text(size=20))
 p
 
-lm<- lm(cell.norm ~ temp, data = d7GFP)
+lm.ASI.lin <- with(log.tran, lm(linkfun(cell.norm) ~ temp, data = df))
 ```
 
 ###3B
@@ -435,13 +435,13 @@ lm<- lm(cell.norm ~ temp, data = d7GFP)
 tempdays<-c("1", "4", "6", "8", "10")
 foods <- "OP50"
 strains <- "N2"
-d28<-read.csv('data/2D_3B_daf-28_GFP_rict-1.csv') %>%
+d28<-read.csv('extdata/2D_3B_4B_daf-28_GFP_rict-1.csv') %>%
 separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>%
   subset(mean!=4095 & food == foods & genotype == strains & pheromone == 0) %>% 
   mutate(day = as.factor(day), genotype = factor(genotype, levels = strains),
          genoID = interaction(date,neuron,temp,genotype,ID.A))
 
-df <- d28 %>% subset(day %in% tempdays) %>% group_by(date,temp,genotype,neuron,genoID) %>% summarise(cell.norm = mean(mean)) %>%
+df <- d28 %>% subset(day %in% tempdays & food %in% foods & mean !=4095 & genotype == "N2") %>% group_by(date,temp,genotype,neuron,genoID) %>% summarise(cell.norm = mean(mean)) %>%
   data.frame() %>% mutate(group.id = interaction(genotype, neuron)) # take mean of each worm
 
 #### plot ####
@@ -461,15 +461,26 @@ df <- d28 %>% subset(day %in% tempdays) %>% group_by(date,temp,genotype,neuron,g
         strip.text.x = element_text(size=20),
         panel.spacing.x=unit(2, "lines")))
 
+p2 <- df %>% ggplot(aes(x=exp(temp), y=log10(cell.norm))) + geom_boxplot(aes(group = temp)) + geom_point(alpha = 0.2)
+
 #### Linear MM ###3
 library(lsmeans)
 log.tran<-make.tran(type="genlog", param = c(0.5,10))
 lm4<-with(log.tran, lmer(linkfun(mean) ~ neuron * temp + (1|genoID), data = subset(d28, day %in% tempdays & food == "OP50" & mean !=4095 & genotype == "N2")))
 
-lm.ASI.lin <- with(log.tran, lmer(linkfun(mean) ~ temp + (1|genoID), data = subset(d28, day %in% tempdays & food == "OP50" & mean !=4095 & genotype == "N2" & neuron == "ASI")))
+lm.ASI.lin <- with(log.tran, lm(linkfun(cell.norm) ~ temp, data = subset(df, neuron == "ASI")))
 lm.ASI.poly.2 <- update(lm.ASI.lin, formula = . ~ . - temp + poly(temp,2,raw=TRUE))
-anova(lm.ASI.lin,lm.ASI.poly)
+anova(lm.ASI.lin,lm.ASI.poly.2)
+lm.ASI.log <- with(log.tran, lm(linkfun(mean) ~ log10(temp), data = subset(d28, day %in% tempdays & food == "OP50" & mean !=4095 & genotype == "N2" & neuron == "ASI")))
+anova(lm.ASI.lin)
 
+
+lm.ASJ.lin <- with(log.tran, lm(linkfun(cell.norm) ~ temp, data = subset(df, neuron == "ASJ")))
+anova(lm.ASJ.lin)
+
+newdata = data.frame(temp = seq(20,27, by = 0.1), genoID = rep(0,71))
+
+predict(lm.ASI.poly.2, newdata = newdata, re.form = NA)
 
 #refit with lmerTest to get Satterthwaite approx p-values
 with(log.tran, lmerTest::lmer(linkfun(mean) ~ neuron * temp + (1|genoID), data = subset(d28, day %in% tempdays & food == "OP50" & mean !=4095 & genotype == "N2")))
@@ -497,7 +508,7 @@ days = as.factor(8:10) # days containing N2 and ft7 27º data
 temps = c("25","27")
 strains = c("N2", "ft7")
 foods = "OP50"
-d28<-read.csv('data/2D_3B_daf-28_GFP_rict-1.csv') %>%
+d28<-read.csv('extdata/2D_3B_4B_daf-28_GFP_rict-1.csv') %>%
 separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>%
   subset(mean!=4095 & food == foods &
            temp %in% temps &
@@ -656,7 +667,7 @@ knitr::kable(car::Anova(lm.int), caption="significant interaction of genotype on
 # knitr::kable(summary(pairs(rict1.lsm)), caption="contrast matrix for food effect in rict-1 mutants")
 ```
 
-###_4B
+###4B
 #ASJ::daf-28
 
 ```{r daf-28 increased by HB101}
@@ -665,7 +676,7 @@ strains = c("N2","mg360")
 foods = c("OP50","HB101")
 days = "1_20_15"
 
-d28 <- read.csv('data/2D_3B_daf-28_GFP_rict-1.csv') %>%
+d28 <- read.csv('extdata/2D_3B_4B_daf-28_GFP_rict-1.csv') %>%
 separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>%
   subset(food %in% foods & date %in% days & temp == "27" & genotype %in% strains & pheromone == 0 & neuron == "ASJ") %>% 
   mutate(day = as.factor(day), genotype = factor(genotype, levels = strains),
@@ -722,7 +733,7 @@ intestinal rict-1 expression rescues behavior.
 
 ###5B
 ```{r rict-1 roaming import, fig.width=5}
-roam<-read.csv(file.path(pathname, "data/5B_5E_gridentry.csv")) %>% 
+roam<-read.csv(file.path(pathname, "extdata/5B_5E_gridentry.csv")) %>% 
   mutate(strain = interaction(genotype, line, drop=TRUE),
          strainDate = interaction(strain, date, drop=TRUE),
          plateID = interaction(strainDate,plate, drop=TRUE),
@@ -829,84 +840,6 @@ plot.contrasts.2<-c("","",contrasts$prange[4:5])
 
 ```
 
-###S2A
-```{r roaming in starved WT and rict-1}
-#run speed_curvature_4x_parallel to reproduce these data from raw position, speed data.
-```
-![rict-1 mutation increases roaming behavior](/Users/mikeod/git/projects/dauergut/figures/S2A_starve_roam_density.png)
-###S2B
-```{r starved roam quantification}
-devtools::install_github("rasmusab/bayesian_first_aid")
-strains <- c("N2","rict-1(ft7)")
-roam_beh <- read.csv(file.path(pathname, "data/S2B_starved_roam_dwell_all.csv")) %>% 
-  mutate(genotype = factor(genotype, levels = strains), pct = pct.roam, plateID = interaction(date,genotype,plate))
-
-
-roam.t <- t.test(roam_beh[roam_beh$genotype == strains[1],]$pct, roam_beh[roam_beh$genotype == strains[2],]$pct)
-
-glmm <- lme4::glmer(data = roam_beh, cbind(roam, dwell) ~ genotype + (1|plateID), family = binomial)
-
-stan.glmm <- stan_glmer(data = roam_beh, 
-                        formula = cbind(roam, dwell) ~ genotype + (1|plateID), 
-                        family = binomial,
-                        iter = 4000)
-
-mixed <- stan.glmm %>% dauer_getStan_CIs
-contrasts <- data.frame(p.value = roam.t$p.value) %>% dauergut::prange()
-plot.contrasts <- c("",contrasts$prange)
-
-
-(p<-dauergut::plot_CIs(roam_beh, plot.contrasts = plot.contrasts, type = "dauer", title = "", ypos = 1.05, offset = 0) + labs(subtitle = "", y = "proportion roaming"))
-```
-
-###S2C
-```{r S2 daf7 adults}
-strains<-c("N2","ft7")
-d7GFP<-read.csv("data/S2C_daf7GFP_adults.csv") %>% filter(mean!=4095 & genotype %in% strains) %>% mutate(genotype = factor(genotype, levels=strains), ID = as.character(ID)) %>%
-  separate(ID, c("ID.A", "ID.B","ID.C"), sep = ":", extra = "drop") %>% 
-  mutate(genoID = paste(genotype, ID.A, animal, sep = ":")) #genoID is animal, 2 cells per animal measured.
-
-df <- d7GFP %>% group_by(genotype, genoID) %>% summarise(cell.norm = mean(mean)) # take mean of each worm
-library(lsmeans)
-# log.tran<-make.tran(type="genlog", param = c(0.5,10))
-log.tran<-make.tran(type="genlog", param = c(0,10))
-### t-test with log-transformed data
-d7.t <-with(log.tran,(t.test(data=df,linkfun(cell.norm)~genotype)))
-
-N2<-df[df$genotype=="N2","cell.norm"] %>% as.matrix
-ft7<-df[df$genotype=="ft7","cell.norm"] %>% as.matrix
-BEST.t <- with(log.tran, BEST::BESTmcmc(linkfun(N2),linkfun(ft7))) # variance is equal effects sizes are same as stan_glm
-stanlm <- with(log.tran, stan_glm(linkfun(cell.norm) ~ genotype, family=gaussian(), data = df, prior = cauchy(), prior_intercept = cauchy()))
-
-contrasts <-data.frame(p.value = d7.t$p.value) %>% dauergut::prange()
-plot.contrasts <- c("",contrasts$prange)
-mixed <- stanlm %>% getStan_CIs_log(base = 10)
-
-(p<-plot_CIs(df, plot.contrasts = plot.contrasts, type = "GFP", title = "", ypos = 4700, offset = 0))
-
-```
-
-###S2D
-```{r pdfr-1 dauer phenotype}
-strains<-c("N2","rict-1(ft7)","rict-1(ft7);pdfr-1")
-foods = "OP50"
-
-pdfr_dauer<-read.csv(file.path(pathname, "data/S2D_pdfr_dauer.csv")) %>% format_dauer(p.dauer = "non")
-
-pdfr_dauer %<>% mutate(adj.pct = case_when(.$pct == 0 ~ 0.01, .$pct == 1 ~ 0.99, TRUE ~ .$pct))
-
-lm <- pdfr_dauer %>% dauer_ANOVA()
-
-stan.glmm <- pdfr_dauer %>% run_dauer_stan
-
-contrasts<-dauergut::tukey_contrasts(lm,"genotype")
-mixed<-stan.glmm %>% dauer_getStan_CIs()
-plot.contrasts<-c("",contrasts$prange[1:2])
-plot.contrasts.2<-c("","",contrasts$prange[3])
-
-(p<-dauergut::plot_CIs(pdfr_dauer, title='pdfr-1 does not suppress the rict-1 dauer phenotype', plot.contrasts, plot.contrasts.2, ypos = 1.1, offset = 0.050, type = "dauer"))
-```
-
 ###5C
 ```{r roam dwell density plot}
 #### see speed_curvature function for data analysis
@@ -919,7 +852,7 @@ plot.contrasts.2<-c("","",contrasts$prange[3])
 ```{r roaming mutliple assays}
 devtools::install_github("rasmusab/bayesian_first_aid")
 strains <- c("N2","ft7")
-roam_beh <- read.csv(file.path(pathname, "data/5D_roam_dwell_all.csv")) %>% 
+roam_beh <- read.csv(file.path(pathname, "extdata/5D_roam_dwell_all.csv")) %>% 
   mutate(genotype = factor(genotype, levels = strains), pct = pct.roam, plateID = interaction(date,genotype,plate))
 
 
@@ -956,7 +889,7 @@ plot.contrasts <- c("",contrasts$prange)
 pdfr-1 is epistatic to rict-1 in foraging behavior.
 
 ```{r pdfr-1&ft7 dataload}
-  roam<-read.csv(file.path(pathname, "data/5B_5E_gridentry.csv")) %>% 
+  roam<-read.csv(file.path(pathname, "extdata/5B_5E_gridentry.csv")) %>% 
   mutate(strain = interaction(genotype, line, drop=TRUE),
          strainDate = interaction(strain, date, drop=TRUE),
          plateID = interaction(strainDate,plate, drop=TRUE),
@@ -988,97 +921,56 @@ plot.contrasts.2<-c("","","","",contrasts$prange[10])
 (p<-dauergut::plot_CIs(roam.pdfr1, title='rict-1 effects on roaming behavior depends on pdf-1/pdfr-1 signaling', plot.contrasts=plot.contrasts, plot.contrasts.2 = plot.contrasts.2,ypos = 800, offset = 50, type = "grid"))
 ```
 
+###S2A
+```{r roaming in starved WT and rict-1}
+#run speed_curvature_4x_parallel to reproduce these data from raw position, speed data.
+```
+![rict-1 mutation increases roaming behavior](/Users/mikeod/git/projects/dauergut/figures/S2A_starve_roam_density.png)
+###S2B
+```{r starved roam quantification}
+devtools::install_github("rasmusab/bayesian_first_aid")
+strains <- c("N2","rict-1(ft7)")
+roam_beh <- read.csv(file.path(pathname, "extdata/S2B_starved_roam_dwell_all.csv")) %>% 
+  mutate(genotype = factor(genotype, levels = strains), pct = pct.roam, plateID = interaction(date,genotype,plate))
 
 
-###5F
+roam.t <- t.test(roam_beh[roam_beh$genotype == strains[1],]$pct, roam_beh[roam_beh$genotype == strains[2],]$pct)
 
-![pdf-1::venus is increased in both gut and coelemocytes in rict-1 mg360](/Users/mikeod/Dropbox/Temp_shareDocs/Dauer/rict-1_paper/Int_state_paper/fig5_pdf1/pdf1_venus_coel.png)
+glmm <- lme4::glmer(data = roam_beh, cbind(roam, dwell) ~ genotype + (1|plateID), family = binomial)
 
+stan.glmm <- stan_glmer(data = roam_beh, 
+                        formula = cbind(roam, dwell) ~ genotype + (1|plateID), 
+                        family = binomial,
+                        iter = 4000)
 
-<!-- ###5E -->
-
-<!-- ```{r pdf 1 gut expression, fig.width=4} -->
-<!-- pdf_gut<-read.csv(file.path(pathname, "data/5B_pdf-1VENUS_gut.csv")) -->
-<!-- strains<-c("N2","mg360") -->
-<!-- pdf_gut$genotype<-factor(pdf_gut$genotype, levels = strains) -->
-
-<!-- N2.confint<-with(pdf_gut[pdf_gut$genotype == "N2",], t.test(mean, conf.int=TRUE))$conf.int -->
-<!-- mg360.confint<-with(pdf_gut[pdf_gut$genotype == "mg360",], t.test(mean, conf.int=TRUE))$conf.int -->
-
-<!-- test<-with(pdf_gut, t.test(mean~genotype)) -->
-
-<!-- mixed<-data.frame(cbind(test$estimate[c(1,2)],rbind(N2.confint, mg360.confint),c("N2", "mg360"))) -->
-<!-- colnames(mixed) <- c("mean", "lower.CL", "upper.CL", "genotype") -->
-<!-- col.nums<-1:3 -->
-<!-- mixed[col.nums] <- sapply(sapply(mixed[col.nums],as.character),as.numeric) -->
-<!-- mixed$genotype<-factor(mixed$genotype, levels = strains) -->
-
-<!-- plot.contrasts<-c("", prange(test[3])$prange) -->
+mixed <- stan.glmm %>% dauer_getStan_CIs
+contrasts <- data.frame(p.value = roam.t$p.value) %>% dauergut::prange()
+plot.contrasts <- c("",contrasts$prange)
 
 
-<!-- p<-ggplot(pdf_gut, aes(x=genotype, y=mean)) + geom_boxplot(outlier.shape = NA, width=0.3) + geom_quasirandom(cex=1, width = 0.1, method = 'smiley', alpha=0.5) + theme_classic() + theme_my +  -->
-<!--   labs( -->
-<!--     title = "pdf-1 gut expression is increased in rict-1", -->
-<!--     x = "genotype", -->
-<!--     y = "mean fluorescence" -->
-<!--   ) + -->
-<!--   stat_summary(aes(x=genotype), geom="text", fun.data=box_annot, label=plot.contrasts) + -->
-<!--   geom_point(data=mixed, aes(x=c(1.3, 2.3),y=mean), colour="blue") + -->
-<!--   geom_errorbar(data=mixed, aes(x=as.numeric(as.factor(mixed$genotype)) + 0.3,y=mean, ymin=lower.CL, ymax=upper.CL), -->
-<!--               width=.1,colour ="green") + -->
-<!--   stat_summary(aes(as.numeric(as.factor(genotype)) + 0.3), -->
-<!--               fun.data = fun_length, geom = "text",position=, size = 3) -->
-<!-- p -->
+(p<-dauergut::plot_CIs(roam_beh, plot.contrasts = plot.contrasts, type = "dauer", title = "", ypos = 1.05, offset = 0) + labs(subtitle = "", y = "proportion roaming"))
+```
 
-<!-- library(schoRsch) -->
-<!-- knitr::kable( -->
-<!--   t_out(toutput=test, print=FALSE) -->
-<!--     ) -->
+###S2C
+```{r pdfr-1 dauer phenotype}
+strains<-c("N2","rict-1(ft7)","rict-1(ft7);pdfr-1")
+foods = "OP50"
 
-<!-- ``` -->
+pdfr_dauer<-read.csv(file.path(pathname, "extdata/S2C_pdfr_dauer.csv")) %>% format_dauer(p.dauer = "non")
 
+pdfr_dauer %<>% mutate(adj.pct = case_when(.$pct == 0 ~ 0.01, .$pct == 1 ~ 0.99, TRUE ~ .$pct))
 
-<!-- ###5F -->
-<!-- increased pdf-1 expression results in rict-1 - like dauer phenotype -->
-<!-- ```{r pdf 1 coelomocyte expression, fig.width=4} -->
-<!-- pdf_coel<-read.csv(file.path(pathname, "data/4E_pdf-1VENUS_coelomocytes.csv")) -->
-<!-- strains<-c("N2","mg360") -->
-<!-- pdf_coel$genotype<-factor(pdf_coel$genotype, levels = strains) -->
+lm <- pdfr_dauer %>% dauer_ANOVA()
 
-<!-- N2.confint<-with(pdf_coel[pdf_coel$genotype == "N2",], t.test(mean, conf.int=TRUE))$conf.int -->
-<!-- mg360.confint<-with(pdf_coel[pdf_coel$genotype == "mg360",], t.test(mean, conf.int=TRUE))$conf.int -->
+stan.glmm <- pdfr_dauer %>% run_dauer_stan
 
-<!-- test<-with(pdf_coel, t.test(mean~genotype)) -->
+contrasts<-dauergut::tukey_contrasts(lm,"genotype")
+mixed<-stan.glmm %>% getStan_CIs(type="dauer")
+plot.contrasts<-c("",contrasts$prange[1:2])
+plot.contrasts.2<-c("","",contrasts$prange[3])
 
-<!-- mixed<-data.frame(cbind(test$estimate[c(1,2)],rbind(N2.confint, mg360.confint),c("N2", "mg360"))) -->
-<!-- colnames(mixed) <- c("mean", "lower.CL", "upper.CL", "genotype") -->
-<!-- col.nums<-1:3 -->
-<!-- mixed[col.nums] <- sapply(sapply(mixed[col.nums],as.character),as.numeric) -->
-<!-- mixed$genotype<-factor(mixed$genotype, levels = strains) -->
-
-<!-- plot.contrasts<-c("", prange(test[3])$prange) -->
-
-
-<!-- p<-ggplot(pdf_coel, aes(x=genotype, y=mean)) + geom_boxplot(outlier.shape = NA, width=0.3) + geom_quasirandom(cex=1, width = 0.1, method = 'smiley', alpha=0.5) + theme_classic() + theme_my +  -->
-<!--   labs( -->
-<!--     title = "pdf-1 coelomocyte uptake is increased in rict-1", -->
-<!--     x = "genotype", -->
-<!--     y = "mean fluorescence" -->
-<!--   ) + -->
-<!--   stat_summary(aes(x=genotype), geom="text", fun.data=box_annot, label=plot.contrasts) + -->
-<!--   geom_point(data=mixed, aes(x=c(1.3, 2.3),y=mean), colour="blue") + -->
-<!--   geom_errorbar(data=mixed, aes(x=as.numeric(as.factor(mixed$genotype)) + 0.3,y=mean, ymin=lower.CL, ymax=upper.CL), -->
-<!--               width=.1,colour ="green") + -->
-<!--   stat_summary(aes(as.numeric(as.factor(genotype)) + 0.3), -->
-<!--               fun.data = fun_length, geom = "text",position=, size = 3) -->
-<!-- p -->
-
-<!-- library(schoRsch) -->
-<!-- knitr::kable( -->
-<!--   t_out(toutput=test, print=FALSE) -->
-<!--     ) -->
-
-<!-- ``` -->
+(p<-dauergut::plot_CIs(pdfr_dauer, title='pdfr-1 does not suppress the rict-1 dauer phenotype', plot.contrasts, plot.contrasts.2, ypos = 1.1, offset = 0.050, type = "dauer"))
+```
 
 ##__Fig 6 Natural variation in thermally-driven dauer formation__{.tabset}
 
@@ -1086,7 +978,7 @@ plot.contrasts.2<-c("","","","",contrasts$prange[10])
 
 ```{r wild screen dataload, warning=FALSE}
 #knitr::opts_chunk$set(cache=TRUE)
-filepath<-file.path(pathname, "data/6A_wildHTdata_allbinary.csv")
+filepath<-file.path(pathname, "extdata/6A_wildHTdata_allbinary.csv")
 foods = "OP50"
 strains <- c("N2","CB4856","JU561", "MY14","DL238","CB4852","QX1211","JU322","JU775","JU1400","ED3072","AB1","AB3","JU362","ED3040", "JU345","PX178","CB3198")
 
@@ -1112,7 +1004,7 @@ Wild isolates were tested for sensitivity to high temperature-induced dauer form
 ###S3A-B
 
 ```{r C327 corr plot, warning=FALSE}
-filepath<-file.path(pathname, "data/S4B_C3_sumstats.csv")
+filepath<-file.path(pathname, "extdata/S3B_C3_sumstats.csv")
 C327<-read.csv(filepath, header=TRUE)
 
 (p<-dauergut::plot_regression_se(C327, "mean.C3", "mean.HT","SEM.C3", "SEM.HT"))
@@ -1125,7 +1017,7 @@ C327<-read.csv(filepath, header=TRUE)
 
 strains <- c("N2","CB4856", "JU561", "MY14", "JU322", "JU362","ED3040", "JU345", "PX178", "CB3198")
 
-wild.roam<-read.csv(file.path(pathname, "data/6B_7F_roam_wild_isolates.csv")) %>%
+wild.roam<-read.csv(file.path(pathname, "extdata/6B_7F_roam_wild_isolates.csv")) %>%
   dplyr::filter(genotype %in% strains) %>%
   mutate(genotype = factor(genotype, levels = strains),
          strainDate = interaction(genotype, date, drop=TRUE),
@@ -1155,7 +1047,7 @@ plot.contrasts<-c("",contrasts$prange[1:9])
 
 ###7A
 ```{r CSS data load}
-filepath<-file.path(pathname,'data/7A_CSSdata_allbinary.csv')
+filepath<-file.path(pathname,'extdata/7A_CSSdata_allbinary.csv')
 strains<- c("N2","CB4856","CSSI","CSSII","CSSIII","CSSIV","CSSV","CSSX")
 foods <- "OP50"
 CSS<-read.csv(filepath, header=TRUE) %>% format_dauer(p.dauer = "exclude") %>% dplyr::filter(n > 9)
@@ -1183,13 +1075,13 @@ knitr::kable(drop1(glmm.locus, test = "Chisq"))
 
 ###S4A
 ```{r CSSII pheromone}
-filepath <- file.path(pathname, "data/S4A_CSSII_ascr5.csv")
+filepath <- file.path(pathname, "extdata/S4A_CSSII_ascr5.csv")
 strains = c("N2","CSSII")
 
-CSSII.C3 <- read.csv(filepath, header =TRUE) %>% format_dauer(p.dauer = "exclude") %>% mutate(pheromone = factor(pheromone, levels = c("control","C3")))
+CSSII.C3 <- read.csv(filepath, header =TRUE) %>% dauergut::format_dauer(p.dauer = "exclude") %>% mutate(pheromone = factor(pheromone, levels = c("control","C3")))
 
 lm <- CSSII.C3 %>% lm(., formula = pct ~ genotype*pheromone)
-contrasts<-dauergut::tukey_contrasts(lm, "genotype", interaction = "pheromone")
+contrasts<-dauergut::dunnett_contrasts(lm, ref.index = 1, factor  = "genotype", interaction = "pheromone")
 
 plot.contrasts<-c("","","","")
 
@@ -1222,7 +1114,7 @@ plot.contrasts<-c("","","","")
 ###7C
 
 ```{r ewIR ChII strain load}
-filepath<-file.path(pathname, "data/7C_ewIRdata_allbinary.csv")
+filepath<-file.path(pathname, "extdata/7C_ewIRdata_allbinary.csv")
 
 strains=c("N2","CB4856","ewIR19","ewIR20",
           "ewIR21","ewIR22","ewIR23","ewIR24",
@@ -1232,7 +1124,7 @@ ewIR<-read.csv(filepath, header=TRUE) %>% format_dauer(p.dauer = "exclude") %>% 
 
 
 ewIR.nocont<-subset(ewIR, !(genotype %in% c("N2","CB4856")))
-mapping<-read.csv(file.path(pathname, 'data/7C_chrII.markers.concise.csv'))
+mapping<-read.csv(file.path(pathname, 'extdata/7C_chrII.markers.concise.csv'))
 mapping.nocont<-subset(mapping, !(genotype %in% c("N2","CB4856")))
 mapping.nocont$other.loci<-NULL
 ewIR<-merge(ewIR, mapping, by="genotype", all=TRUE)
@@ -1321,7 +1213,7 @@ plot.contrasts<-c("",contrasts$prange[1:5])
 ```{r roam QTL}
 strains<- c("N2","CB4856","QTL1","QTL2")
 days <- c("3_10_17", "3_17_17", "4_6_17")
-QTL.roam<-read.csv(file.path(pathname, "data/6B_7F_roam_wild_isolates.csv")) %>%
+QTL.roam<-read.csv(file.path(pathname, "extdata/6B_7F_roam_wild_isolates.csv")) %>%
   dplyr::filter(genotype %in% strains & date %in% days) %>%
   mutate(genotype = factor(genotype, levels = strains),
          strainDate = interaction(genotype, date, drop=TRUE),

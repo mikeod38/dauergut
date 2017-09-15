@@ -1,0 +1,26 @@
+---
+title: Rictor/TORC2 mediates gut-to-brain signaling in the regulation of phenotypic plasticity in _C. elegans_
+author:
+date:
+output:
+  html_document:
+    theme: flatly
+---
+
+To access and download from raw data repository, visit:
+
+https://www.github.com/mikeod38/dauergut.git
+
+Alternatively, to clone this repository in terminal paste the following:
+
+```{bash, eval=FALSE}
+git clone https://github.com/mikeod38/dauergut.git
+```
+
+To load and access package functions and script using Rstudio:
+
+```{r, eval=FALSE}
+devtools::install_github("https://github.com/mikeod38/dauergut.git")
+```
+
+All raw data is in the "extdata" folder

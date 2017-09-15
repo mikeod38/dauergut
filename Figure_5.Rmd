@@ -1,0 +1,8 @@
+---
+title: "Figure 5"
+output:
+  html_document:
+    code_folding: hide
+    fig_height: 5
+    fig_width: 7
+---

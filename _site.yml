@@ -4,7 +4,29 @@ navbar:
   left:
     - text: "home"
       href: index.html
-    - text: "Figure 1"
-      href: Figure_1.html
-    - text: "Figure 2"
-      href: Figure_2.html
+      menu:
+      - text: "raw data"
+        href: about.html
+    - text: "Figures"
+      menu:
+      - text: "Figure 1"
+        href: Figure_1.html
+      - text: "Figure 2"
+        href: Figure_2.html
+      - text: "Figure 3"
+        href: Figure_3.html
+      - text: "Figure 4"
+        href: Figure_4.html
+      - text: "Figure 5"
+        href: Figure_5.html
+      - text: "Figure 6"
+        href: Figure_6.html
+      - text: "Figure 7"
+        href: Figure_7.html
+      - text: "Figure 8"
+        href: Figure_8.html
+output_dir: "."
+output: 
+  html_document:
+    theme: flatly
+    highlight: textmate
