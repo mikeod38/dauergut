@@ -6,3 +6,280 @@ output:
     fig_height: 5
     fig_width: 7
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+pathname = getwd()
+library(magrittr)
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(ggbeeswarm)
+library(beeswarm)
+library(ggthemes)
+library(viridis)
+library(lme4)
+library(schoRsch)
+library(DHARMa)
+library(multcomp)
+library(tidyr)
+library(rstanarm)
+library(ggrepel)
+library(rstan)
+library(rstanarm)
+library(MASS)
+devtools::install_github("mikeod38/dauergut")
+library(dauergut)
+library(plotly)
+library(lsmeans)
+
+dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
+```
+
+#__Intestinal mTORC2 alters foraging behaviors__{.tabset}
+
+##5A
+intestinal rict-1 expression rescues behavior. 
+
+##5B
+```{r rict-1 roaming import, fig.width=5}
+roam<-read.csv(file.path(pathname, "extdata/5B_5E_gridentry.csv")) %>% 
+  mutate(strain = interaction(genotype, line, drop=TRUE),
+         strainDate = interaction(strain, date, drop=TRUE),
+         plateID = interaction(strainDate,plate, drop=TRUE),
+         total.boxes = 186)
+#reorder to set N2 = level1
+# newlevels<-subset(roam, genotype =! "N2")
+# newlevels<-subset(levels(newdata$genotype))
+# 
+# newlevels<-newlevels[newlevels$genotype, drop=TRUE]
+# newlevels$genotype <- factor(newlevels$genotype, drop=TRUE)
+# roam$genotype <- factor(roam$genotype, levels = c("N2", levels(newlevels$genotype))
+
+```
+
+```{r roaming model evaluation}
+
+library(lme4)
+#simple ANOVA:
+lms<-list(lm = lm(n_entries ~ genotype, data = roam),
+          lm.log = lm(log(n_entries) ~ genotype, data = roam),
+          lm.nboxes = lm(n_boxes ~ genotype, data = roam))
+
+#glmms
+glmms<-list(glmm.date = glmer(data=roam, n_entries ~ genotype + (1|date), family="poisson"),
+            glmm.strainDate = glmer(data=roam, n_entries ~ genotype + (1|strainDate), family="poisson"),
+            glmm.obs = glmer(data=roam, n_entries ~ genotype + (1|date) + (1|plateID), family="poisson"),
+            glmm.obsOnly = glmer(data=roam, n_entries ~ genotype + (1|plateID), family="poisson"),
+            glmm.fixDate = glmer(data=roam, n_entries ~ date + genotype + (1|plateID), family="poisson"),
+            glmm.fixDate.ranStrain = glmer(data=roam, n_entries ~ date + genotype + (1|plateID) + (1|strain), family="poisson"),
+            glmm.nest = glmer(data=roam, n_entries ~ genotype + (1|date/plateID), family="poisson"), #nested individual random effect
+            glmm.binom = glmer(data=roam,
+                               formula = cbind(roam$n_boxes, roam$total.boxes - roam$n_boxes) ~ genotype + (1|date/plateID),
+                               family="binomial"))
+
+#non mixed glms
+glms <- list(glm = glm(data=roam, n_entries ~ date + genotype, family="poisson"),
+             glm.nb = glm.nb(data=roam, n_entries ~ date + genotype, init.theta = 1, link="log"),
+             glm.binom = glm(data=roam, cbind(roam$n_boxes, roam$total.boxes - roam$n_boxes) ~ date + genotype, family="binomial"))
+
+mods<-c(lms, glms, glmms)
+
+
+###checking distributional assumptions:
+# library(DHARMa)
+
+# sim.resids<-lapply(mods[1:length(mods)], function(x) {
+#   simulationOutput <- simulateResiduals(fittedModel = x, n=250, refit = T)
+#   #par(mfrow = c(2,2))
+#   #plotResiduals(roam$genotype, simulationOutput$scaledResiduals)
+#   #plotResiduals(roam$date, simulationOutput$scaledResiduals)
+#   #plotResiduals(roam$strain, simulationOutput$scaledResiduals)
+#   return(simulationOutput)
+#   })
+# 
+# lapply(sim.resids, function(x) {
+#   plotSimulatedResiduals(simulationOutput = x)
+# })
+
+
+# using DHARMa package check distribution of residuals by predictors (takes a while using refit = T):
+# (mods.dispersion <-
+#   lapply(glmms, function(x) {
+#   simulationOutput <- simulateResiduals(fittedModel = x, n=250, refit = T)
+#   testOverdispersion(simulationOutput = simulationOutput)
+# }))
+
+# nested glmm looks rougly the best for both count date (n_entries) and binary data (n_boxes/total) 
+# although there is still some small effect of 
+# predicted value on residual quantiles
+
+```
+
+
+```{r rict-1 roam rescue plot, fig.width=5}
+
+strains <- c("N2", "ft7", "ft7;ex[ges-1p]", "ft7;ex[rict-1p]")
+days <- c("10_1_16", "10_5_16", "10_9_16")
+## remove outliers:
+
+roam %<>% dauergut::flag_outliers(df = ., lin.mod = mods$lm, threshold = 4)
+
+roam.resc <- roam %>% subset(genotype %in% strains & date %in% days) %>% 
+  mutate(genotype = factor(genotype, levels = strains))
+
+glmm.nest <- update(mods$glmm.nest, data = roam.resc[roam.resc$outlier.status == FALSE,] )
+stan.glmm <- stan_glmer(data = roam.resc[roam.resc$outlier.status == FALSE,], 
+                        formula = n_entries ~ genotype + (1|date/plateID), family = "poisson",
+                        iter = 4000)
+  
+contrasts<-dauergut::tukey_contrasts(glmm.nest, "genotype")
+mixed<-stan.glmm %>% getStan_CIs(type = "roam")
+plot.contrasts<-c("",contrasts$prange[1], "","")
+plot.contrasts.2<-c("","",contrasts$prange[4:5])
+
+
+(p<-dauergut::plot_CIs(roam.resc, title='mTORC2 components acts in the intestine to regulate foraging', 
+                       plot.contrasts=plot.contrasts, plot.contrasts.2 = plot.contrasts.2,ypos = 800, offset = 0, type = "grid"))
+
+# #print this at the end
+# for (i in sim.resids) {
+#   print(summary(i$fittedModel))
+#   plotSimulatedResiduals(simulationOutput = i)
+# }
+
+```
+
+##5C
+```{r roam dwell density plot}
+#### see speed_curvature function for data analysis
+```
+
+
+![rict-1 mutation increases roaming behavior](/Users/mikeod/git/projects/dauergut/figures/5C_roam_dwell_density.png)
+
+##5D 
+```{r roaming mutliple assays}
+devtools::install_github("rasmusab/bayesian_first_aid")
+strains <- c("N2","ft7")
+roam_beh <- read.csv(file.path(pathname, "extdata/5D_roam_dwell_all.csv")) %>% 
+  mutate(genotype = factor(genotype, levels = strains), pct = pct.roam, plateID = interaction(date,genotype,plate))
+
+
+roam.t <- t.test(roam_beh[roam_beh$genotype == strains[1],]$pct, roam_beh[roam_beh$genotype == strains[2],]$pct)
+# BEST.t <- BEST::BESTmcmc(roam_beh[roam_beh$genotype == "N2",]$pct, roam_beh[roam_beh$genotype == "ft7",]$pct)
+# 
+# summary <- lapply(strains, function(x) {
+#   summary <- roam_beh %>% dplyr::filter(genotype == x) %>% 
+#   summarize(roam = sum(roam), n = (sum(roam,dwell)))
+# }) %>% unlist()
+# 
+# roamers <- summary[c(1,3)]
+# total <- summary[c(2,4)]
+# 
+# prop.test(roamers, total)
+# fit <- BayesianFirstAid::bayes.prop.test(roamers, total)
+
+glmm <- lme4::glmer(data = roam_beh, cbind(roam, dwell) ~ genotype + (1|plateID), family = binomial)
+
+stan.glmm <- stan_glmer(data = roam_beh, 
+                        formula = cbind(roam, dwell) ~ genotype + (1|plateID), 
+                        family = binomial,
+                        iter = 4000)
+
+mixed <- stan.glmm %>% dauer_getStan_CIs
+contrasts <- data.frame(p.value = roam.t$p.value) %>% dauergut::prange()
+plot.contrasts <- c("",contrasts$prange)
+
+
+(p<-dauergut::plot_CIs(roam_beh, plot.contrasts = plot.contrasts, type = "dauer", title = "", ypos = 1.05, offset = 0) + labs(subtitle = "", y = "proportion roaming"))
+```
+
+##5E
+pdfr-1 is epistatic to rict-1 in foraging behavior.
+
+```{r pdfr-1&ft7 dataload}
+  roam<-read.csv(file.path(pathname, "extdata/5B_5E_gridentry.csv")) %>% 
+  mutate(strain = interaction(genotype, line, drop=TRUE),
+         strainDate = interaction(strain, date, drop=TRUE),
+         plateID = interaction(strainDate,plate, drop=TRUE),
+         total.boxes = 186)
+
+```
+
+```{r pdfr-1 roam suppression plot, autodep=TRUE}
+strains <- c("N2", "ft7", "pdf-1", "pdfr-1", "pdfr-1;ft7")
+days <- c("12_20_16", "1_5_17", "1_8_17")
+## remove outliers (based on analysis, below):
+lm <- lm(n_entries ~ genotype, data = roam)
+roam %<>% dauergut::flag_outliers(df = ., lin.mod = lm, threshold = 4)
+
+
+roam.pdfr1 <- roam %>% subset(genotype %in% strains & date %in% days) %>%
+  mutate(genotype = factor(genotype, levels = strains))
+
+glmm.nest <-glmer(data = roam.pdfr1[roam.pdfr1$outlier.status == FALSE,], formula = n_entries ~ genotype + (1|date/plateID), family = "poisson")
+stan.glmm <- stan_glmer(data = roam.pdfr1[roam.pdfr1$outlier.status == FALSE,], 
+                        formula = n_entries ~ genotype + (1|date/plateID), family = "poisson",
+                        iter = 4000, adapt_delta = 0.99)
+
+contrasts<-dauergut::tukey_contrasts(glmm.nest, "genotype")
+mixed<-stan.glmm %>% getStan_CIs()
+plot.contrasts<-c("",contrasts$prange[1:4])
+plot.contrasts.2<-c("","","","",contrasts$prange[10])
+
+(p<-dauergut::plot_CIs(roam.pdfr1, title='rict-1 effects on roaming behavior depends on pdf-1/pdfr-1 signaling', plot.contrasts=plot.contrasts, plot.contrasts.2 = plot.contrasts.2,ypos = 800, offset = 50, type = "grid"))
+```
+
+##S2A
+```{r roaming in starved WT and rict-1}
+#run speed_curvature_4x_parallel to reproduce these data from raw position, speed data.
+```
+![rict-1 mutation increases roaming behavior](/Users/mikeod/git/projects/dauergut/figures/S2A_starve_roam_density.png)
+##S2B
+```{r starved roam quantification}
+devtools::install_github("rasmusab/bayesian_first_aid")
+strains <- c("N2","rict-1(ft7)")
+roam_beh <- read.csv(file.path(pathname, "extdata/S2B_starved_roam_dwell_all.csv")) %>% 
+  mutate(genotype = factor(genotype, levels = strains), pct = pct.roam, plateID = interaction(date,genotype,plate))
+
+
+roam.t <- t.test(roam_beh[roam_beh$genotype == strains[1],]$pct, roam_beh[roam_beh$genotype == strains[2],]$pct)
+
+glmm <- lme4::glmer(data = roam_beh, cbind(roam, dwell) ~ genotype + (1|plateID), family = binomial)
+
+stan.glmm <- stan_glmer(data = roam_beh, 
+                        formula = cbind(roam, dwell) ~ genotype + (1|plateID), 
+                        family = binomial,
+                        iter = 4000)
+
+mixed <- stan.glmm %>% dauer_getStan_CIs
+contrasts <- data.frame(p.value = roam.t$p.value) %>% dauergut::prange()
+plot.contrasts <- c("",contrasts$prange)
+
+
+(p<-dauergut::plot_CIs(roam_beh, plot.contrasts = plot.contrasts, type = "dauer", title = "", ypos = 1.05, offset = 0) + labs(subtitle = "", y = "proportion roaming"))
+```
+
+##S2C
+```{r pdfr-1 dauer phenotype}
+strains<-c("N2","rict-1(ft7)","rict-1(ft7);pdfr-1")
+foods = "OP50"
+
+pdfr_dauer<-read.csv(file.path(pathname, "extdata/S2C_pdfr_dauer.csv")) %>% format_dauer(p.dauer = "non")
+
+pdfr_dauer %<>% mutate(adj.pct = case_when(.$pct == 0 ~ 0.01, .$pct == 1 ~ 0.99, TRUE ~ .$pct))
+
+lm <- pdfr_dauer %>% dauer_ANOVA()
+
+stan.glmm <- pdfr_dauer %>% run_dauer_stan
+
+contrasts<-dauergut::tukey_contrasts(lm,"genotype")
+mixed<-stan.glmm %>% getStan_CIs(type="dauer")
+plot.contrasts<-c("",contrasts$prange[1:2])
+plot.contrasts.2<-c("","",contrasts$prange[3])
+
+(p<-dauergut::plot_CIs(pdfr_dauer, title='pdfr-1 does not suppress the rict-1 dauer phenotype', plot.contrasts, plot.contrasts.2, ypos = 1.1, offset = 0.050, type = "dauer"))
+```

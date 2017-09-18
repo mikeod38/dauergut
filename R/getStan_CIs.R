@@ -6,13 +6,15 @@
 #' @param group optional argument for group-level effects, i.e. "food" or "temp". Must match column name for condition
 #' @param base optional argument for log models - base of log function
 #' @param compare_gt optional argument for group-level effect - if true, genotype is compared at each level of condition, if blank,
-#' then condition effects are returned. 
+#' then condition effects are returned.
+#' @param intercept optional parameter specifying whether an intercept was included in the model formula - see run_dauer_stan.R
+#' 
 #' @importFrom magrittr "%>%"
 #' @importFrom magrittr "%<>%"
 #' @export
 #' @examples getStan_CIs(stan.glmm, type = "log", group = "food", base = 10, compare_gt = TRUE)
 #' 
-getStan_CIs <- function(x,type,group,base,compare_gt) {
+getStan_CIs <- function(x,type,group,base,compare_gt,intercept) {
   
   # get estimated parameters from the model:
   if(missing(group)) { # for non-grouped data
@@ -21,14 +23,22 @@ getStan_CIs <- function(x,type,group,base,compare_gt) {
                   rstanarm::posterior_interval(x, pars = "(Intercept)", regex_pars = "genotype", prob = 0.75) + summary(x)[1,1])
     data[1,] <- data[1,] - summary(x)[1,1] #same for  all non-grouped data
   } else {
+    if(missing(intercept)) {
     group.id <- levels(x$data$group.id) # same for all grouped data
     my_group <- x$data[,group]
     data <- cbind(summary(x)[1:length(group.id),1] + summary(x)[1,1],
                   rstanarm::posterior_interval(x, pars = "(Intercept)", regex_pars = "group.id", prob = 0.95) + summary(x)[1,1],
                   rstanarm::posterior_interval(x, pars = "(Intercept)", regex_pars = "group.id", prob = 0.75) + summary(x)[1,1])
     data[1,] <- data[1,] - summary(x)[1,1]
+    } else {
+      group.id <- levels(x$data$group.id) # same for all grouped data
+      my_group <- x$data[,group]
+      data <- cbind(summary(x)[1:length(group.id),1],
+                    rstanarm::posterior_interval(x, regex_pars = "group.id", prob = 0.95),
+                    rstanarm::posterior_interval(x, regex_pars = "group.id", prob = 0.75))
+    }
   }
-  
+
   # return either transformed or non-transformed data
   if(missing(type)) {
     data %<>% data.frame()

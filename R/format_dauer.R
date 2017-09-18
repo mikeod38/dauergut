@@ -17,7 +17,7 @@ format_dauer <- function(df, p.dauer) {
     dplyr::mutate(genotype = factor(genotype, levels=strains),
        non.dauer = as.numeric(paste(pd + non)),
        strainDate = interaction(genotype, day),
-       plateID = interaction(strainDate, plate),
+       plateID = interaction(strainDate, food, plate),
        food = factor(food, levels = foods))
   
 if(p.dauer == "exclude" | missing(p.dauer)) {

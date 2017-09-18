@@ -59,14 +59,15 @@ lm.add <- lm(pct ~ genotype + food, data = rict1.food)
 lm.int <- update(lm.add,.~. + genotype*food)
 #stan
 rict.food.groups <- rict1.food %>% mutate(group.id = interaction(genotype, food))
-stan.glmm <- rict.food.groups %>% run_dauer_stan(type="dauer-grouped")
+stan.glmm <- run_dauer_stan(df = rict.food.groups, type="dauer-grouped", group = "food", intercept = FALSE)
+
 
 ```
 
 
 ```{r rict-1 food plot}
 contrasts<-dauergut::dunnett_contrasts(lm.int, ref.index = 1, factor = "genotype", interaction = "food")
-mixed<-stan.glmm %>% dauer_StanCIs_groups()
+mixed<-dauergut::getStan_CIs(stan.glmm, type="dauer", group = "food", intercept = FALSE)
 
 plot.contrasts <- c("",contrasts$interaction$prange[1], "", contrasts$interaction$prange[2], "", contrasts$interaction$prange[3])
 plot.contrasts.interaction <- summary(lm.int)$coefficients[,4][5:6] %>% data.frame() %>% mutate(p.value = c(.[[1]],.[[2]]), genotype = strains[2:3]) %>% dauergut::prange()

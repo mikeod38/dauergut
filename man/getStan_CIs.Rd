@@ -4,7 +4,7 @@
 \alias{getStan_CIs}
 \title{getStan_CIs}
 \usage{
-getStan_CIs(x, type, group, base, compare_gt)
+getStan_CIs(x, type, group, base, compare_gt, intercept)
 }
 \arguments{
 \item{x}{Stan glmm model}
@@ -17,6 +17,8 @@ getStan_CIs(x, type, group, base, compare_gt)
 
 \item{compare_gt}{optional argument for group-level effect - if true, genotype is compared at each level of condition, if blank,
 then condition effects are returned.}
+
+\item{intercept}{optional parameter specifying whether an intercept was included in the model formula - see run_dauer_stan.R}
 }
 \description{
 Function pulls confidence intervals from a StanGLMM model using genotype as a parameter/predictor

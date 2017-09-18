@@ -4,17 +4,22 @@
 \alias{run_dauer_stan}
 \title{run_dauer_stan}
 \usage{
-run_dauer_stan(df, type, parameters)
+run_dauer_stan(df, type, parameters, group, intercept)
 }
 \arguments{
 \item{df}{input dataset. Requires a "genotype" column. See type for data column types}
 
 \item{type}{"dauer" (default),"dauer-grouped". For dauer data, needs to have raw counts, with "dauer" column and "n" column.
 For grouped data, must have group.id column - usually interaction(genotype,condition)}
+
+\item{group}{for grouped data, specify the name of the grouping factor}
+
+\item{intercept}{optional argument for intercept in the model. use for direct estimation of the reference group. default is TRUE}
 }
 \description{
 Function runs a stan glmm for dauer data
 }
 \examples{
  df \%>\% run_dauer_stan(parameters)
+ run_dauer_stan(df, type = "dauer-grouped", group = "food", intercept = "false")
 }
