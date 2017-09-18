@@ -271,7 +271,7 @@ $(document).ready(function () {
 <pre class="r"><code>strains&lt;-c(&quot;N2&quot;, &quot;rict-1(mg360)&quot;, &quot;rict-1(ft7)&quot;, &quot;sgk-1(ok538)&quot;, &quot;akt-1(mg306)&quot;, &quot;akt-2&quot;, &quot;pkc-2&quot;)
 foods &lt;- &quot;OP50&quot;
 
-TORC2&lt;-read.csv(file.path(pathname, &quot;extdata/1B_rict-1_TORC2.csv&quot;), header=TRUE) %&gt;% dauergut::format_dauer(p.dauer = &quot;non&quot;) #including partial/pd as non-dauer due to excess zeros. 
+TORC2&lt;-read.csv(file.path(pathname, &quot;extdata/1B_4A_rict-1_TORC2.csv&quot;), header=TRUE) %&gt;% dauergut::format_dauer(p.dauer = &quot;non&quot;) #including partial/pd as non-dauer due to excess zeros. 
 
 lm &lt;- TORC2 %&gt;% dauer_ANOVA()
 #stan
@@ -285,7 +285,7 @@ labels = c(&quot;WT&quot;, &quot;rict-1(mg360)&quot;, &quot;rict-1(ft7)&quot;, &
 (p&lt;-dauergut::plot_CIs(TORC2, title=&#39;TORC2 prevents high temperature dauer formation&#39;, plot.contrasts, ypos = 1.075, type = &quot;dauer&quot;, labels = labels))</code></pre>
 <p><img src="Figure_1_files/figure-html/plot%20TORC2-1.png" width="672" /></p>
 <p><strong>Figure 1B</strong></p>
-<p>TORC2 controls high temperature-induced dauer formation. Increased dauer formation occurs in TORC2-specific <em>rict-1</em> mutants, as well as in mutants of TORC2 targets <em>sgk-1</em> and <em>akt-1</em>. Plot shows proportion of dauers formed by animals of the indicated genotypes at 27°C. Each black dot indicates the proportion of dauers formed in a single assay. Arrested L3 and/or partial/post dauers are included as non-dauers due to excess arrest in <em>rict-1(ft7)</em>. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 25 and 9 animals each scored for non-transgenic and transgenic animals, respectively. For transgenic rescues, data are combined from 2 independent lines, with the exception of ges-1p constructs, in which one line was analyzed. *** - P&lt;0.001 compared to wild-type (ANOVA with Dunnett-type multivariate-t adjustment for 1B and Tukey-type multivariate-t adjustment for 1C); <sup>^</sup> - P&lt;0.001 compared to corresponding mutant animals. P-values of differences in means relative to wild-type</p>
+<p>TORC2 controls high temperature-induced dauer formation. Increased dauer formation occurs in TORC2-specific <em>rict-1</em> mutants, as well as in mutants of TORC2 targets <em>sgk-1</em> and <em>akt-1</em>. Plot shows proportion of dauers formed by animals of the indicated genotypes at 27°C. Each black dot indicates the proportion of dauers formed in a single assay. Arrested L3 and/or partial/post dauers are included as non-dauers due to excess arrest in <em>rict-1(ft7)</em>. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 25 and 9 animals each scored for non-transgenic and transgenic animals, respectively. For transgenic rescues, data are combined from 2 independent lines, with the exception of ges-1p constructs, in which one line was analyzed. <span style="color:black"><code>***</code></span> - P&lt;0.001 compared to wild-type (ANOVA with Dunnett-type multivariate-t adjustment for 1B and Tukey-type multivariate-t adjustment for 1C); <span style="color:red"><code>***</code></span> - P&lt;0.001 compared to corresponding mutant animals. P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
 <table>
 <caption>pairwise comparisons (Dunnett)</caption>
 <thead>
@@ -342,7 +342,7 @@ labels = c(&quot;WT&quot;, &quot;rict-1(mg360)&quot;, &quot;rict-1(ft7)&quot;, &
 <td align="right">0.0682112</td>
 <td align="right">62</td>
 <td align="right">0.4422887</td>
-<td align="right">0.9975894</td>
+<td align="right">0.9975893</td>
 <td align="left">p~1</td>
 </tr>
 <tr class="even">
@@ -351,7 +351,7 @@ labels = c(&quot;WT&quot;, &quot;rict-1(mg360)&quot;, &quot;rict-1(ft7)&quot;, &
 <td align="right">0.0570696</td>
 <td align="right">62</td>
 <td align="right">-4.3229489</td>
-<td align="right">0.0003369</td>
+<td align="right">0.0003386</td>
 <td align="left">***</td>
 </tr>
 </tbody>
@@ -470,7 +470,7 @@ labels &lt;- c(&quot;WT&quot;,&quot;rict-1(mg360)&quot;,
 (p&lt;-dauergut::plot_CIs(gutresc, title=&quot;TORC2 components act in the intestine to regulate dauer formation&quot;, plot.contrasts, plot.contrasts.2=plot.contrasts.2, ypos = 1.075,type = &quot;dauer&quot;, offset = 0, labels = labels))</code></pre>
 <p><img src="Figure_1_files/figure-html/gut%20resc%20plot-1.png" width="960" /></p>
 <p><strong>Figure 1C</strong></p>
-<p>mTORC2 acts in the intestine to inhibit high-temperature dauer formation. Increased dauer formation of <em>rict-1</em> and <em>sgk-1</em> mutants is rescued by intestinal-specific expression. <em>akt-1</em> mutants were not rescued using this promoter. Dauers formed by animals of the indicated genotypes at 27°C. Each black dot indicates the proportion of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 25 and 9 animals each scored for non-transgenic and transgenic animals, respectively. For transgenic rescues, data are combined from 2 independent lines, with the exception of ges-1p constructs, in which one line was analyzed. <span style="color:red"><code>***</code></span> - P&lt;0.001 compared to wild-type (ANOVA with Dunnett-type multivariate-t adjustment for 1B and Tukey-type multivariate-t adjustment for 1C); <span style="color:red"><code>***</code></span> - P&lt;0.001 compared to corresponding mutant animals. P-values of differences in means relative to wild-type (B) and corresponding mutant animals (C) are indicated in black and red, respectively.</p>
+<p>mTORC2 acts in the intestine to inhibit high-temperature dauer formation. Increased dauer formation of <em>rict-1</em> and <em>sgk-1</em> mutants is rescued by intestinal-specific expression. <em>akt-1</em> mutants were not rescued using this promoter. Dauers formed by animals of the indicated genotypes at 27°C. Each black dot indicates the proportion of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 25 and 9 animals each scored for non-transgenic and transgenic animals, respectively. For transgenic rescues, data are combined from 2 independent lines, with the exception of ges-1p constructs, in which one line was analyzed. <span style="color:black"><code>***</code></span> - P&lt;0.001 compared to wild-type (ANOVA with Dunnett-type multivariate-t adjustment for 1B and Tukey-type multivariate-t adjustment for 1C); <span style="color:red"><code>***</code></span> - P&lt;0.001 compared to corresponding mutant animals. P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
 <table>
 <caption>pairwise comparisons (Tukey)</caption>
 <thead>

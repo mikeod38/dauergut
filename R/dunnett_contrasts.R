@@ -19,7 +19,7 @@ dunnett_contrasts<-function(x, ref.index, factor, interaction) {
   if(missing(interaction)) {
     return(contrasts.1)
   } else {
-    contrasts.2<- x.rg %>% lsmeans::lsmeans(interaction, by = factor) %>% lsmeans::pairs(by = factor) %>%
+    contrasts.2<- x.rg %>% lsmeans::lsmeans(interaction, by = factor) %>% lsmeans::contrast("pairwise", by = factor) %>%
       summary(adjust = "mvt", by=NULL) %>% prange()
     return(list(factor = contrasts.1, interaction = contrasts.2))
   }
