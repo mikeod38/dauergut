@@ -184,8 +184,17 @@ $(document).ready(function () {
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li>
-  <a href="index.html">home</a>
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    home
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="about.html">raw data</a>
+    </li>
+  </ul>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -281,8 +290,10 @@ mixed &lt;- stanlmer %&gt;% getStan_CIs(type = &quot;log&quot;, base = 10)
 plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:2],&quot;&quot;)
 plot.contrasts.2 &lt;- c(&quot;&quot;, &quot;&quot;, &quot;&quot;, rescue.p$prange)
 
+labels &lt;- c(&quot;WT&quot;,&quot;rict-1(mg360)&quot;,&quot;rict-1(ft7)&quot;,&quot;rict-1(ft7); +ges1p::rict-1&quot;) %&gt;% stringr::str_wrap(width = 10)
+
 p2&lt;-dauergut::plot_CIs(df=df, title=&#39;daf-7 expression in ASI at 27º is
-controlled by intestinal rict-1&#39;, plot.contrasts=plot.contrasts, plot.contrasts.2 = plot.contrasts.2, ypos = 4700, offset = 0, type = &quot;GFP&quot;)
+controlled by intestinal rict-1&#39;, plot.contrasts=plot.contrasts, plot.contrasts.2 = plot.contrasts.2, ypos = 4700, offset = 0, type = &quot;GFP&quot;, labels = labels)
 
 img.path &lt;- file.path(pathname,&quot;figures/2A_daf7GFP.png&quot;)</code></pre>
 <div style="float: left; width: 425;">
@@ -294,7 +305,9 @@ img.path &lt;- file.path(pathname,&quot;figures/2A_daf7GFP.png&quot;)</code></pr
 <p><img src="Figure_2_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
 </div>
 <div style="float: right; width: 100%;">
-<p>2A. Intesinal <em>rict-1</em> regulates daf7GFP levels in ASI neurons. L1 animals were grown 18hrs post egg lay at 27º. Daf-7::GFP fluorescence quantification shows decreased expression in <em>rict-1</em> mutants. Intestinal expression of <em>rict-1</em> using the intestinal <em>ges-1</em> promoter rescues daf-7::GFP expression. Box and scatter plot show raw data. Bayesian 90% (grey) and 50% (red) credible intervals are shown on the right (see methods). For <em>rict-1(mg360)</em> and <em>rict-1(ft7)</em>, *** and ** compared to N2, respectively. For <em>ges-1</em> rescue, *** compared to <em>rict-1(ft7)</em>. n=3 independent experiments.</p>
+<p><strong>Figure 2A</strong><br />
+Intesinal <em>rict-1</em> regulates daf7GFP levels in ASI neurons. Daf-7::GFP fluorescence quantification shows decreased expression in <em>rict-1</em> mutants. Intestinal expression of <em>rict-1</em> using the intestinal <em>ges-1</em> promoter rescues daf-7::GFP expression. (Left) Representative images of <em>daf-7p::gfp</em> expression in one of the bilateral ASI neurons in animals of the indicated genotypes. Yellow filled and open arrowheads indicate ASI and ASJ soma, respectively. Anterior is at left. Scale bar: 5 μm. (Right) Quantification of daf-7p::gfp expression in ASI (A) and daf-28p::gfp expression in ASI and ASJ (D). Each dot is the mean fluorescence intensity in a single animal (2 neurons per animal); numbers in parentheses below indicate the number of animals examined in 3 independent experiments. Horizontal thick bar indicates median. Error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. <span style="color:black"><code>**</code></span> and <span style="color:black"><code>***</code></span> - different from wild-type at P&lt;0.01 and P&lt;0.001, respectively; <span style="color:red"><code>***</code></span> - different from rict-1(ft7) at P&lt;0.001 (ANOVA with Dunnett-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
+<!-- L1 animals were grown 18hrs post egg lay at 27º. Daf-7::GFP fluorescence quantification shows decreased expression in _rict-1_ mutants. Intestinal expression of _rict-1_ using the intestinal _ges-1_ promoter rescues daf-7::GFP expression. Box and scatter plot show raw data. Bayesian 90% (grey) and 50% (red) credible intervals are shown on the right (see methods). For _rict-1(mg360)_ and _rict-1(ft7)_, *** and ** compared to N2, respectively. For _ges-1_ rescue, *** compared to _rict-1(ft7)_. n=3 independent experiments. -->
 </div>
 <pre class="r"><code>knitr::kable(contrasts, caption=&quot;Pairwise comparisons from mixed-effects model (Tukey)&quot;)</code></pre>
 <table>
@@ -326,7 +339,7 @@ img.path &lt;- file.path(pathname,&quot;figures/2A_daf7GFP.png&quot;)</code></pr
 <td align="right">0.0447683</td>
 <td align="right">122</td>
 <td align="right">-3.3603231</td>
-<td align="right">0.0029731</td>
+<td align="right">0.0029983</td>
 <td align="left">**</td>
 </tr>
 <tr class="odd">
@@ -335,7 +348,7 @@ img.path &lt;- file.path(pathname,&quot;figures/2A_daf7GFP.png&quot;)</code></pr
 <td align="right">0.0463634</td>
 <td align="right">122</td>
 <td align="right">0.3268511</td>
-<td align="right">0.9772215</td>
+<td align="right">0.9772208</td>
 <td align="left">p~0.98</td>
 </tr>
 </tbody>
@@ -422,7 +435,8 @@ lm.1&lt;-lm(data=daf7FISH[daf7FISH$outlier.status == FALSE,], formula=cell.norm~
 
 stanlm &lt;- stan_glm(cell.norm ~ genotype, data = daf7FISH[daf7FISH$outlier.status == FALSE,])
 
-## plot daf7 FISH
+
+#plot daf7 FISH
 strains &lt;- levels(daf7FISH$genotype)
 contrasts &lt;- dauergut::dunnett_contrasts(lm.1,ref.index = 1,&quot;genotype&quot;)
 mixed &lt;- stanlm %&gt;% dauergut::getStan_CIs()
@@ -432,13 +446,14 @@ rescue.p &lt;- data.frame(p.value = rescue.test$p.value) %&gt;% dauergut::prange
 plot.contrasts &lt;- c(&quot;&quot;, contrasts$prange[1:2],&quot;&quot;)
 plot.contrasts.2 &lt;- c(&quot;&quot;, &quot;&quot;, &quot;&quot;, rescue.p$prange)
 
-dauergut::plot_CIs(daf7FISH[daf7FISH$outlier.status == FALSE,], title = &quot;daf7 mRNA is reduced in rict-1 mutants&quot;, plot.contrasts = plot.contrasts, plot.contrasts.2 = plot.contrasts.2, ypos = 150, offset = 0, type = &quot;expression&quot;)</code></pre>
+labels &lt;- c(&quot;WT&quot;,&quot;rict-1(ft7)&quot;,&quot;rict-1(mg360)&quot; ,&quot;rict-1(mg360); +ges1p::rict-1&quot;) %&gt;% stringr::str_wrap(width = 10)
+
+dauergut::plot_CIs(daf7FISH[daf7FISH$outlier.status == FALSE,], title = &quot;daf7 mRNA is reduced in rict-1 mutants&quot;, plot.contrasts = plot.contrasts, plot.contrasts.2 = plot.contrasts.2, ypos = 150, offset = 0, type = &quot;expression&quot;, labels = labels)</code></pre>
 <p><img src="Figure_2_files/figure-html/daf7%20FISH-1.png" width="672" /></p>
-<p>2B. <em>daf-7</em> mRNA is reduced in <em>rict-1</em> mutants. Animals were grown 18hrs post egg lay at 27º, then fixed prior to FISH. Intestinal expression of <em>rict-1</em> using the intestinal <em>ges-1</em> promoter rescues <em>daf-7</em> expression. Box and scatter plot show raw data. Bayesian 90% (grey) and 50% (red) credible intervals are shown on the right (see methods). For <em>rict-1(mg360)</em> and <em>rict-1(ft7)</em>, p~0.04 and p~0.032 compared to N2, respectively. For <em>ges-1</em> rescue, p~0.038 compared to <em>rict-1(ft7)</em>. n=2 independent experiments, pooled data. 2 outlier data points were removed in total.</p>
+<p><strong>Figure 2B</strong> <em>daf-7</em> mRNA is reduced in <em>rict-1</em> mutants. Intestinal expression of <em>rict-1</em> using the intestinal <em>ges-1</em> promoter rescues <em>daf-7</em> expression. Quantification of <em>daf-7</em> mRNA levels in ASI assessed via fluorescent in situ hybridization. Expression was normalized by subtracting mean background pixel values for each image. Each dot is the fluorescence intensity in a single ASI neuron; numbers in parentheses below indicate the number of neurons examined in 3 independent pooled experiments. Horizontal thick bar indicates median. Error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. P-values of differences relative to wild-type and rict-1(mg360) animals are indicated in black and red, respectively. For <em>rict-1(mg360)</em> and <em>rict-1(ft7)</em>, p~0.04 and p~0.032 compared to N2, respectively. For <em>ges-1</em> rescue, <span style="color:red">p~0.038</span> compared to <em>rict-1(ft7)</em>. n=2 independent experiments, pooled data. 2 outlier data points were removed in total. P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
 </div>
 <div id="c" class="section level2">
 <h2>2C</h2>
-<p>rescue of rict-1 with daf-7 and daf-28</p>
 <pre class="r"><code>foods &lt;- &quot;OP50&quot;
 strains&lt;-c(&quot;N2&quot;,&quot;rict-1(ft7)&quot;,&quot;rict-1(ft7); ex[ASI::daf7]&quot;,&quot;rict-1(ft7); ex[ASI::daf28]&quot;,&quot;rict-1(ft7); ex[ASJ::daf28]&quot;)
 daf7supp&lt;-read.csv(file.path(pathname, &quot;extdata/2C_daf7_daf28_suppression.csv&quot;)) %&gt;% format_dauer(p.dauer = &quot;non&quot;)
@@ -456,8 +471,15 @@ mixed&lt;-stan.glmm %&gt;% dauergut::getStan_CIs(type = &quot;dauer&quot;)
 plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1],&quot;&quot;,&quot;&quot;,&quot;&quot;)
 plot.contrasts.2&lt;-c(&quot;&quot;, &quot;&quot;, contrasts$prange[5:7]) #for rescue vs rict-1
 
-(p&lt;-dauergut::plot_CIs(daf7supp, title=&#39;daf-7 expression in ASI suppresses rict-1 dauer phenotype&#39;, plot.contrasts, plot.contrasts.2, ypos = 1.075, offset = 0, type = &quot;dauer&quot;))</code></pre>
-<p><img src="Figure_2_files/figure-html/daf7/daf28%20suppression%20plot-1.png" width="384" /></p>
+labels &lt;- c(&quot;WT&quot;,&quot;rict-1(ft7)&quot;,&quot;rict-1(ft7); +ASIp::daf-7&quot;,&quot;rict-1(ft7); +ASIp::daf-28&quot;,&quot;rict-1(ft7); +ASJp::daf-28&quot;) %&gt;% stringr::str_wrap(width = 10)
+
+
+p&lt;-dauergut::plot_CIs(daf7supp, title=&#39;daf-7 expression in ASI suppresses rict-1 dauer phenotype&#39;, plot.contrasts, plot.contrasts.2, ypos = 1.075, offset = 0, type = &quot;dauer&quot;, labels = labels)</code></pre>
+<div style="float: left; width: 60%;">
+<pre class="r"><code>p</code></pre>
+<p><img src="Figure_2_files/figure-html/unnamed-chunk-3-1.png" width="384" /></p>
+</div>
+<p><br> <br> </br> <strong>Figure 2C</strong> Expression of <em>daf-7</em> in ASI or <em>daf-28</em> in ASI or ASJ suppressed aberrent dauer formation in <em>rict-1</em> mutants. Dauers formed by animals of the indicated genotypes at 27°C. Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 36 and 9 animals each scored for non-transgenic and transgenic animals, respectively. Promoters driving expression in ASI and ASJ were srg-47p and trx-1p, respectively. One transgenic line was tested for each condition. <span style="color:red"><code>***</code></span> - different from wild-type at P&lt;0.001; <span style="color:red"><code>**</code></span> and <span style="color:red"><code>***</code></span> - different from <em>rict-1(ft7)</em> at P&lt;0.01 and P&lt;0.001, respectively (ANOVA with Tukey-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
 </div>
 <div id="d" class="section level2">
 <h2>2D</h2>
@@ -487,34 +509,46 @@ contrasts&lt;-summary(lsmeans::lsmeans(lm, pairwise ~ genotype | neuron)$contras
 mixed &lt;- stanlmer %&gt;% getStan_CIs(type = &quot;log&quot;, group = &quot;neuron&quot;, base = 10, compare_gt = TRUE)
 plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1],&quot;&quot;, contrasts$prange[2])
 
+labels &lt;- c(&quot;WT&quot;, &quot;rict-1(ft7)&quot;)
 #### plot ######
-(p&lt;-(df %&gt;% ggplot(aes(x=genotype, y = cell.norm)) +
+p&lt;-(df %&gt;% ggplot(aes(x=genotype, y = cell.norm)) +
        geom_quasirandom(aes(y=cell.norm, pch = date),cex=1,colour = &quot;#339900&quot;,
                            width = 0.075,size=0.3,
                            method = &#39;smiley&#39;) +
        guides(pch=FALSE) +
        list(dauergut::add.median(width = 0.25), dauergut::add.quartiles()) +
        labs(title = &quot;daf-28 is also reduced in rict-1 mutants&quot;,
-            subtitle = &quot;GFP plot&quot;,
            y = &quot;mean GFP intensity&quot;, x=&quot;genotype&quot;) +
        stat_summary(aes(x=genotype, group = genotype, y = 3500), geom=&quot;text&quot;, fun.data=box_annot,
                     label=plot.contrasts, size = 6) +
-       geom_errorbar(data=mixed, aes(x=x.pos,y=mean, ymin=lower.CL, ymax=upper.CL),
-                  width=0,colour =&quot;grey&quot;, lwd=0.2) +
-       geom_errorbar(data=mixed, aes(x=x.pos,y=mean, ymin = lower.25, ymax = upper.75),
-                  width=0,colour = &quot;darkgrey&quot;, lwd = 0.9) +
-       geom_segment(data = mixed, aes(x = x.pos-(0.007*nrow(mixed)), y = mean, xend = x.pos+(0.007*nrow(mixed)),
-                                      yend = mean), colour = &quot;darkgrey&quot;) +
+       add.Bayes.CI() +
        stat_summary(aes(x=as.numeric(as.factor(genotype)) + 0.3,y=0,group = genotype),
                     fun.data = fun_length, geom = &quot;text&quot;,size = 4) +
-       facet_grid(.~neuron, switch=&quot;both&quot;) + theme_my +
-       theme(axis.text.y = element_text(size=12),
-        axis.text.x = element_text(size = 16),
+       facet_grid(.~neuron) + theme_classic() +
+       scale_x_discrete(labels = labels) +
+       theme(strip.background = element_blank(),
+             strip.text = element_text(size = 16,face=&quot;bold&quot;),
+             axis.text.y = element_text(size=12),
+        axis.text.x = element_text(size = 16, face = &quot;italic&quot;),
         axis.title = element_text(size=16),
-        panel.spacing.x=unit(2,&quot;lines&quot;))))</code></pre>
-<p><img src="Figure_2_files/figure-html/daf28%20rict-1%20plot-1.png" width="768" /></p>
-<pre class="r"><code>knitr::kable(contrasts)</code></pre>
+        panel.spacing.x=unit(2,&quot;lines&quot;)))
+
+#image of daf-28 GFP
+img.path &lt;- file.path(pathname,&quot;figures/2D_daf-28GFP.png&quot;)</code></pre>
+<div style="float: left; width: 425;">
+<pre class="r"><code>include_graphics(img.path)                                   </code></pre>
+<p><img src="figures/2D_daf-28GFP.png" width="195" /></p>
+</div>
+<div style="float: left; width: 425;">
+<pre class="r"><code>p</code></pre>
+<p><img src="Figure_2_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
+<div style="float: right; width: 100%;">
+<p><strong>Figure 2D</strong> (Left) Representative images of daf-7p::gfp (A) and daf-28p::gfp (D) expression in one of the bilateral ASI (A), and ASI and ASJ (D), neurons in animals of the indicated genotypes. Yellow filled and open arrowheads indicate ASI and ASJ soma, respectively. Anterior is at left. Scale bar: 5 μm. (Right) Quantification of daf-7p::gfp expression in ASI (A) and daf-28p::gfp expression in ASI and ASJ (D). Each dot is the mean fluorescence intensity in a single animal (2 neurons per animal); numbers in parentheses below indicate the number of animals examined in 3 independent experiments. Horizontal thick bar indicates median. Error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. <span style="color:black"><code>**</code></span> and <span style="color:black"><code>***</code></span> - different from wild-type at P&lt;0.01 and P&lt;0.001, respectively; <span style="color:red"><code>***</code></span> - different from rict-1(ft7) at P&lt;0.001 (ANOVA with Tukey-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
+</div>
+<pre class="r"><code>knitr::kable(contrasts, caption = &quot;pairwise comparisons (Tukey)&quot;)</code></pre>
 <table>
+<caption>pairwise comparisons (Tukey)</caption>
 <thead>
 <tr class="header">
 <th align="left">contrast</th>
@@ -552,8 +586,9 @@ plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1],&quot;&quot;, contrasts$pr
 </table>
 <pre class="r"><code>ASI &lt;- with(df[df$neuron == &quot;ASI&quot; &amp; df$outlier.status == FALSE,], with(log.tran, t.test(cell.norm ~genotype))) %&gt;% unlist %&gt;% data.frame()
 ASJ &lt;- with(df[df$neuron == &quot;ASJ&quot; &amp; df$outlier.status == FALSE,], with(log.tran, t.test(cell.norm ~genotype))) %&gt;% unlist %&gt;% data.frame()
-cbind(ASI,ASJ) %&gt;% `colnames&lt;-`(c(&#39;ASI&#39;,&#39;ASJ&#39;)) %&gt;% knitr::kable()</code></pre>
+cbind(ASI,ASJ) %&gt;% `colnames&lt;-`(c(&#39;ASI&#39;,&#39;ASJ&#39;)) %&gt;% knitr::kable(caption=&quot;paiwise comparisons (t-test)&quot;)</code></pre>
 <table>
+<caption>paiwise comparisons (t-test)</caption>
 <thead>
 <tr class="header">
 <th></th>
@@ -641,8 +676,57 @@ mixed&lt;-stan.glmm %&gt;% getStan_CIs(type=&quot;dauer&quot;)
 plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1],&quot;&quot;)
 plot.contrasts.2&lt;-c(&quot;&quot;, &quot;&quot;, contrasts$prange[3]) #for rescue vs rict-1
 
-(p&lt;-dauergut::plot_CIs(daf16supp, title=&#39;rict-1 acts in the insulin pathway to inhibit dauer formation&#39;, plot.contrasts, plot.contrasts.2, ypos = 1.075, offset = 0, type = &quot;dauer&quot;))</code></pre>
-<p><img src="Figure_2_files/figure-html/daf-16%20suppression%20plot-1.png" width="672" /></p>
+labels &lt;- c(&quot;WT&quot;,&quot;rict-1(mg360)&quot;,&quot;daf-16(mu86; rict-1(mg360)&quot;) %&gt;% stringr::str_wrap(width = 10)
+
+p&lt;-dauergut::plot_CIs(daf16supp, title=&#39;rict-1 acts in the insulin pathway to inhibit dauer formation&#39;, plot.contrasts, plot.contrasts.2, ypos = 1.075, offset = 0, type = &quot;dauer&quot;, labels = labels)</code></pre>
+<div style="float: left; width: 60%;">
+<pre class="r"><code>p</code></pre>
+<p><img src="Figure_2_files/figure-html/unnamed-chunk-6-1.png" width="384" /></p>
+</div>
+<p><br> <br> </br> <strong>Figure S1A</strong> Mutations in rict-1 modulate dauer formation via downregulation of neuroendocrine signaling. <em>daf-16</em> mutations partially suppress the dauer formation phenotype of <em>rict-1</em> mutants. Dauers formed by animals of the indicated genotypes at 27°C. Each dot indicates the proportion of dauers formed in a single assay. Horizontal bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 26 animals each. <span style="color:black"><code>***</code></span> - different from wild-type at P&lt;0.001, <span style="color:red"><code>***</code></span> - different from rict-1(mg360) at P&lt;0.001 (ANOVA with Tukey-type multivariate-t post-hoc adjustments). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
+<table>
+<caption>paiwrise comparisons (Tukey)</caption>
+<thead>
+<tr class="header">
+<th align="left">contrast</th>
+<th align="right">estimate</th>
+<th align="right">SE</th>
+<th align="right">df</th>
+<th align="right">t.ratio</th>
+<th align="right">p.value</th>
+<th align="left">prange</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">N2 - rict-1(mg360)</td>
+<td align="right">-0.7259908</td>
+<td align="right">0.0585246</td>
+<td align="right">15</td>
+<td align="right">-12.404877</td>
+<td align="right">0.0000000</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">N2 - rict-1;daf-16</td>
+<td align="right">-0.4360625</td>
+<td align="right">0.0585246</td>
+<td align="right">15</td>
+<td align="right">-7.450922</td>
+<td align="right">0.0000085</td>
+<td align="left">***</td>
+</tr>
+<tr class="odd">
+<td align="left">rict-1(mg360) - rict-1;daf-16</td>
+<td align="right">0.2899283</td>
+<td align="right">0.0585246</td>
+<td align="right">15</td>
+<td align="right">4.953954</td>
+<td align="right">0.0004155</td>
+<td align="left">***</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="s1b" class="section level2">
 <h2>S1B</h2>
@@ -693,15 +777,16 @@ newdata1 %&lt;&gt;% mutate(lower = (fit - se.fit), upper = (fit + se.fit), pct =
         axis.text.x = element_text(size=16),
         axis.text.y = element_text(size=16),
         axis.title.y = element_text(size =20),
+        axis.title.x = element_text(size=16),
         strip.text.x = element_blank(),
         panel.spacing = unit(2,&quot;lines&quot;)) +
     stat_summary(aes(x=concentration.uM. + 0.3, y=-.025),
                       fun.data = fun_length, geom = &quot;text&quot;, size = 4)
 )</code></pre>
 <p><img src="Figure_2_files/figure-html/rict-1%20pheromone%20response-1.png" width="672" /></p>
-<pre class="r"><code>#get odds-ratio
-knitr::kable(mfx::logitor(glm.simple, data = rictC3)$oddsratio) # OR ~ 21.3</code></pre>
+<p><strong>Figure S1B</strong> <em>rict-1</em> mutants show enhanced response to pheromone ascr#5. Dauers formed by wild-type (black) and rict-1(ft7) (blue) animals at 25°C in the presence of the indicated concentrations of ascr#5. Each dot indicates the proportion of dauers formed in a single assay. Horizontal bar indicates median. Numbers in parentheses below indicate the number of independent experiments with at least 27 animals each. Lines indicate predictions from GLM fit, corresponding to an odds ratio of ~88 for rict-1 across this range of ascr#5 concentrations. For genotype, Wald Χ<sup>2</sup> = 45.3, Df =1, p &lt; 0.0001; for pheromone, Wald Χ<sup>2</sup> = 24.9, Df =1, p &lt; 0.0001 with GLMM fit.</p>
 <table>
+<caption>odds-ratio for glm</caption>
 <thead>
 <tr class="header">
 <th></th>

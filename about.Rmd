@@ -24,3 +24,6 @@ devtools::install_github("https://github.com/mikeod38/dauergut.git")
 ```
 
 All raw data is in the "extdata" folder
+
+
+**Figures from this website are for illustrative purposes only, please view the full manuscript on bioRXiv**

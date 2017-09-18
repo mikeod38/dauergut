@@ -184,8 +184,17 @@ $(document).ready(function () {
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li>
-  <a href="index.html">home</a>
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    home
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="about.html">raw data</a>
+    </li>
+  </ul>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -245,7 +254,629 @@ $(document).ready(function () {
 </div>
 
 
+<div id="daf-28-but-not-daf-7-is-strongly-reduced-by-temperature" class="section level1 tabset">
+<h1><strong>daf-28, but not daf-7, is strongly reduced by temperature</strong></h1>
+<div id="a" class="section level2">
+<h2>3A</h2>
+<pre class="r"><code>strains = &quot;N2&quot;
+#strains&lt;-c(&quot;N2&quot;,&quot;ft7&quot;)
+days&lt;-c(&quot;11_23_16&quot;, &quot;12_6_16&quot;)
+#days &lt;- &quot;11_23_16&quot; # 12_6 was likely L2s based on the timing
 
+d7GFP&lt;-read.csv(file.path(pathname, &quot;extdata/2A_3A_daf7GFP.csv&quot;)) %&gt;%
+  filter(mean!=4095 &amp; genotype %in% strains &amp; date %in% days &amp; pheromone == 0 &amp; food == &quot;OP50&quot;) %&gt;%
+  mutate(genotype = factor(genotype, levels=strains), ID = as.character(ID)) %&gt;%
+  separate(ID, c(&quot;ID.A&quot;, &quot;ID.B&quot;), sep = &quot;:&quot;, extra = &quot;drop&quot;) %&gt;% 
+  mutate(genoID = as.factor(paste(date, genotype, ID.A, sep = &quot;:&quot;)), cell.norm = mean)
+
+df &lt;- d7GFP %&gt;% group_by(genotype, date, neuron, temp, genoID) %&gt;% summarise(cell.norm = mean(cell.norm))
+
+#### plot ####
+p&lt;-df %&gt;% ggplot(aes(x=temp, y=cell.norm)) +
+  list(add.scatter(),add.median(width = .5),add.quartiles()) + 
+  labs(
+  title = &quot;daf-7 expression does not decrease at high temperatures&quot;,
+  x = &quot;temperature (ºC)&quot;,
+  y = &quot;mean intensity&quot;
+) + stat_smooth(method=&quot;lm&quot;,linetype=&quot;dashed&quot;, size = 0.2, colour = &quot;grey&quot;, alpha = 0.05) +
+  add.n() +
+  theme_classic() + 
+  theme(axis.title.x = element_text(size=16),
+        axis.text.x = element_text(size = 16),
+        axis.text.y = element_text(size = 15),
+        strip.text.x = element_text(size=20))
+p</code></pre>
+<p><img src="Figure_3_files/figure-html/daf7%20temp%20data-1.png" width="672" /></p>
+<pre class="r"><code>library(lsmeans)
+log.tran&lt;-make.tran(type=&quot;genlog&quot;, param = c(0.5,10))
+lm.ASI.lin &lt;- with(log.tran, lm(linkfun(cell.norm) ~ temp, data = df))</code></pre>
+<p><strong>Figure 3A</strong> <em>daf-7</em> expression does not strongly decrease at high temperatures. Quantification of <em>daf-7p::gfp</em> fluorescence in the ASI,neurons in L1 larvae grown at the indicated temperatures. Each data point is the average GFP fluorescence of a single animal (2 neurons per animal); numbers in parentheses below indicate the total number of animals examined. Horizontal lines are the median; error bars are quartiles. Dashed lines indicate slope of linear regression as a function of temperature.</p>
+<pre class="r"><code>library(sjPlot)
+sjt.lm(lm.ASI.lin, depvar.labels = &quot;log(GFP expression)&quot;, show.fstat = TRUE)</code></pre>
+<table style="border-collapse:collapse; border:none;border-bottom:double;">
+<td style="padding:0.2cm; border-top:double;">
+ 
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="3">
+log(GFP expression)
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; font-style:italic;">
+ 
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+B
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; border-top:1px solid; text-align:left;">
+(Intercept)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+2.86
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+2.41 – 3.31
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+temp
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.02
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.00 – 0.03
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.099
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
+Observations
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="3">
+64
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+R<sup>2</sup> / adj. R<sup>2</sup>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="3">
+.043 / .028
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+F-statistics
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="3">
+2.808
+</td>
+</tr>
+</table>
+</div>
+<div id="b" class="section level2">
+<h2>3B</h2>
+<pre class="r"><code>tempdays&lt;-c(&quot;1&quot;, &quot;4&quot;, &quot;6&quot;, &quot;8&quot;, &quot;10&quot;)
+foods &lt;- &quot;OP50&quot;
+strains &lt;- &quot;N2&quot;
+d28&lt;-read.csv(&#39;extdata/2D_3B_4B_daf-28_GFP_rict-1.csv&#39;) %&gt;%
+separate(ID, c(&quot;ID.A&quot;, &quot;ID.B&quot;), sep = &quot;:&quot;, extra = &quot;drop&quot;) %&gt;%
+  subset(pheromone == 0) %&gt;% 
+  mutate(day = as.factor(day), genotype = factor(genotype, levels = strains),
+         genoID = interaction(date,neuron,temp,genotype,ID.A))
+
+df &lt;- d28 %&gt;% subset(day %in% tempdays &amp; food %in% foods &amp; mean !=4095 &amp; genotype %in% strains) %&gt;% group_by(date,temp,genotype,neuron,genoID) %&gt;% summarise(cell.norm = mean(mean)) %&gt;%
+  data.frame() %&gt;% mutate(group.id = interaction(genotype, neuron)) # take mean of each worm
+
+#### plot ####
+(p&lt;-df %&gt;% ggplot(aes(x=temp, y=cell.norm)) +
+   list(add.scatter(),add.median(width = .5),add.quartiles()) + 
+    theme_classic() +
+  facet_grid(.~neuron) +
+  scale_color_viridis(discrete = TRUE) +
+  labs(title = &quot;daf-28 expression is controlled by temperature&quot;,
+    x = &quot;temperature&quot;,
+    y = &quot;mean fluorescence&quot;,
+    colour = &quot;Temperature&quot;) + add.n() +
+   stat_smooth(method=&quot;lm&quot;,linetype=&quot;dashed&quot;, size = 0.2, colour = &quot;grey&quot;, alpha = 0.05) +
+   theme(axis.title.x = element_text(size = 20),
+          axis.title.y = element_text(size= 20),
+        axis.text.x = element_text(size = 20),
+        axis.text.y = element_text(size = 15),
+        strip.text.x = element_text(size=20),
+        panel.spacing.x=unit(2, &quot;lines&quot;)))</code></pre>
+<p><img src="Figure_3_files/figure-html/daf-28%20temp%20curve-1.png" width="672" /></p>
+<pre class="r"><code>lm.ASI.lin &lt;- with(log.tran, lm(linkfun(cell.norm) ~ temp, data = subset(df, neuron == &quot;ASI&quot;)))
+#lm.ASI.poly.2 &lt;- update(lm.ASI.lin, formula = . ~ . - temp + poly(temp,2,raw=TRUE))
+#anova(lm.ASI.lin,lm.ASI.poly.2) #quadratic fits better but not enough temp points to model
+#anova(lm.ASI.lin)
+
+lm.ASJ.lin &lt;- with(log.tran, lm(linkfun(cell.norm) ~ temp, data = subset(df, neuron == &quot;ASJ&quot;)))
+#anova(lm.ASJ.lin)</code></pre>
+<p><strong>Figure 3B</strong><br />
+<em>daf-28</em> expression strongly decreases at high temperatures. Quantification of <em>daf-28p::gfp</em> fluorescence in the ASI (left) and ASJ (right) neurons in L1 larvae grown at the indicated temperatures. Each data point is the average GFP fluorescence of a single animal (2 neurons per animal); numbers in parentheses below indicate the total number of animals examined. Horizontal lines are the median; error bars are quartiles. Dashed lines indicate slope of linear regression as a function of temperature.</p>
+<pre class="r"><code>library(sjPlot)
+sjt.lm(lm.ASI.lin, lm.ASJ.lin, depvar.labels = c(&quot;ASI&quot;, &quot;ASJ&quot;), show.fstat = TRUE)</code></pre>
+<table style="border-collapse:collapse; border:none;border-bottom:double;">
+<td style="padding:0.2cm; border-top:double;">
+ 
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="3">
+ASI
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="3">
+ASJ
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; font-style:italic;">
+ 
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+B
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+B
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; border-top:1px solid; text-align:left;">
+(Intercept)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+4.70
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+4.09 – 5.30
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+&lt;.001
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+4.42
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+4.01 – 4.83
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+temp
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.08 – -0.03
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.07 – -0.04
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
+Observations
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="3">
+114
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="3">
+115
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+R<sup>2</sup> / adj. R<sup>2</sup>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="3">
+.177 / .170
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="3">
+.303 / .296
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+F-statistics
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="3">
+24.099***
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="3">
+49.021***
+</td>
+</tr>
+</table>
+</div>
+<div id="c" class="section level2">
+<h2>3C</h2>
+<pre class="r"><code>days = as.factor(8:10) # days containing N2 and ft7 27º data
+temps = c(&quot;25&quot;,&quot;27&quot;)
+strains = c(&quot;N2&quot;, &quot;ft7&quot;)
+foods = &quot;OP50&quot;
+d28&lt;-read.csv(&#39;extdata/2D_3B_4B_daf-28_GFP_rict-1.csv&#39;) %&gt;%
+separate(ID, c(&quot;ID.A&quot;, &quot;ID.B&quot;), sep = &quot;:&quot;, extra = &quot;drop&quot;) %&gt;%
+  subset(mean!=4095 &amp; food == foods &amp;
+           temp %in% temps &amp;
+           genotype %in% strains &amp;
+           pheromone == 0 &amp;
+           day %in% days) %&gt;%
+  mutate(day = as.factor(day), genotype = factor(genotype, levels = strains),
+         genoID = interaction(date,genotype,ID.A), temp = factor(temp, levels = temps))
+
+df &lt;- d28 %&gt;% group_by(date,temp,genotype,neuron,genoID) %&gt;% summarise(cell.norm = mean(mean)) %&gt;%
+  data.frame() %&gt;% mutate(group.id = interaction(genotype, temp)) %&gt;% arrange(temp, genotype, neuron) # take mean 
+
+# anova(with(log.tran,lm(linkfun(cell.norm) ~ temp, data = df[df$neuron == &quot;ASI&quot;,])),with(log.tran,lm(linkfun(cell.norm) ~ temp+genotype, data = df[df$neuron == &quot;ASI&quot;,])))
+# # for ASI, F = 4.0071, 1Df p = 0.0481 for genotype
+# anova(with(log.tran,lm(linkfun(cell.norm) ~ temp, data = df[df$neuron == &quot;ASJ&quot;,])),with(log.tran,lm(linkfun(cell.norm) ~ temp+genotype, data = df[df$neuron == &quot;ASJ&quot;,])))
+# # for ASJ, F = 38.082, 1Df, p &lt; 0.001 for genotype
+# # no significant interaction of temp with genotype for either neuron
+
+lm.ASI &lt;- with(log.tran, lm(linkfun(cell.norm) ~ temp + genotype, data = df[df$neuron == &quot;ASI&quot;,]))
+lm.ASJ &lt;- with(log.tran, lm(linkfun(cell.norm) ~ temp + genotype, data = df[df$neuron == &quot;ASJ&quot;,]))
+
+contrasts.ASI&lt;-summary(lsmeans(lm.ASI, pairwise ~ genotype | temp)$contrasts) %&gt;% dauergut::prange()
+contrasts.ASJ&lt;-summary(lsmeans(lm.ASJ, pairwise ~ genotype | temp)$contrasts) %&gt;% dauergut::prange()
+
+stan.ASJ&lt;-with(log.tran, stan_lmer(linkfun(cell.norm) ~ group.id + (1|genoID), data = df[df$neuron == &quot;ASJ&quot;,], adapt_delta = 0.99, iter = 4000))
+
+stan.ASI&lt;-with(log.tran, stan_lmer(linkfun(cell.norm) ~ group.id + (1|genoID), data = df[df$neuron == &quot;ASI&quot;,], adapt_delta = 0.99, iter = 4000))
+
+mixed.ASI &lt;- stan.ASI %&gt;% getStan_CIs(type = &quot;log&quot;, group = &quot;temp&quot;, base=10, compare_gt = TRUE)
+mixed.ASJ &lt;- stan.ASJ %&gt;% getStan_CIs(type = &quot;log&quot;, group = &quot;temp&quot;, base=10, compare_gt = TRUE)
+
+labels &lt;- c(&quot;WT&quot;, &quot;rict-1(ft7)&quot;)
+
+
+#### plot ASI ###
+mixed &lt;- mixed.ASI
+p1 &lt;- df %&gt;% dplyr::filter(neuron == &quot;ASI&quot;) %&gt;% ggplot(aes(x = genotype, y = cell.norm)) + 
+  geom_quasirandom(aes(y=cell.norm, pch = temp),colour = &quot;#339900&quot;, cex=1,
+                           width = 0.075,size=0.3,
+                           method = &#39;smiley&#39;) + 
+  list(add.median(width=0.25),add.quartiles()) + facet_grid(.~temp) +
+  stat_summary(aes(x=as.numeric(as.factor(genotype)) + 0.3, y=0),
+                   fun.data = fun_length, geom = &quot;text&quot;, size = 3) +
+  add.Bayes.CI() +
+  coord_cartesian(ylim=c(0,4095)) +
+  labs(title = &quot;ASI&quot;,
+    x = &quot;genotype&quot;,
+    y = &quot;mean fluorescence (AU)&quot;,
+    colour = &quot;Temperature&quot;) +
+   theme_classic() + 
+  theme(axis.text.x = element_text(size = 12, face = &quot;italic&quot;),
+          axis.text.y = element_text(size = 12),
+          axis.line = element_line(size=0.2),
+          axis.title = element_text(size=16)) +
+  scale_x_discrete(labels = labels) +
+  guides(pch=FALSE)
+
+#### plot ASJ ###
+mixed&lt;-mixed.ASJ
+p2 &lt;- df %&gt;% dplyr::filter(neuron == &quot;ASJ&quot;) %&gt;% ggplot(aes(x = genotype, y = cell.norm)) + 
+  geom_quasirandom(aes(y=cell.norm, pch = temp),colour = &quot;#339900&quot;, cex=1,
+                           width = 0.075,size=0.3,
+                           method = &#39;smiley&#39;) + 
+  list(add.median(width=0.25),add.quartiles()) + facet_grid(.~temp) +
+  stat_summary(aes(x=as.numeric(as.factor(genotype)) + 0.3, y=0),
+                   fun.data = fun_length, geom = &quot;text&quot;, size = 3) +
+  add.Bayes.CI() +
+  coord_cartesian(ylim=c(0,4095))+
+  labs(title = &quot;ASJ&quot;,
+    x = &quot;genotype&quot;,
+    y = &quot;mean fluorescence (AU)&quot;,
+    colour = &quot;Temperature&quot;) +
+  theme_classic() + 
+  theme(axis.text.x = element_text(size = 12, face = &quot;italic&quot;),
+          axis.text.y = element_text(size = 12),
+          axis.line = element_line(size=0.2),
+          axis.title = element_text(size=16)) +
+  scale_x_discrete(labels = labels) +
+  guides(pch=FALSE)</code></pre>
+<div style="float: left; width: 425;">
+<pre class="r"><code>p1                                  </code></pre>
+<p><img src="Figure_3_files/figure-html/unnamed-chunk-1-1.png" width="384" /></p>
+</div>
+<div style="float: left; width: 425;">
+<pre class="r"><code>p2</code></pre>
+<p><img src="Figure_3_files/figure-html/unnamed-chunk-2-1.png" width="384" /></p>
+</div>
+<div style="float: right; width: 100%;">
+<p><strong>Figure 3C</strong><br />
+<em>daf-28</em> expression is reduced in <em>rict-1</em> mutants at multiple temperatures. Quantification of <em>daf-28p::gfp</em> fluorescence in the ASI (left) and ASJ (right) neurons in L1 larvae grown at the indicated temperatures. Each data point is the average GFP fluorescence of a single animal (2 neurons per animal); numbers in parentheses below indicate the total number of animals examined. Horizontal lines are the median; error bars are quartiles.</p>
+</div>
+<pre class="r"><code>library(sjPlot)
+sjt.lm(lm.ASI, lm.ASJ, depvar.labels = c(&quot;ASI&quot;, &quot;ASJ&quot;), show.fstat = TRUE)</code></pre>
+<table style="border-collapse:collapse; border:none;border-bottom:double;">
+<td style="padding:0.2cm; border-top:double;">
+ 
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="3">
+ASI
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="3">
+ASJ
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; font-style:italic;">
+ 
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+B
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+B
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; border-top:1px solid; text-align:left;">
+(Intercept)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+3.46
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+3.39 – 3.53
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+&lt;.001
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+3.22
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+3.18 – 3.26
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+temp (27)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.32
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.41 – -0.24
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.20
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.25 – -0.16
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (ft7)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.09
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.18 – -0.00
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.048
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.14
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.19 – -0.10
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
+Observations
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="3">
+100
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="3">
+101
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+R<sup>2</sup> / adj. R<sup>2</sup>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="3">
+.418 / .406
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="3">
+.604 / .596
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+F-statistics
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="3">
+34.866***
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="3">
+74.890***
+</td>
+</tr>
+</table>
+</div>
+</div>
 
 
 

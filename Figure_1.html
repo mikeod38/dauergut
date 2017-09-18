@@ -184,8 +184,17 @@ $(document).ready(function () {
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li>
-  <a href="index.html">home</a>
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    home
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="about.html">raw data</a>
+    </li>
+  </ul>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -255,7 +264,7 @@ $(document).ready(function () {
 <p class="caption">TOR complexes are involved in nutrient homostasis</p>
 </div>
 </div>
-<p>Figure 1. The TORC2 signaling pathway in C. elegans (11, 53-55). Genes encoding conserved components of the pathway are indicated.</p>
+<p><strong>Figure 1</strong> The TORC2 signaling pathway in C. elegans (11, 53-55). Genes encoding conserved components of the pathway are indicated.</p>
 </div>
 <div id="b" class="section level2">
 <h2>1B</h2>
@@ -271,7 +280,9 @@ stan.glmm &lt;- TORC2 %&gt;% dauergut::run_dauer_stan()</code></pre>
 mixed&lt;-dauergut::getStan_CIs(stan.glmm, type = &quot;dauer&quot;)
 plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:6])
 
-(p&lt;-dauergut::plot_CIs(TORC2, title=&#39;TORC2 prevents high temperature dauer formation&#39;, plot.contrasts, ypos = 1.075, type = &quot;dauer&quot;))</code></pre>
+labels = c(&quot;WT&quot;, &quot;rict-1(mg360)&quot;, &quot;rict-1(ft7)&quot;, &quot;sgk-1(ok538)&quot;, &quot;akt-1(mg306)&quot;, &quot;akt-2(ok393)&quot;, &quot;pkc-2(ok328)&quot;) %&gt;% stringr::str_wrap(width = 10)
+
+(p&lt;-dauergut::plot_CIs(TORC2, title=&#39;TORC2 prevents high temperature dauer formation&#39;, plot.contrasts, ypos = 1.075, type = &quot;dauer&quot;, labels = labels))</code></pre>
 <p><img src="Figure_1_files/figure-html/plot%20TORC2-1.png" width="672" /></p>
 <p><strong>Figure 1B</strong></p>
 <p>TORC2 controls high temperature-induced dauer formation. Increased dauer formation occurs in TORC2-specific <em>rict-1</em> mutants, as well as in mutants of TORC2 targets <em>sgk-1</em> and <em>akt-1</em>. Plot shows proportion of dauers formed by animals of the indicated genotypes at 27°C. Each black dot indicates the proportion of dauers formed in a single assay. Arrested L3 and/or partial/post dauers are included as non-dauers due to excess arrest in <em>rict-1(ft7)</em>. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 25 and 9 animals each scored for non-transgenic and transgenic animals, respectively. For transgenic rescues, data are combined from 2 independent lines, with the exception of ges-1p constructs, in which one line was analyzed. *** - P&lt;0.001 compared to wild-type (ANOVA with Dunnett-type multivariate-t adjustment for 1B and Tukey-type multivariate-t adjustment for 1C); <sup>^</sup> - P&lt;0.001 compared to corresponding mutant animals. P-values of differences in means relative to wild-type</p>
@@ -313,7 +324,7 @@ plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:6])
 <td align="right">0.0570696</td>
 <td align="right">62</td>
 <td align="right">5.9145186</td>
-<td align="right">0.0000009</td>
+<td align="right">0.0000008</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -331,7 +342,7 @@ plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:6])
 <td align="right">0.0682112</td>
 <td align="right">62</td>
 <td align="right">0.4422887</td>
-<td align="right">0.9975866</td>
+<td align="right">0.9975894</td>
 <td align="left">p~1</td>
 </tr>
 <tr class="even">
@@ -340,7 +351,7 @@ plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:6])
 <td align="right">0.0570696</td>
 <td align="right">62</td>
 <td align="right">-4.3229489</td>
-<td align="right">0.0003362</td>
+<td align="right">0.0003369</td>
 <td align="left">***</td>
 </tr>
 </tbody>
@@ -444,11 +455,22 @@ mixed&lt;-stan.glmm %&gt;% dauergut::getStan_CIs(type=&quot;dauer&quot;)
 plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1], &quot;&quot;, &quot;&quot;, contrasts$prange[4], &quot;&quot;,&quot;&quot;,&quot;&quot;, contrasts$prange[8],&quot;&quot;,contrasts$prange[10],&quot;&quot;)
 plot.contrasts.2&lt;-c(&quot;&quot;, &quot;&quot;,contrasts$prange[12:13],&quot;&quot;,contrasts$prange[39:41],&quot;&quot;, contrasts$prange[61],&quot;&quot;, contrasts$prange[66])
 
-(p&lt;-dauergut::plot_CIs(gutresc, title=&#39;TORC2 components act in the intestine to regulate 
-dauer formation&#39;, plot.contrasts, plot.contrasts.2=plot.contrasts.2, ypos = 1.075,type = &quot;dauer&quot;, offset = 0))</code></pre>
+labels &lt;- c(&quot;WT&quot;,&quot;rict-1(mg360)&quot;,
+           &quot;rict-1(mg360); +ges-1p::rict-1&quot;,
+           &quot;rict-1(mg360); +gpa-4p::rict-1&quot;,
+           &quot;rict-1(ft7)&quot;,
+           &quot;rict-1(ft7); +ges-1p::rict-1&quot;,
+           &quot;rict-1(ft7); +elt-2p::rict-1&quot;,
+           &quot;rict-1(ft7); +ifb-2p::rict-1&quot;,
+           &quot;sgk-1(ok538)&quot;,
+           &quot;sgk-1(ok538); +ges-1p::sgk-1&quot;,
+           &quot;akt-1(mg306)&quot;,
+           &quot;akt-1(mg306); +ges-1p::akt-1&quot;) %&gt;% stringr::str_wrap(width=10)
+
+(p&lt;-dauergut::plot_CIs(gutresc, title=&quot;TORC2 components act in the intestine to regulate dauer formation&quot;, plot.contrasts, plot.contrasts.2=plot.contrasts.2, ypos = 1.075,type = &quot;dauer&quot;, offset = 0, labels = labels))</code></pre>
 <p><img src="Figure_1_files/figure-html/gut%20resc%20plot-1.png" width="960" /></p>
 <p><strong>Figure 1C</strong></p>
-<p>mTORC2 acts in the intestine to inhibit high-temperature dauer formation. Increased dauer formation of <em>rict-1</em> and <em>sgk-1</em> mutants is rescued by intestinal-specific expression. <em>akt-1</em> mutants were not rescued using this promoter. Dauers formed by animals of the indicated genotypes at 27°C. Each black dot indicates the proportion of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 25 and 9 animals each scored for non-transgenic and transgenic animals, respectively. For transgenic rescues, data are combined from 2 independent lines, with the exception of ges-1p constructs, in which one line was analyzed. *** - P&lt;0.001 compared to wild-type (ANOVA with Dunnett-type multivariate-t adjustment for 1B and Tukey-type multivariate-t adjustment for 1C); <sup>^</sup> - P&lt;0.001 compared to corresponding mutant animals. P-values of differences in means relative to wild-type (B) and corresponding mutant animals (C) are indicated in black and red, respectively.</p>
+<p>mTORC2 acts in the intestine to inhibit high-temperature dauer formation. Increased dauer formation of <em>rict-1</em> and <em>sgk-1</em> mutants is rescued by intestinal-specific expression. <em>akt-1</em> mutants were not rescued using this promoter. Dauers formed by animals of the indicated genotypes at 27°C. Each black dot indicates the proportion of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 25 and 9 animals each scored for non-transgenic and transgenic animals, respectively. For transgenic rescues, data are combined from 2 independent lines, with the exception of ges-1p constructs, in which one line was analyzed. <span style="color:red"><code>***</code></span> - P&lt;0.001 compared to wild-type (ANOVA with Dunnett-type multivariate-t adjustment for 1B and Tukey-type multivariate-t adjustment for 1C); <span style="color:red"><code>***</code></span> - P&lt;0.001 compared to corresponding mutant animals. P-values of differences in means relative to wild-type (B) and corresponding mutant animals (C) are indicated in black and red, respectively.</p>
 <table>
 <caption>pairwise comparisons (Tukey)</caption>
 <thead>

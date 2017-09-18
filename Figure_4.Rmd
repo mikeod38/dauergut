@@ -6,3 +6,160 @@ output:
     fig_height: 5
     fig_width: 7
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+pathname = getwd()
+library(magrittr)
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(ggbeeswarm)
+library(beeswarm)
+library(ggthemes)
+library(viridis)
+library(lme4)
+library(schoRsch)
+library(DHARMa)
+library(multcomp)
+library(tidyr)
+library(rstanarm)
+library(ggrepel)
+library(rstan)
+library(rstanarm)
+library(MASS)
+devtools::install_github("mikeod38/dauergut")
+library(dauergut)
+library(plotly)
+library(lsmeans)
+
+dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
+```
+
+
+#__`_rict-1_` mutants are deficient in food suppression__{.tabset}
+
+##4A
+
+```{r rict-1 food data load}
+strains<-c("N2", "rict-1(mg360)", "rict-1(ft7)")
+#dates<-c("12_5_14", "12_19_14", "1_19_15","3_22_14", "2_25_14", "4_11_14")
+dates<-c("12_5_14", "12_19_14","3_22_14", "2_25_14", "4_11_14")
+foods <- c("OP50", "HB101")
+rict1.food<-read.csv(file.path(pathname, "extdata", "1B_4A_rict-1_TORC2.csv"), header=TRUE) %>% format_dauer(p.dauer = "exclude") %>%
+  dplyr::filter(day %in% dates) %>% mutate(logit.p = car::logit(pct, adjust=0.01), 
+                                           plate.ID = interaction(food, plateID))
+
+# rict1.food %>% ggplot(aes(x=food, y=pct)) + geom_boxplot() + stat_summary(aes(y=pct, group=day, colour = day), fun.y = mean, geom = "line") + facet_grid(.~genotype)
+
+#lm
+lm.add <- lm(pct ~ genotype + food, data = rict1.food)
+lm.int <- update(lm.add,.~. + genotype*food)
+#stan
+rict.food.groups <- rict1.food %>% mutate(group.id = interaction(genotype, food))
+stan.glmm <- rict.food.groups %>% run_dauer_stan(type="dauer-grouped")
+
+```
+
+
+```{r rict-1 food plot}
+contrasts<-dauergut::dunnett_contrasts(lm.int, ref.index = 1, factor = "genotype", interaction = "food")
+mixed<-stan.glmm %>% dauer_StanCIs_groups()
+
+plot.contrasts <- c("",contrasts$interaction$prange[1], "", contrasts$interaction$prange[2], "", contrasts$interaction$prange[3])
+plot.contrasts.interaction <- summary(lm.int)$coefficients[,4][5:6] %>% data.frame() %>% mutate(p.value = c(.[[1]],.[[2]]), genotype = strains[2:3]) %>% dauergut::prange()
+
+index<-rep(seq_len(length(strains)), each = 2)
+
+plot.contrasts.H0 <- data.frame(cbind(food = foods, genotype = strains[index])) %>%
+  mutate(prange = plot.contrasts)
+
+(p<-ggplot(rict1.food, aes(x=food)) +
+  stat_summary(aes(y=pct, group=day), colour = "black", fun.y = mean, geom = "line", alpha = 0.2, linetype = 2) +
+  add.median.dauer() +
+  add.Bayes.CI() +
+  geom_dotplot(aes(y=pct, colour = food, fill=food),binwidth=.015, binaxis="y", position="dodge", stackdir="center", size =.3) +
+    #geom_point(aes(y=pct,colour = food), size = 0.7, alpha = 0.75) +
+  labs(title = "rict-1 mutants are deficient in food suppression",
+           y = "proportion dauer",
+           x = "food") +
+  facet_grid(.~genotype, switch="both") +
+  scale_colour_manual(values = c("black", "#FF9933")) +
+    scale_fill_manual(values = c("black", "#FF9933")) +
+      scale_y_continuous(breaks=c(0,0.25,0.5,0.75, 1.0)) +
+      scale_x_discrete(labels=function(x) sub(" ","\n",x,fixed=TRUE)) +
+  geom_text(data = plot.contrasts.H0, aes(x=2, label = prange, y = 1.075, group = NULL), size = 4) +
+    stat_summary(aes(x=as.numeric(as.factor(food)) + 0.3, y=-0.05),
+                   fun.data = fun_length, geom = "text", size = 3) +
+  theme_my_classic + 
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        strip.text.x = element_text(size=10)))
+
+knitr::kable(car::Anova(lm.int), caption="significant interaction of genotype on food")
+
+# lsmip(lm.int, genotype ~ food, main="interaction plot")
+# 
+# plot(rict1.lsm, comparisons = TRUE, alpha = .05, main="confidence intervals") # showing confidence intervals and gap by which they cover zero
+# 
+# knitr::kable(summary(pairs(rict1.lsm)), caption="contrast matrix for food effect in rict-1 mutants")
+```
+
+##4B
+
+```{r daf-28 increased by HB101}
+#days = as.factor(8:10)
+strains = c("N2","mg360")
+foods = c("OP50","HB101")
+days = "1_20_15"
+
+d28 <- read.csv('extdata/2D_3B_4B_daf-28_GFP_rict-1.csv') %>%
+separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>%
+  subset(food %in% foods & date %in% days & temp == "27" & genotype %in% strains & pheromone == 0 & neuron == "ASJ") %>% 
+  mutate(day = as.factor(day), genotype = factor(genotype, levels = strains),
+         genoID = interaction(date,genotype, ID.A), food = factor(food, levels = foods), 
+         neuron = factor(neuron, levels = "ASJ"), cell.norm = mean)
+
+lm.add <- lm(cell.norm ~ genotype + food, data = d28)
+lm.int <- lm(cell.norm ~ genotype * food, data = d28)
+anova(lm.add, lm.int) # F = 7.76, Df = 1, p = 0.0077 for genotype interaction
+
+d28 %<>% mutate(group.id = interaction(genotype, food))
+
+stan.lm <- with(log.tran, stan_glm(formula = linkfun(mean) ~ group.id,
+                       data=d28,
+                       family = gaussian(),
+                       prior = cauchy(),
+                       prior_intercept = cauchy(),
+                       chains = 3, cores =4, seed = 2000,iter=6000,
+                       control = list(adapt_delta=0.99)))
+
+contrasts <- dauergut::dunnett_contrasts(lm.int, ref.index = 1, factor = "genotype", interaction = "food")
+mixed <- getStan_CIs(stan.lm, type = "log", group = "food", base = 10) %>% 
+  mutate(food = factor(food, levels = foods), genotype = factor(genotype, levels = strains))
+
+#make contrasts with ID for facetting
+plot.contrasts <- c("",contrasts$interaction$prange[1],"",contrasts$interaction$prange[2])
+
+index<-rep(seq_len(length(strains)), each = length(foods))
+plot.contrasts.H0 <- data.frame(cbind(food = rep(foods, length(strains)), genotype = strains[index])) %>%
+  mutate(prange = plot.contrasts)
+
+(p<-ggplot(d28, aes(x=food)) +
+  list(add.median(),add.quartiles()) +
+       geom_quasirandom(aes(y=cell.norm, ),colour = "#339900", cex=1,
+                           width = 0.075,size=0.3,
+                           method = 'smiley') +
+  labs(title = "rict-1 mutants are deficient in food suppression",
+           y = "mean GFP expression",
+           x = "food") +
+  geom_text(data = plot.contrasts.H0, aes(x=food, label = prange, y = 4200, group = NULL), size = 4) + 
+  facet_grid(.~genotype, switch="both") +
+  scale_colour_manual(values = c("black", "#FF9933")) +
+  theme_my_classic +
+    stat_summary(aes(x=as.numeric(as.factor(food)) + 0.3, y=100),
+                   fun.data = fun_length, geom = "text", size = 3)) 
+
+```
