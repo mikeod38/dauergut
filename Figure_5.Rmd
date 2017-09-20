@@ -50,6 +50,7 @@ img.path <-
 **Figure 5A**  
 Cartoon depicting foraging assay. Each plate contains a L4 hermaphrodite which is allowed to forage overnight on a uniform lawn of E. coli for ~ 16hrs. Lines show tracks on the bacterial lawn.
 
+**Figure 5A**  
 ##5B
 ```{r rict-1 roaming import, fig.width=5}
 roam<-read.csv(file.path(pathname, "extdata/5B_5E_gridentry.csv")) %>% 

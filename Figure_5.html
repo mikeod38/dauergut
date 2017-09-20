@@ -254,7 +254,733 @@ $(document).ready(function () {
 </div>
 
 
+<div id="intestinal-mtorc2-alters-foraging-behaviors" class="section level1 tabset">
+<h1><strong>Intestinal mTORC2 alters foraging behaviors</strong></h1>
+<div id="a" class="section level2">
+<h2>5A</h2>
+<p><img src="figures/5A_cartoon.png" alt="C. elegans foraging behavior" /> <strong>Figure 5A</strong><br />
+Cartoon depicting foraging assay. Each plate contains a L4 hermaphrodite which is allowed to forage overnight on a uniform lawn of E. coli for ~ 16hrs. Lines show tracks on the bacterial lawn.</p>
+</div>
+<div id="b" class="section level2">
+<h2>5B</h2>
+<pre class="r"><code>roam&lt;-read.csv(file.path(pathname, &quot;extdata/5B_5E_gridentry.csv&quot;)) %&gt;% 
+  mutate(strain = interaction(genotype, line, drop=TRUE),
+         strainDate = interaction(strain, date, drop=TRUE),
+         plateID = interaction(strainDate,plate, drop=TRUE),
+         total.boxes = 186)</code></pre>
+<pre class="r"><code>library(lme4)
+#simple ANOVA:
+lms&lt;-list(lm = lm(n_entries ~ genotype, data = roam),
+          lm.log = lm(log(n_entries) ~ genotype, data = roam),
+          lm.nboxes = lm(n_boxes ~ genotype, data = roam))
 
+#glmms
+glmms&lt;-list(glmm.date = glmer(data=roam, n_entries ~ genotype + (1|date), family=&quot;poisson&quot;),
+            glmm.strainDate = glmer(data=roam, n_entries ~ genotype + (1|strainDate), family=&quot;poisson&quot;),
+            glmm.obs = glmer(data=roam, n_entries ~ genotype + (1|date) + (1|plateID), family=&quot;poisson&quot;),
+            glmm.obsOnly = glmer(data=roam, n_entries ~ genotype + (1|plateID), family=&quot;poisson&quot;),
+            glmm.fixDate = glmer(data=roam, n_entries ~ date + genotype + (1|plateID), family=&quot;poisson&quot;),
+            glmm.fixDate.ranStrain = glmer(data=roam, n_entries ~ date + genotype + (1|plateID) + (1|strain), family=&quot;poisson&quot;),
+            glmm.nest = glmer(data=roam, n_entries ~ genotype + (1|date/plateID), family=&quot;poisson&quot;), #nested individual random effect
+            glmm.binom = glmer(data=roam,
+                               formula = cbind(roam$n_boxes, roam$total.boxes - roam$n_boxes) ~ genotype + (1|date/plateID),
+                               family=&quot;binomial&quot;))
+
+#non mixed glms
+glms &lt;- list(glm = glm(data=roam, n_entries ~ date + genotype, family=&quot;poisson&quot;),
+             glm.nb = glm.nb(data=roam, n_entries ~ date + genotype, init.theta = 1, link=&quot;log&quot;),
+             glm.binom = glm(data=roam, cbind(roam$n_boxes, roam$total.boxes - roam$n_boxes) ~ date + genotype, family=&quot;binomial&quot;))
+
+mods&lt;-c(lms, glms, glmms)
+
+# Not run #
+###checking distributional assumptions:
+# library(DHARMa)
+
+# sim.resids&lt;-lapply(mods[1:length(mods)], function(x) {
+#   simulationOutput &lt;- simulateResiduals(fittedModel = x, n=250, refit = T)
+#   #par(mfrow = c(2,2))
+#   #plotResiduals(roam$genotype, simulationOutput$scaledResiduals)
+#   #plotResiduals(roam$date, simulationOutput$scaledResiduals)
+#   #plotResiduals(roam$strain, simulationOutput$scaledResiduals)
+#   return(simulationOutput)
+#   })
+# 
+# lapply(sim.resids, function(x) {
+#   plotSimulatedResiduals(simulationOutput = x)
+# })
+
+
+# using DHARMa package check distribution of residuals by predictors (takes a while using refit = T):
+# (mods.dispersion &lt;-
+#   lapply(glmms, function(x) {
+#   simulationOutput &lt;- simulateResiduals(fittedModel = x, n=250, refit = T)
+#   testOverdispersion(simulationOutput = simulationOutput)
+# }))
+
+# nested glmm looks rougly the best for both count date (n_entries) and binary data (n_boxes/total) 
+# although there is still some small effect of 
+# predicted value on residual quantiles
+# end not run #</code></pre>
+<pre class="r"><code>strains &lt;- c(&quot;N2&quot;, &quot;ft7&quot;, &quot;ft7;ex[ges-1p]&quot;, &quot;ft7;ex[rict-1p]&quot;)
+days &lt;- c(&quot;10_1_16&quot;, &quot;10_5_16&quot;, &quot;10_9_16&quot;)
+## remove outliers:
+
+roam %&lt;&gt;% dauergut::flag_outliers(df = ., lin.mod = mods$lm, threshold = 4)</code></pre>
+<p><img src="Figure_5_files/figure-html/rict-1%20roam%20rescue%20plot-1.png" width="480" /><img src="Figure_5_files/figure-html/rict-1%20roam%20rescue%20plot-2.png" width="480" /></p>
+<pre class="r"><code>roam.resc &lt;- roam %&gt;% subset(genotype %in% strains &amp; date %in% days) %&gt;% 
+  mutate(genotype = factor(genotype, levels = strains))
+
+glmm.nest &lt;- update(mods$glmm.nest, data = roam.resc[roam.resc$outlier.status == FALSE,] )
+stan.glmm &lt;- stan_glmer(data = roam.resc[roam.resc$outlier.status == FALSE,], 
+                        formula = n_entries ~ genotype + (1|date/plateID), family = &quot;poisson&quot;,
+                        iter = 4000)</code></pre>
+<pre><code>## 
+## SAMPLING FOR MODEL &#39;count&#39; NOW (CHAIN 1).
+## 
+## Chain 1, Iteration:    1 / 4000 [  0%]  (Warmup)
+## Chain 1, Iteration:  400 / 4000 [ 10%]  (Warmup)
+## Chain 1, Iteration:  800 / 4000 [ 20%]  (Warmup)
+## Chain 1, Iteration: 1200 / 4000 [ 30%]  (Warmup)
+## Chain 1, Iteration: 1600 / 4000 [ 40%]  (Warmup)
+## Chain 1, Iteration: 2000 / 4000 [ 50%]  (Warmup)
+## Chain 1, Iteration: 2001 / 4000 [ 50%]  (Sampling)
+## Chain 1, Iteration: 2400 / 4000 [ 60%]  (Sampling)
+## Chain 1, Iteration: 2800 / 4000 [ 70%]  (Sampling)
+## Chain 1, Iteration: 3200 / 4000 [ 80%]  (Sampling)
+## Chain 1, Iteration: 3600 / 4000 [ 90%]  (Sampling)
+## Chain 1, Iteration: 4000 / 4000 [100%]  (Sampling)
+##  Elapsed Time: 25.844 seconds (Warm-up)
+##                17.1669 seconds (Sampling)
+##                43.0109 seconds (Total)
+## 
+## 
+## SAMPLING FOR MODEL &#39;count&#39; NOW (CHAIN 2).
+## 
+## Chain 2, Iteration:    1 / 4000 [  0%]  (Warmup)
+## Chain 2, Iteration:  400 / 4000 [ 10%]  (Warmup)
+## Chain 2, Iteration:  800 / 4000 [ 20%]  (Warmup)
+## Chain 2, Iteration: 1200 / 4000 [ 30%]  (Warmup)
+## Chain 2, Iteration: 1600 / 4000 [ 40%]  (Warmup)
+## Chain 2, Iteration: 2000 / 4000 [ 50%]  (Warmup)
+## Chain 2, Iteration: 2001 / 4000 [ 50%]  (Sampling)
+## Chain 2, Iteration: 2400 / 4000 [ 60%]  (Sampling)
+## Chain 2, Iteration: 2800 / 4000 [ 70%]  (Sampling)
+## Chain 2, Iteration: 3200 / 4000 [ 80%]  (Sampling)
+## Chain 2, Iteration: 3600 / 4000 [ 90%]  (Sampling)
+## Chain 2, Iteration: 4000 / 4000 [100%]  (Sampling)
+##  Elapsed Time: 26.2039 seconds (Warm-up)
+##                19.9072 seconds (Sampling)
+##                46.1111 seconds (Total)
+## 
+## 
+## SAMPLING FOR MODEL &#39;count&#39; NOW (CHAIN 3).
+## 
+## Chain 3, Iteration:    1 / 4000 [  0%]  (Warmup)
+## Chain 3, Iteration:  400 / 4000 [ 10%]  (Warmup)
+## Chain 3, Iteration:  800 / 4000 [ 20%]  (Warmup)
+## Chain 3, Iteration: 1200 / 4000 [ 30%]  (Warmup)
+## Chain 3, Iteration: 1600 / 4000 [ 40%]  (Warmup)
+## Chain 3, Iteration: 2000 / 4000 [ 50%]  (Warmup)
+## Chain 3, Iteration: 2001 / 4000 [ 50%]  (Sampling)
+## Chain 3, Iteration: 2400 / 4000 [ 60%]  (Sampling)
+## Chain 3, Iteration: 2800 / 4000 [ 70%]  (Sampling)
+## Chain 3, Iteration: 3200 / 4000 [ 80%]  (Sampling)
+## Chain 3, Iteration: 3600 / 4000 [ 90%]  (Sampling)
+## Chain 3, Iteration: 4000 / 4000 [100%]  (Sampling)
+##  Elapsed Time: 25.0019 seconds (Warm-up)
+##                16.3899 seconds (Sampling)
+##                41.3918 seconds (Total)
+## 
+## 
+## SAMPLING FOR MODEL &#39;count&#39; NOW (CHAIN 4).
+## 
+## Chain 4, Iteration:    1 / 4000 [  0%]  (Warmup)
+## Chain 4, Iteration:  400 / 4000 [ 10%]  (Warmup)
+## Chain 4, Iteration:  800 / 4000 [ 20%]  (Warmup)
+## Chain 4, Iteration: 1200 / 4000 [ 30%]  (Warmup)
+## Chain 4, Iteration: 1600 / 4000 [ 40%]  (Warmup)
+## Chain 4, Iteration: 2000 / 4000 [ 50%]  (Warmup)
+## Chain 4, Iteration: 2001 / 4000 [ 50%]  (Sampling)
+## Chain 4, Iteration: 2400 / 4000 [ 60%]  (Sampling)
+## Chain 4, Iteration: 2800 / 4000 [ 70%]  (Sampling)
+## Chain 4, Iteration: 3200 / 4000 [ 80%]  (Sampling)
+## Chain 4, Iteration: 3600 / 4000 [ 90%]  (Sampling)
+## Chain 4, Iteration: 4000 / 4000 [100%]  (Sampling)
+##  Elapsed Time: 25.7453 seconds (Warm-up)
+##                17.8935 seconds (Sampling)
+##                43.6388 seconds (Total)</code></pre>
+<pre class="r"><code>contrasts&lt;-dauergut::tukey_contrasts(glmm.nest, &quot;genotype&quot;)
+mixed&lt;-stan.glmm %&gt;% getStan_CIs(type = &quot;roam&quot;)
+plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1], &quot;&quot;,&quot;&quot;)
+plot.contrasts.2&lt;-c(&quot;&quot;,&quot;&quot;,contrasts$prange[4:5])
+
+labels &lt;- c(&quot;WT&quot;, &quot;rict-1(ft7)&quot;, &quot;rict-1(ft7); +ges-1p::rict-1&quot;, &quot;rict-1(ft7); +rict-1p::rict-1&quot;) %&gt;% stringr::str_wrap(width = 10)
+
+(p&lt;-dauergut::plot_CIs(roam.resc, title=&#39;mTORC2 components acts in the intestine to regulate foraging&#39;, 
+                       plot.contrasts=plot.contrasts, plot.contrasts.2 = plot.contrasts.2,ypos = 800, offset = 0, type = &quot;grid&quot;, labels = labels))</code></pre>
+<p><img src="Figure_5_files/figure-html/rict-1%20roam%20rescue%20plot-3.png" width="480" /></p>
+<p><strong>Figure 5B</strong><br />
+<em>rict-1</em> acts in the intestine to regulate foraging behavior. Foraging is increased in <em>rict-1</em> mutants, which is rescued using the intestine-specific <em>ges-1</em> promoter. Plot shows exploratory behavior of indicated strains. Each purple dot represents data from a single worm. Median is indicated by a horizontal purple line; error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the total number of animals examined during 3 independent days of assays. P-values shown are between indicated values; <span style="color:black"><code>***</code></span> and <span style="color:red"><code>***</code></span> - different from WT and rict-1 at P&lt;0.001, respectively (ANOVA with Tukey-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
+<pre class="r"><code>library(sjPlot)
+sjt.glmer(glmm.nest, depvar.labels = &quot;number of entries&quot;, show.se = TRUE, exp.coef=FALSE)</code></pre>
+<table style="border-collapse:collapse; border:none;border-bottom:double;">
+<tr>
+<td style="padding:0.2cm; border-top:double;">
+ 
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="4">
+number of entries
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; font-style:italic;">
+ 
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+Log-Mean
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+std. Error
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
+</tr>
+<tr>
+<td colspan="6" style="padding:0.2cm; text-align:left; border-top:1px solid; font-weight:bold; text-align:left;">
+Fixed Parts
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+(Intercept)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+5.33
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+4.97 – 5.69
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.18
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (ft7)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.79
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.51 – 1.07
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.14
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (ft7;ex[ges-1p])
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.09
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.13 – 0.32
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.11
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.425
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (ft7;ex[rict-1p])
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.38
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.67 – -0.10
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.14
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.008
+</td>
+</tr>
+<tr>
+<td colspan="6" style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; font-weight:bold; text-align:left; padding-top:0.5em;">
+Random Parts
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+τ<sub>00, plateID:date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.154
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+τ<sub>00, date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.070
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+N<sub>plateID:date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+96
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+N<sub>date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+3
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+ICC<sub>plateID:date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.126
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+ICC<sub>date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.057
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
+Observations
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="4">
+96
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+Deviance
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+3.877
+</td>
+</tr>
+</table>
+</div>
+<div id="c" class="section level2">
+<h2>5C</h2>
+<pre class="r"><code>#### see extdata/roaming and speed_curvature function for data and analysis, respectively - highly memory intensive</code></pre>
+<div class="figure">
+<img src="figures/5C_roam_dwell_density.png" alt="rict-1 mutation increases roaming behavior" />
+<p class="caption">rict-1 mutation increases roaming behavior</p>
+</div>
+<p><strong>Figure 5C</strong><br />
+Live tracking of foraging behavior. Shown is a representative assay. n &gt; 20 animals per assay. Density plot shows mean speed and angular velocity from tracks binned over 10 sec intervals imaged at 3 frames/sec. Red line indicates delineation of roaming (upper region) and dwelling (lower region) behavior.</p>
+</div>
+<div id="d" class="section level2">
+<h2>5D</h2>
+<pre class="r"><code>#devtools::install_github(&quot;rasmusab/bayesian_first_aid&quot;)
+strains &lt;- c(&quot;N2&quot;,&quot;ft7&quot;)
+roam_beh &lt;- read.csv(file.path(pathname, &quot;extdata/5D_roam_dwell_all.csv&quot;)) %&gt;% 
+  mutate(genotype = factor(genotype, levels = strains), pct = pct.roam, plateID = interaction(date,genotype,plate))
+
+roam.t &lt;- t.test(roam_beh[roam_beh$genotype == strains[1],]$pct, roam_beh[roam_beh$genotype == strains[2],]$pct)
+
+glmm &lt;- lme4::glmer(data = roam_beh, cbind(roam, dwell) ~ genotype + (1|plateID), family = binomial)
+
+stan.glmm &lt;- stan_glmer(data = roam_beh, 
+                        formula = cbind(roam, dwell) ~ genotype + (1|plateID), 
+                        family = binomial,
+                        iter = 4000)</code></pre>
+<pre><code>## 
+## SAMPLING FOR MODEL &#39;binomial&#39; NOW (CHAIN 1).
+## 
+## Chain 1, Iteration:    1 / 4000 [  0%]  (Warmup)
+## Chain 1, Iteration:  400 / 4000 [ 10%]  (Warmup)
+## Chain 1, Iteration:  800 / 4000 [ 20%]  (Warmup)
+## Chain 1, Iteration: 1200 / 4000 [ 30%]  (Warmup)
+## Chain 1, Iteration: 1600 / 4000 [ 40%]  (Warmup)
+## Chain 1, Iteration: 2000 / 4000 [ 50%]  (Warmup)
+## Chain 1, Iteration: 2001 / 4000 [ 50%]  (Sampling)
+## Chain 1, Iteration: 2400 / 4000 [ 60%]  (Sampling)
+## Chain 1, Iteration: 2800 / 4000 [ 70%]  (Sampling)
+## Chain 1, Iteration: 3200 / 4000 [ 80%]  (Sampling)
+## Chain 1, Iteration: 3600 / 4000 [ 90%]  (Sampling)
+## Chain 1, Iteration: 4000 / 4000 [100%]  (Sampling)
+##  Elapsed Time: 2.23391 seconds (Warm-up)
+##                2.37254 seconds (Sampling)
+##                4.60645 seconds (Total)
+## 
+## 
+## SAMPLING FOR MODEL &#39;binomial&#39; NOW (CHAIN 2).
+## 
+## Chain 2, Iteration:    1 / 4000 [  0%]  (Warmup)
+## Chain 2, Iteration:  400 / 4000 [ 10%]  (Warmup)
+## Chain 2, Iteration:  800 / 4000 [ 20%]  (Warmup)
+## Chain 2, Iteration: 1200 / 4000 [ 30%]  (Warmup)
+## Chain 2, Iteration: 1600 / 4000 [ 40%]  (Warmup)
+## Chain 2, Iteration: 2000 / 4000 [ 50%]  (Warmup)
+## Chain 2, Iteration: 2001 / 4000 [ 50%]  (Sampling)
+## Chain 2, Iteration: 2400 / 4000 [ 60%]  (Sampling)
+## Chain 2, Iteration: 2800 / 4000 [ 70%]  (Sampling)
+## Chain 2, Iteration: 3200 / 4000 [ 80%]  (Sampling)
+## Chain 2, Iteration: 3600 / 4000 [ 90%]  (Sampling)
+## Chain 2, Iteration: 4000 / 4000 [100%]  (Sampling)
+##  Elapsed Time: 2.02368 seconds (Warm-up)
+##                1.96593 seconds (Sampling)
+##                3.98961 seconds (Total)
+## 
+## 
+## SAMPLING FOR MODEL &#39;binomial&#39; NOW (CHAIN 3).
+## 
+## Chain 3, Iteration:    1 / 4000 [  0%]  (Warmup)
+## Chain 3, Iteration:  400 / 4000 [ 10%]  (Warmup)
+## Chain 3, Iteration:  800 / 4000 [ 20%]  (Warmup)
+## Chain 3, Iteration: 1200 / 4000 [ 30%]  (Warmup)
+## Chain 3, Iteration: 1600 / 4000 [ 40%]  (Warmup)
+## Chain 3, Iteration: 2000 / 4000 [ 50%]  (Warmup)
+## Chain 3, Iteration: 2001 / 4000 [ 50%]  (Sampling)
+## Chain 3, Iteration: 2400 / 4000 [ 60%]  (Sampling)
+## Chain 3, Iteration: 2800 / 4000 [ 70%]  (Sampling)
+## Chain 3, Iteration: 3200 / 4000 [ 80%]  (Sampling)
+## Chain 3, Iteration: 3600 / 4000 [ 90%]  (Sampling)
+## Chain 3, Iteration: 4000 / 4000 [100%]  (Sampling)
+##  Elapsed Time: 2.01805 seconds (Warm-up)
+##                2.08423 seconds (Sampling)
+##                4.10228 seconds (Total)
+## 
+## 
+## SAMPLING FOR MODEL &#39;binomial&#39; NOW (CHAIN 4).
+## 
+## Chain 4, Iteration:    1 / 4000 [  0%]  (Warmup)
+## Chain 4, Iteration:  400 / 4000 [ 10%]  (Warmup)
+## Chain 4, Iteration:  800 / 4000 [ 20%]  (Warmup)
+## Chain 4, Iteration: 1200 / 4000 [ 30%]  (Warmup)
+## Chain 4, Iteration: 1600 / 4000 [ 40%]  (Warmup)
+## Chain 4, Iteration: 2000 / 4000 [ 50%]  (Warmup)
+## Chain 4, Iteration: 2001 / 4000 [ 50%]  (Sampling)
+## Chain 4, Iteration: 2400 / 4000 [ 60%]  (Sampling)
+## Chain 4, Iteration: 2800 / 4000 [ 70%]  (Sampling)
+## Chain 4, Iteration: 3200 / 4000 [ 80%]  (Sampling)
+## Chain 4, Iteration: 3600 / 4000 [ 90%]  (Sampling)
+## Chain 4, Iteration: 4000 / 4000 [100%]  (Sampling)
+##  Elapsed Time: 2.10754 seconds (Warm-up)
+##                2.30385 seconds (Sampling)
+##                4.4114 seconds (Total)</code></pre>
+<pre class="r"><code>mixed &lt;- stan.glmm %&gt;% getStan_CIs(type = &quot;dauer&quot;)
+contrasts &lt;- data.frame(p.value = roam.t$p.value) %&gt;% dauergut::prange()
+plot.contrasts &lt;- c(&quot;&quot;,contrasts$prange)
+
+labels = c(&quot;WT&quot;, &quot;rict-1(ft7)&quot;)
+
+(p&lt;-dauergut::plot_CIs(roam_beh, plot.contrasts = plot.contrasts, type = &quot;dauer&quot;, title = &quot;&quot;, ypos = 1.05, offset = 0, labels = labels)) + labs(subtitle = &quot;&quot;, y = &quot;proportion roaming&quot;)</code></pre>
+<p><img src="Figure_5_files/figure-html/roaming%20mutliple%20assays-1.png" width="288" /></p>
+<pre class="r"><code>odds.ratio &lt;- summary(stan.glmm)[2,1] %&gt;% exp()</code></pre>
+<p><strong>Figure 5D</strong><br />
+Quantification of roaming and dwelling states. <em>rict-1</em> mutants show increased roaming, corresponding to an odds ratio of 3.4704954. Dots show proportion of track time bins in which animals were roaming, with each dot reflecting one assay. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. P-value shown is with respect to wild-type (Welch’s t-test).</p>
+</div>
+<div id="e" class="section level2">
+<h2>5E</h2>
+<p>pdfr-1 is epistatic to rict-1 in foraging behavior.</p>
+<pre class="r"><code>  roam&lt;-read.csv(file.path(pathname, &quot;extdata/5B_5E_gridentry.csv&quot;)) %&gt;% 
+  mutate(strain = interaction(genotype, line, drop=TRUE),
+         strainDate = interaction(strain, date, drop=TRUE),
+         plateID = interaction(strainDate,plate, drop=TRUE),
+         total.boxes = 186)</code></pre>
+<pre class="r"><code>strains &lt;- c(&quot;N2&quot;, &quot;ft7&quot;, &quot;pdf-1&quot;, &quot;pdfr-1&quot;, &quot;pdfr-1;ft7&quot;)
+days &lt;- c(&quot;12_20_16&quot;, &quot;1_5_17&quot;, &quot;1_8_17&quot;)
+## remove outliers (based on analysis, below):
+lm &lt;- lm(n_entries ~ genotype, data = roam)
+roam %&lt;&gt;% dauergut::flag_outliers(df = ., lin.mod = lm, threshold = 4)</code></pre>
+<p><img src="Figure_5_files/figure-html/pdfr-1%20roam%20suppression%20plot-1.png" width="672" /><img src="Figure_5_files/figure-html/pdfr-1%20roam%20suppression%20plot-2.png" width="672" /></p>
+<pre class="r"><code>roam.pdfr1 &lt;- roam %&gt;% subset(genotype %in% strains &amp; date %in% days) %&gt;%
+  mutate(genotype = factor(genotype, levels = strains))
+
+glmm.nest &lt;-glmer(data = roam.pdfr1[roam.pdfr1$outlier.status == FALSE,], formula = n_entries ~ genotype + (1|date/plateID), family = &quot;poisson&quot;)
+stan.glmm &lt;- stan_glmer(data = roam.pdfr1[roam.pdfr1$outlier.status == FALSE,], 
+                        formula = n_entries ~ genotype + (1|date/plateID), family = &quot;poisson&quot;,
+                        iter = 4000, adapt_delta = 0.99)</code></pre>
+<pre><code>## 
+## SAMPLING FOR MODEL &#39;count&#39; NOW (CHAIN 1).
+## 
+## Chain 1, Iteration:    1 / 4000 [  0%]  (Warmup)
+## Chain 1, Iteration:  400 / 4000 [ 10%]  (Warmup)
+## Chain 1, Iteration:  800 / 4000 [ 20%]  (Warmup)
+## Chain 1, Iteration: 1200 / 4000 [ 30%]  (Warmup)
+## Chain 1, Iteration: 1600 / 4000 [ 40%]  (Warmup)
+## Chain 1, Iteration: 2000 / 4000 [ 50%]  (Warmup)
+## Chain 1, Iteration: 2001 / 4000 [ 50%]  (Sampling)
+## Chain 1, Iteration: 2400 / 4000 [ 60%]  (Sampling)
+## Chain 1, Iteration: 2800 / 4000 [ 70%]  (Sampling)
+## Chain 1, Iteration: 3200 / 4000 [ 80%]  (Sampling)
+## Chain 1, Iteration: 3600 / 4000 [ 90%]  (Sampling)
+## Chain 1, Iteration: 4000 / 4000 [100%]  (Sampling)
+##  Elapsed Time: 25.0476 seconds (Warm-up)
+##                33.4473 seconds (Sampling)
+##                58.4949 seconds (Total)
+## 
+## 
+## SAMPLING FOR MODEL &#39;count&#39; NOW (CHAIN 2).
+## 
+## Chain 2, Iteration:    1 / 4000 [  0%]  (Warmup)
+## Chain 2, Iteration:  400 / 4000 [ 10%]  (Warmup)
+## Chain 2, Iteration:  800 / 4000 [ 20%]  (Warmup)
+## Chain 2, Iteration: 1200 / 4000 [ 30%]  (Warmup)
+## Chain 2, Iteration: 1600 / 4000 [ 40%]  (Warmup)
+## Chain 2, Iteration: 2000 / 4000 [ 50%]  (Warmup)
+## Chain 2, Iteration: 2001 / 4000 [ 50%]  (Sampling)
+## Chain 2, Iteration: 2400 / 4000 [ 60%]  (Sampling)
+## Chain 2, Iteration: 2800 / 4000 [ 70%]  (Sampling)
+## Chain 2, Iteration: 3200 / 4000 [ 80%]  (Sampling)
+## Chain 2, Iteration: 3600 / 4000 [ 90%]  (Sampling)
+## Chain 2, Iteration: 4000 / 4000 [100%]  (Sampling)
+##  Elapsed Time: 26.496 seconds (Warm-up)
+##                30.2942 seconds (Sampling)
+##                56.7902 seconds (Total)
+## 
+## 
+## SAMPLING FOR MODEL &#39;count&#39; NOW (CHAIN 3).
+## 
+## Chain 3, Iteration:    1 / 4000 [  0%]  (Warmup)
+## Chain 3, Iteration:  400 / 4000 [ 10%]  (Warmup)
+## Chain 3, Iteration:  800 / 4000 [ 20%]  (Warmup)
+## Chain 3, Iteration: 1200 / 4000 [ 30%]  (Warmup)
+## Chain 3, Iteration: 1600 / 4000 [ 40%]  (Warmup)
+## Chain 3, Iteration: 2000 / 4000 [ 50%]  (Warmup)
+## Chain 3, Iteration: 2001 / 4000 [ 50%]  (Sampling)
+## Chain 3, Iteration: 2400 / 4000 [ 60%]  (Sampling)
+## Chain 3, Iteration: 2800 / 4000 [ 70%]  (Sampling)
+## Chain 3, Iteration: 3200 / 4000 [ 80%]  (Sampling)
+## Chain 3, Iteration: 3600 / 4000 [ 90%]  (Sampling)
+## Chain 3, Iteration: 4000 / 4000 [100%]  (Sampling)
+##  Elapsed Time: 22.579 seconds (Warm-up)
+##                37.1612 seconds (Sampling)
+##                59.7402 seconds (Total)
+## 
+## 
+## SAMPLING FOR MODEL &#39;count&#39; NOW (CHAIN 4).
+## 
+## Chain 4, Iteration:    1 / 4000 [  0%]  (Warmup)
+## Chain 4, Iteration:  400 / 4000 [ 10%]  (Warmup)
+## Chain 4, Iteration:  800 / 4000 [ 20%]  (Warmup)
+## Chain 4, Iteration: 1200 / 4000 [ 30%]  (Warmup)
+## Chain 4, Iteration: 1600 / 4000 [ 40%]  (Warmup)
+## Chain 4, Iteration: 2000 / 4000 [ 50%]  (Warmup)
+## Chain 4, Iteration: 2001 / 4000 [ 50%]  (Sampling)
+## Chain 4, Iteration: 2400 / 4000 [ 60%]  (Sampling)
+## Chain 4, Iteration: 2800 / 4000 [ 70%]  (Sampling)
+## Chain 4, Iteration: 3200 / 4000 [ 80%]  (Sampling)
+## Chain 4, Iteration: 3600 / 4000 [ 90%]  (Sampling)
+## Chain 4, Iteration: 4000 / 4000 [100%]  (Sampling)
+##  Elapsed Time: 31.7353 seconds (Warm-up)
+##                30.064 seconds (Sampling)
+##                61.7992 seconds (Total)</code></pre>
+<pre class="r"><code>contrasts&lt;-dauergut::tukey_contrasts(glmm.nest, &quot;genotype&quot;)
+mixed&lt;-stan.glmm %&gt;% getStan_CIs()
+plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:4])
+plot.contrasts.2&lt;-c(&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,contrasts$prange[10])
+
+labels &lt;- c(&quot;WT&quot;, &quot;rict-1(ft7)&quot;, &quot;pdf-1(tm1996)&quot;, &quot;pdfr-1(ok3425)&quot;, &quot;rict-1(ft7); pdfr-1(ok3425)&quot;) %&gt;%
+  stringr::str_wrap(width=10)
+
+(p&lt;-dauergut::plot_CIs(roam.pdfr1, title=&#39;rict-1 effects on roaming behavior depends on pdf-1/pdfr-1 signaling&#39;, plot.contrasts=plot.contrasts, plot.contrasts.2 = plot.contrasts.2,ypos = 800, offset = 50, type = &quot;grid&quot;, labels = labels))</code></pre>
+<p><img src="Figure_5_files/figure-html/pdfr-1%20roam%20suppression%20plot-3.png" width="672" /></p>
+</div>
+<div id="s2a" class="section level2">
+<h2>S2A</h2>
+<pre class="r"><code>#run speed_curvature_4x_parallel to reproduce these data from raw position, speed data.</code></pre>
+<p><img src="figures/S2A_starve_roam_density.png" alt="rict-1 mutation increases roaming behavior" /> ##S2B</p>
+<pre class="r"><code>devtools::install_github(&quot;rasmusab/bayesian_first_aid&quot;)
+strains &lt;- c(&quot;N2&quot;,&quot;rict-1(ft7)&quot;)
+roam_beh &lt;- read.csv(file.path(pathname, &quot;extdata/S2B_starved_roam_dwell_all.csv&quot;)) %&gt;% 
+  mutate(genotype = factor(genotype, levels = strains), pct = pct.roam, plateID = interaction(date,genotype,plate))
+
+
+roam.t &lt;- t.test(roam_beh[roam_beh$genotype == strains[1],]$pct, roam_beh[roam_beh$genotype == strains[2],]$pct)
+
+glmm &lt;- lme4::glmer(data = roam_beh, cbind(roam, dwell) ~ genotype + (1|plateID), family = binomial)
+
+stan.glmm &lt;- stan_glmer(data = roam_beh, 
+                        formula = cbind(roam, dwell) ~ genotype + (1|plateID), 
+                        family = binomial,
+                        iter = 4000)</code></pre>
+<pre><code>## 
+## SAMPLING FOR MODEL &#39;binomial&#39; NOW (CHAIN 1).
+## 
+## Chain 1, Iteration:    1 / 4000 [  0%]  (Warmup)
+## Chain 1, Iteration:  400 / 4000 [ 10%]  (Warmup)
+## Chain 1, Iteration:  800 / 4000 [ 20%]  (Warmup)
+## Chain 1, Iteration: 1200 / 4000 [ 30%]  (Warmup)
+## Chain 1, Iteration: 1600 / 4000 [ 40%]  (Warmup)
+## Chain 1, Iteration: 2000 / 4000 [ 50%]  (Warmup)
+## Chain 1, Iteration: 2001 / 4000 [ 50%]  (Sampling)
+## Chain 1, Iteration: 2400 / 4000 [ 60%]  (Sampling)
+## Chain 1, Iteration: 2800 / 4000 [ 70%]  (Sampling)
+## Chain 1, Iteration: 3200 / 4000 [ 80%]  (Sampling)
+## Chain 1, Iteration: 3600 / 4000 [ 90%]  (Sampling)
+## Chain 1, Iteration: 4000 / 4000 [100%]  (Sampling)
+##  Elapsed Time: 2.07649 seconds (Warm-up)
+##                2.2742 seconds (Sampling)
+##                4.35069 seconds (Total)
+## 
+## 
+## SAMPLING FOR MODEL &#39;binomial&#39; NOW (CHAIN 2).
+## 
+## Chain 2, Iteration:    1 / 4000 [  0%]  (Warmup)
+## Chain 2, Iteration:  400 / 4000 [ 10%]  (Warmup)
+## Chain 2, Iteration:  800 / 4000 [ 20%]  (Warmup)
+## Chain 2, Iteration: 1200 / 4000 [ 30%]  (Warmup)
+## Chain 2, Iteration: 1600 / 4000 [ 40%]  (Warmup)
+## Chain 2, Iteration: 2000 / 4000 [ 50%]  (Warmup)
+## Chain 2, Iteration: 2001 / 4000 [ 50%]  (Sampling)
+## Chain 2, Iteration: 2400 / 4000 [ 60%]  (Sampling)
+## Chain 2, Iteration: 2800 / 4000 [ 70%]  (Sampling)
+## Chain 2, Iteration: 3200 / 4000 [ 80%]  (Sampling)
+## Chain 2, Iteration: 3600 / 4000 [ 90%]  (Sampling)
+## Chain 2, Iteration: 4000 / 4000 [100%]  (Sampling)
+##  Elapsed Time: 1.99838 seconds (Warm-up)
+##                1.5481 seconds (Sampling)
+##                3.54647 seconds (Total)
+## 
+## 
+## SAMPLING FOR MODEL &#39;binomial&#39; NOW (CHAIN 3).
+## 
+## Chain 3, Iteration:    1 / 4000 [  0%]  (Warmup)
+## Chain 3, Iteration:  400 / 4000 [ 10%]  (Warmup)
+## Chain 3, Iteration:  800 / 4000 [ 20%]  (Warmup)
+## Chain 3, Iteration: 1200 / 4000 [ 30%]  (Warmup)
+## Chain 3, Iteration: 1600 / 4000 [ 40%]  (Warmup)
+## Chain 3, Iteration: 2000 / 4000 [ 50%]  (Warmup)
+## Chain 3, Iteration: 2001 / 4000 [ 50%]  (Sampling)
+## Chain 3, Iteration: 2400 / 4000 [ 60%]  (Sampling)
+## Chain 3, Iteration: 2800 / 4000 [ 70%]  (Sampling)
+## Chain 3, Iteration: 3200 / 4000 [ 80%]  (Sampling)
+## Chain 3, Iteration: 3600 / 4000 [ 90%]  (Sampling)
+## Chain 3, Iteration: 4000 / 4000 [100%]  (Sampling)
+##  Elapsed Time: 1.97075 seconds (Warm-up)
+##                1.72685 seconds (Sampling)
+##                3.6976 seconds (Total)
+## 
+## 
+## SAMPLING FOR MODEL &#39;binomial&#39; NOW (CHAIN 4).
+## 
+## Chain 4, Iteration:    1 / 4000 [  0%]  (Warmup)
+## Chain 4, Iteration:  400 / 4000 [ 10%]  (Warmup)
+## Chain 4, Iteration:  800 / 4000 [ 20%]  (Warmup)
+## Chain 4, Iteration: 1200 / 4000 [ 30%]  (Warmup)
+## Chain 4, Iteration: 1600 / 4000 [ 40%]  (Warmup)
+## Chain 4, Iteration: 2000 / 4000 [ 50%]  (Warmup)
+## Chain 4, Iteration: 2001 / 4000 [ 50%]  (Sampling)
+## Chain 4, Iteration: 2400 / 4000 [ 60%]  (Sampling)
+## Chain 4, Iteration: 2800 / 4000 [ 70%]  (Sampling)
+## Chain 4, Iteration: 3200 / 4000 [ 80%]  (Sampling)
+## Chain 4, Iteration: 3600 / 4000 [ 90%]  (Sampling)
+## Chain 4, Iteration: 4000 / 4000 [100%]  (Sampling)
+##  Elapsed Time: 2.12363 seconds (Warm-up)
+##                1.87483 seconds (Sampling)
+##                3.99846 seconds (Total)</code></pre>
+<pre class="r"><code>mixed &lt;- stan.glmm %&gt;% getStan_CIs(type = &quot;dauer&quot;)
+contrasts &lt;- data.frame(p.value = roam.t$p.value) %&gt;% dauergut::prange()
+plot.contrasts &lt;- c(&quot;&quot;,contrasts$prange)
+
+labels &lt;- c(&quot;WT&quot;, &quot;rict-1(ft7)&quot;)
+
+(p&lt;-dauergut::plot_CIs(roam_beh, plot.contrasts = plot.contrasts, type = &quot;dauer&quot;, title = &quot;&quot;, ypos = 1.05, offset = 0, labels = labels) + labs(subtitle = &quot;&quot;, y = &quot;proportion roaming&quot;))</code></pre>
+<p><img src="Figure_5_files/figure-html/starved%20roam%20quantification-1.png" width="672" /></p>
+</div>
+<div id="s2c" class="section level2">
+<h2>S2C</h2>
+<pre class="r"><code>strains&lt;-c(&quot;N2&quot;,&quot;rict-1(ft7)&quot;,&quot;rict-1(ft7);pdfr-1&quot;)
+foods = &quot;OP50&quot;
+
+pdfr_dauer&lt;-read.csv(file.path(pathname, &quot;extdata/S2C_pdfr_dauer.csv&quot;)) %&gt;% format_dauer(p.dauer = &quot;non&quot;)
+
+pdfr_dauer %&lt;&gt;% mutate(adj.pct = case_when(.$pct == 0 ~ 0.01, .$pct == 1 ~ 0.99, TRUE ~ .$pct))
+
+lm &lt;- pdfr_dauer %&gt;% dauer_ANOVA()
+
+stan.glmm &lt;- pdfr_dauer %&gt;% run_dauer_stan
+
+contrasts&lt;-dauergut::tukey_contrasts(lm,&quot;genotype&quot;)
+mixed&lt;-stan.glmm %&gt;% getStan_CIs(type=&quot;dauer&quot;)
+plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:2])
+plot.contrasts.2&lt;-c(&quot;&quot;,&quot;&quot;,contrasts$prange[3])
+
+labels = c(&quot;WT&quot;, &quot;rict-1(ft7)&quot;, &quot; rict-1(ft7); pdfr-1(ok3425)&quot;) %&gt;% stringr::str_wrap(width = 10)
+
+(p&lt;-dauergut::plot_CIs(pdfr_dauer, title=&#39;pdfr-1 does not suppress the rict-1 dauer phenotype&#39;, plot.contrasts, plot.contrasts.2, ypos = 1.1, offset = 0.050, type = &quot;dauer&quot;, labels = labels))</code></pre>
+<p><img src="Figure_5_files/figure-html/pdfr-1%20dauer%20phenotype-1.png" width="672" /></p>
+</div>
+</div>
 
 
 
