@@ -38,7 +38,7 @@ library(plotly)
 dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
 ```
 
-#__daf-28, but not daf-7, is strongly reduced by temperature__{.tabset}
+#__*daf-28*, but not *daf-7*, is strongly reduced by temperature__{.tabset}
 
 ##3A
 

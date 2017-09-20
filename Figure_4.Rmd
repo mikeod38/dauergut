@@ -39,7 +39,7 @@ dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
 ```
 
 
-#__`_rict-1_` mutants are deficient in food suppression__{.tabset}
+#__*rict-1* Rictor mutants are insensitive to food quality and feeding state. __{.tabset}
 
 ##4A
 
@@ -60,7 +60,6 @@ lm.int <- update(lm.add,.~. + genotype*food)
 #stan
 rict.food.groups <- rict1.food %>% mutate(group.id = interaction(genotype, food))
 stan.glmm <- run_dauer_stan(df = rict.food.groups, type="dauer-grouped", group = "food", intercept = FALSE)
-
 
 ```
 
@@ -94,18 +93,22 @@ plot.contrasts.H0 <- data.frame(cbind(food = foods, genotype = strains[index])) 
   geom_text(data = plot.contrasts.H0, aes(x=2, label = prange, y = 1.075, group = NULL), size = 4) +
     stat_summary(aes(x=as.numeric(as.factor(food)) + 0.3, y=-0.05),
                    fun.data = fun_length, geom = "text", size = 3) +
-  theme_my_classic + 
-  theme(axis.title.x = element_blank(),
-        axis.text.x = element_blank(),
-        strip.text.x = element_text(size=10)))
+  theme_classic() + 
+    theme(strip.text.x = element_text(size = 12, face="italic"),
+      axis.text.x = element_blank(),
+          axis.text.y = element_text(size = 12),
+          axis.line = element_line(size=0.2),
+          axis.title = element_text(size=16)))
+```
 
-knitr::kable(car::Anova(lm.int), caption="significant interaction of genotype on food")
+**Figure 4A**  
+_rict-1_ mutants are deficient in food suppression of dauer formation. Dauers formed by wild-type and rict-1 mutants on OP50 or HB101 at 27°C. Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 19 animals scored in each. Dashed lines indicate mean change in dauer formation per experimental day. P-values are with respect to growth on OP50; `***` - different from growth on OP50 at P<0.001 [two-factor ANOVA with F(`r round(anova(lm.int)$F[3],2)`) with `r anova(lm.int)$Df[3]` Df, P=`r round(anova(lm.int)$Pr[3],4)` for genotype*food interaction, Tukey-type multivariate-t post-hoc adjustment].
 
-# lsmip(lm.int, genotype ~ food, main="interaction plot")
-# 
-# plot(rict1.lsm, comparisons = TRUE, alpha = .05, main="confidence intervals") # showing confidence intervals and gap by which they cover zero
-# 
-# knitr::kable(summary(pairs(rict1.lsm)), caption="contrast matrix for food effect in rict-1 mutants")
+
+
+```{r rict1 food model results, fig.align="center"}
+library(sjPlot)
+sjt.lm(lm.int, depvar.labels = "log(GFP expression)", show.fstat = TRUE)
 ```
 
 ##4B
@@ -123,22 +126,27 @@ separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>%
          genoID = interaction(date,genotype, ID.A), food = factor(food, levels = foods), 
          neuron = factor(neuron, levels = "ASJ"), cell.norm = mean)
 
+# lin mod to flag outliers
 lm.add <- lm(cell.norm ~ genotype + food, data = d28)
 lm.int <- lm(cell.norm ~ genotype * food, data = d28)
-anova(lm.add, lm.int) # F = 7.76, Df = 1, p = 0.0077 for genotype interaction
 
 d28 %<>% mutate(group.id = interaction(genotype, food))
 
-stan.lm <- with(log.tran, stan_glm(formula = linkfun(mean) ~ group.id,
-                       data=d28,
+d28 %<>% flag_outliers(lin.mod=lm.int, threshold = 4, df = ., noplot=TRUE)
+
+lm.add <- lm(cell.norm ~ genotype + food, data = d28[d28$outlier.status == FALSE,])
+lm.int <- lm(cell.norm ~ genotype * food, data = d28[d28$outlier.status == FALSE,])
+
+stan.lm <- stan_glm(formula = cell.norm ~ group.id,
+                       data=d28[d28$outlier.status == FALSE,],
                        family = gaussian(),
                        prior = cauchy(),
                        prior_intercept = cauchy(),
                        chains = 3, cores =4, seed = 2000,iter=6000,
-                       control = list(adapt_delta=0.99)))
+                       control = list(adapt_delta=0.99))
 
 contrasts <- dauergut::dunnett_contrasts(lm.int, ref.index = 1, factor = "genotype", interaction = "food")
-mixed <- getStan_CIs(stan.lm, type = "log", group = "food", base = 10) %>% 
+mixed <- getStan_CIs(stan.lm, group = "food") %>% 
   mutate(food = factor(food, levels = foods), genotype = factor(genotype, levels = strains))
 
 #make contrasts with ID for facetting
@@ -150,17 +158,33 @@ plot.contrasts.H0 <- data.frame(cbind(food = rep(foods, length(strains)), genoty
 
 (p<-ggplot(d28, aes(x=food)) +
   list(add.median(),add.quartiles()) +
+    add.Bayes.CI() +
        geom_quasirandom(aes(y=cell.norm, ),colour = "#339900", cex=1,
                            width = 0.075,size=0.3,
                            method = 'smiley') +
-  labs(title = "rict-1 mutants are deficient in food suppression",
-           y = "mean GFP expression",
+  labs(y = "mean GFP expression (AU)",
            x = "food") +
   geom_text(data = plot.contrasts.H0, aes(x=food, label = prange, y = 4200, group = NULL), size = 4) + 
   facet_grid(.~genotype, switch="both") +
   scale_colour_manual(values = c("black", "#FF9933")) +
-  theme_my_classic +
+  theme_classic() +
+    theme(strip.text.x = element_text(size = 12, face = "italic"),
+      axis.text.x = element_text(size = 12),
+          axis.text.y = element_text(size = 12),
+          axis.line = element_line(size=0.2),
+          axis.title = element_text(size=16),
+      axis.title.x = element_blank()) +
     stat_summary(aes(x=as.numeric(as.factor(food)) + 0.3, y=100),
-                   fun.data = fun_length, geom = "text", size = 3)) 
+                   fun.data = fun_length, geom = "text", size = 3))
 
+```
+
+**Figure 4B**
+
+Quantification of _daf-28p::gfp_ fluorescence in ASJ neurons of wild-type and rict-1 mutant L2 larvae grown on OP50 and HB101 at 27°C. Each data point is the average GFP fluorescence of a single animal (two neurons per animal); numbers in parentheses below indicate the total number of neurons examined. Horizontal lines are the median; error bars are the quartiles. P-values are with respect to growth on OP50; `**` - different from growth on OP50 at P<0.01 [two-factor ANOVA with F(`r round(anova(lm.add,lm.int)$F[2],2)`) with `r anova(lm.add,lm.int)$Df[2]` Df, P=`r round(anova(lm.add,lm.int)$Df[2],4)` for genotype*food interaction, Tukey-type multivariate-t post-hoc adjustment]. Outliers were identified using both Cook's Distance and standardized residuals. `r nrow(d28[d28$outlier.status == TRUE,])` outliers were removed from analysis. 
+
+
+```{r d28 food model results}
+library(sjPlot)
+sjt.lm(lm.int, depvar.labels = "proportion of dauers", show.fstat = TRUE)
 ```
