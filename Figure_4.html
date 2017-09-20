@@ -254,8 +254,13 @@ $(document).ready(function () {
 </div>
 
 
+<<<<<<< Updated upstream
 <div id="rict-1-rictor-mutants-are-insensitive-to-food-quality-and-feeding-state." class="section level1 tabset">
 <h1><strong><em>rict-1</em> Rictor mutants are insensitive to food quality and feeding state. </strong></h1>
+=======
+<div id="rict-1_-mutants-are-deficient-in-food-suppression" class="section level1 tabset">
+<h1><strong><code>_rict-1_</code> mutants are deficient in food suppression</strong></h1>
+>>>>>>> Stashed changes
 <div id="a" class="section level2">
 <h2>4A</h2>
 <pre class="r"><code>strains&lt;-c(&quot;N2&quot;, &quot;rict-1(mg360)&quot;, &quot;rict-1(ft7)&quot;)
@@ -302,6 +307,7 @@ plot.contrasts.H0 &lt;- data.frame(cbind(food = foods, genotype = strains[index]
   geom_text(data = plot.contrasts.H0, aes(x=2, label = prange, y = 1.075, group = NULL), size = 4) +
     stat_summary(aes(x=as.numeric(as.factor(food)) + 0.3, y=-0.05),
                    fun.data = fun_length, geom = &quot;text&quot;, size = 3) +
+<<<<<<< Updated upstream
   theme_classic() + 
     theme(strip.text.x = element_text(size = 12, face=&quot;italic&quot;),
       axis.text.x = element_blank(),
@@ -482,6 +488,61 @@ F-statistics
 </td>
 </tr>
 </table>
+=======
+  theme_my_classic + 
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        strip.text.x = element_text(size=10)))</code></pre>
+<p><img src="Figure_4_files/figure-html/rict-1%20food%20plot-1.png" width="672" /></p>
+<pre class="r"><code>knitr::kable(car::Anova(lm.int), caption=&quot;significant interaction of genotype on food&quot;)</code></pre>
+<table>
+<caption>significant interaction of genotype on food</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Sum Sq</th>
+<th align="right">Df</th>
+<th align="right">F value</th>
+<th align="right">Pr(&gt;F)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>genotype</td>
+<td align="right">6.3966735</td>
+<td align="right">2</td>
+<td align="right">233.790975</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td>food</td>
+<td align="right">0.0976520</td>
+<td align="right">1</td>
+<td align="right">7.138133</td>
+<td align="right">0.0104016</td>
+</tr>
+<tr class="odd">
+<td>genotype:food</td>
+<td align="right">0.1424647</td>
+<td align="right">2</td>
+<td align="right">5.206918</td>
+<td align="right">0.0091529</td>
+</tr>
+<tr class="even">
+<td>Residuals</td>
+<td align="right">0.6292950</td>
+<td align="right">46</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># lsmip(lm.int, genotype ~ food, main=&quot;interaction plot&quot;)
+# 
+# plot(rict1.lsm, comparisons = TRUE, alpha = .05, main=&quot;confidence intervals&quot;) # showing confidence intervals and gap by which they cover zero
+# 
+# knitr::kable(summary(pairs(rict1.lsm)), caption=&quot;contrast matrix for food effect in rict-1 mutants&quot;)</code></pre>
+>>>>>>> Stashed changes
 </div>
 <div id="b" class="section level2">
 <h2>4B</h2>
@@ -497,6 +558,7 @@ separate(ID, c(&quot;ID.A&quot;, &quot;ID.B&quot;), sep = &quot;:&quot;, extra =
          genoID = interaction(date,genotype, ID.A), food = factor(food, levels = foods), 
          neuron = factor(neuron, levels = &quot;ASJ&quot;), cell.norm = mean)
 
+<<<<<<< Updated upstream
 # lin mod to flag outliers
 lm.add &lt;- lm(cell.norm ~ genotype + food, data = d28)
 lm.int &lt;- lm(cell.norm ~ genotype * food, data = d28)
@@ -510,14 +572,41 @@ lm.int &lt;- lm(cell.norm ~ genotype * food, data = d28[d28$outlier.status == FA
 
 stan.lm &lt;- stan_glm(formula = cell.norm ~ group.id,
                        data=d28[d28$outlier.status == FALSE,],
+=======
+lm.add &lt;- lm(cell.norm ~ genotype + food, data = d28)
+lm.int &lt;- lm(cell.norm ~ genotype * food, data = d28)
+anova(lm.add, lm.int) # F = 7.76, Df = 1, p = 0.0077 for genotype interaction</code></pre>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: cell.norm ~ genotype + food
+## Model 2: cell.norm ~ genotype * food
+##   Res.Df      RSS Df Sum of Sq      F   Pr(&gt;F)   
+## 1     47 37320917                                
+## 2     46 31933165  1   5387751 7.7611 0.007729 **
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>d28 %&lt;&gt;% mutate(group.id = interaction(genotype, food))
+
+library(lsmeans)
+log.tran&lt;-make.tran(type=&quot;genlog&quot;, param = c(0.5,10))
+stan.lm &lt;- with(log.tran, stan_glm(formula = linkfun(mean) ~ group.id,
+                       data=d28,
+>>>>>>> Stashed changes
                        family = gaussian(),
                        prior = cauchy(),
                        prior_intercept = cauchy(),
                        chains = 3, cores =4, seed = 2000,iter=6000,
+<<<<<<< Updated upstream
                        control = list(adapt_delta=0.99))
 
 contrasts &lt;- dauergut::dunnett_contrasts(lm.int, ref.index = 1, factor = &quot;genotype&quot;, interaction = &quot;food&quot;)
 mixed &lt;- getStan_CIs(stan.lm, group = &quot;food&quot;) %&gt;% 
+=======
+                       control = list(adapt_delta=0.99)))
+
+contrasts &lt;- dauergut::dunnett_contrasts(lm.int, ref.index = 1, factor = &quot;genotype&quot;, interaction = &quot;food&quot;)
+mixed &lt;- getStan_CIs(stan.lm, type = &quot;log&quot;, group = &quot;food&quot;, base = 10) %&gt;% 
+>>>>>>> Stashed changes
   mutate(food = factor(food, levels = foods), genotype = factor(genotype, levels = strains))
 
 #make contrasts with ID for facetting
@@ -529,15 +618,24 @@ plot.contrasts.H0 &lt;- data.frame(cbind(food = rep(foods, length(strains)), gen
 
 (p&lt;-ggplot(d28, aes(x=food)) +
   list(add.median(),add.quartiles()) +
+<<<<<<< Updated upstream
     add.Bayes.CI() +
        geom_quasirandom(aes(y=cell.norm, ),colour = &quot;#339900&quot;, cex=1,
                            width = 0.075,size=0.3,
                            method = &#39;smiley&#39;) +
   labs(y = &quot;mean GFP expression (AU)&quot;,
+=======
+       geom_quasirandom(aes(y=cell.norm, ),colour = &quot;#339900&quot;, cex=1,
+                           width = 0.075,size=0.3,
+                           method = &#39;smiley&#39;) +
+  labs(title = &quot;rict-1 mutants are deficient in food suppression&quot;,
+           y = &quot;mean GFP expression&quot;,
+>>>>>>> Stashed changes
            x = &quot;food&quot;) +
   geom_text(data = plot.contrasts.H0, aes(x=food, label = prange, y = 4200, group = NULL), size = 4) + 
   facet_grid(.~genotype, switch=&quot;both&quot;) +
   scale_colour_manual(values = c(&quot;black&quot;, &quot;#FF9933&quot;)) +
+<<<<<<< Updated upstream
   theme_classic() +
     theme(strip.text.x = element_text(size = 12, face = &quot;italic&quot;),
       axis.text.x = element_text(size = 12),
@@ -684,6 +782,12 @@ F-statistics
 </td>
 </tr>
 </table>
+=======
+  theme_my_classic +
+    stat_summary(aes(x=as.numeric(as.factor(food)) + 0.3, y=100),
+                   fun.data = fun_length, geom = &quot;text&quot;, size = 3)) </code></pre>
+<p><img src="Figure_4_files/figure-html/daf-28%20increased%20by%20HB101-1.png" width="672" /></p>
+>>>>>>> Stashed changes
 </div>
 </div>
 

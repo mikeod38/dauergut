@@ -6,3 +6,129 @@ output:
     fig_height: 5
     fig_width: 7
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+pathname = getwd()
+library(magrittr)
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(ggbeeswarm)
+library(beeswarm)
+library(ggthemes)
+library(viridis)
+library(lme4)
+library(schoRsch)
+library(DHARMa)
+library(multcomp)
+library(tidyr)
+library(rstanarm)
+library(ggrepel)
+library(rstan)
+library(rstanarm)
+library(MASS)
+devtools::install_github("mikeod38/dauergut")
+library(dauergut)
+library(plotly)
+library(lsmeans)
+
+dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
+```
+
+
+##__High temperature-induced dauer formation and adult exploratory behaviors do not covary__{.tabset}
+
+###6A
+
+```{r wild screen dataload, warning=FALSE, fig.width=10}
+#knitr::opts_chunk$set(cache=TRUE)
+filepath<-file.path(pathname, "extdata/6A_wildHTdata_allbinary.csv")
+foods = "OP50"
+strains <- c("N2","CB4856","JU561", "MY14","DL238","CB4852","QX1211","JU322","JU775","JU1400","ED3072","AB1","AB3","JU362","ED3040", "JU345","PX178","CB3198")
+
+##"TR403","KR314",CB4507,DR1350 left off due to low n
+HT.wildall<-read.csv(filepath, header=TRUE) %>% format_dauer(p.dauer = "exclude")
+
+lm <- HT.wildall %>% dauer_ANOVA()
+contrasts<-dunnett_contrasts(lm, ref.index = 1, "genotype")
+stan.glmm <- HT.wildall %>% run_dauer_stan
+mixed<-stan.glmm %>% getStan_CIs(type = "dauer")
+
+plot.contrasts<-c("",contrasts$prange[1:17])
+
+(p<-plot_CIs(HT.wildall, title='C. elegans wild isolates vary in temp dependent dauer formation', plot.contrasts, ypos = 1.075, type = "dauer", labels = strains)) + theme(
+  axis.text.x = element_text(colour =
+                               c("black",
+                                 rep('red',3),
+                                 rep('black',3),
+                                 'red',
+                                 rep('black',5),
+                                 rep('green',5))
+                             )
+  )
+
+
+#plot 
+```
+<br>
+<br>
+</br>
+
+**Figure 6A**  
+Wild isolates vary in high temperature dauer formation. Dauers formed by the indicated C. elegans strains at 27°C. Strains also assayed for exploratory behavior in (B) are in red (weaker Hid phenotype than Bristol N2) and green (similar or stronger Hid phenotype than N2). Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 16 animals each. All shown P-values are with respect to the Bristol N2 strain; `**` and `***` - different from the Bristol N2 strain at P<0.01 and P<0.001, respectively (ANOVA with Dunnett-type multivariate-t post-hoc adjustment). 
+
+
+###S3
+
+```{r C327 corr plot, warning=FALSE}
+filepath<-file.path(pathname, "extdata/S3A_C3_sumstats.csv")
+C327<-read.csv(filepath, header=TRUE)
+
+(p<-dauergut::plot_regression_se(C327, "mean.C3", "mean.HT","SEM.C3", "SEM.HT"))
+
+```
+
+**Figure S3**  
+Shown are the proportion of dauers formed at 27°C and in the presence of 6 μm ascr#5 pheromone by C. elegans strains isolated from different latitudes. Assays were performed on live OP50. For ascr#5 data (A-axis), each data point is the average of at least 3 independent assays of at least 23 animals each. 27ºC data is repeated from Figure 6A. Error bars are the SEM. Line and shaded region indicate linear regression fit using mean dauer formation values for each strain. 
+
+
+###6B
+```{r wild isolate roaming}
+
+strains <- c("N2","CB4856", "JU561", "MY14", "JU322", "JU362","ED3040", "JU345", "PX178", "CB3198")
+
+wild.roam<-read.csv(file.path(pathname, "extdata/6B_7F_roam_wild_isolates.csv")) %>%
+  dplyr::filter(genotype %in% strains) %>%
+  mutate(genotype = factor(genotype, levels = strains),
+         strainDate = interaction(genotype, date, drop=TRUE),
+         plateID = interaction(strainDate,plate, drop=TRUE),
+         total.boxes = 186)
+
+lm <- lm(n_entries ~ genotype, data = wild.roam)
+
+wild.roam %<>% dauergut::flag_outliers(df = ., lin.mod = lm, threshold = 4, noplot=TRUE)
+
+stan.glmm <- stan_glmer(data = wild.roam[wild.roam$outlier.status == FALSE,], 
+                        formula = n_entries ~ genotype + (1|date/plateID), family = "poisson",
+                        iter = 4000, adapt_delta = 0.99)
+
+lm <- update(lm, data = wild.roam[wild.roam$outlier.status == FALSE,])
+
+contrasts<-dauergut::tukey_contrasts(lm, "genotype")
+mixed<-stan.glmm %>% getStan_CIs(type = "roam")
+plot.contrasts<-c("",contrasts$prange[1:9])
+
+
+
+(p<-plot_CIs(wild.roam, title='Foraging behavior is not correlated with Hid phenotypes', plot.contrasts=plot.contrasts, ypos = 800, offset = 50, type = "grid", labels = strains)) + theme(
+  axis.text.x = element_text(colour = c("black", rep('red',4), rep('green',5)))
+)
+
+
+```
+
+**Figure 6B**  
+Exploratory behavior of indicated strains. Strains in red and green exhibit weaker or similar/stronger Hid phenotypes than N2, respectively (A). Each purple dot is data from a single animal. Median is indicated by a black horizontal line; error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the total number of animals examined in at least 3 independent assay days. P-values shown are with respect to N2; `***` - different from N2 at P<0.001 (ANOVA with Dunnett-type multivariate-t post-hoc adjustment).

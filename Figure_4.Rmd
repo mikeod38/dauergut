@@ -111,6 +111,10 @@ library(sjPlot)
 sjt.lm(lm.int, depvar.labels = "log(GFP expression)", show.fstat = TRUE)
 ```
 
+**Figure 4A**  
+Dauers formed by wild-type and rict-1 mutants on OP50 or HB101 at 27°C. Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 19 animals scored in each. Dashed lines indicate mean change in dauer formation per experimental day. P-values are with respect to growth on OP50; `***` - different from growth on OP50 at P<0.001 [two-factor ANOVA with F(5.20) with 2 Df, P=0.0092 for genotype*food interaction, Tukey-type multivariate-t post-hoc adjustment].
+
+
 ##4B
 
 ```{r daf-28 increased by HB101}
@@ -132,11 +136,9 @@ lm.int <- lm(cell.norm ~ genotype * food, data = d28)
 
 d28 %<>% mutate(group.id = interaction(genotype, food))
 
-d28 %<>% flag_outliers(lin.mod=lm.int, threshold = 4, df = ., noplot=TRUE)
-
-lm.add <- lm(cell.norm ~ genotype + food, data = d28[d28$outlier.status == FALSE,])
 lm.int <- lm(cell.norm ~ genotype * food, data = d28[d28$outlier.status == FALSE,])
-
+lm.add <- lm(cell.norm ~ genotype + food, data = d28[d28$outlier.status == FALSE,])
+d28 %<>% flag_outliers(lin.mod=lm.int, threshold = 4, df = ., noplot=TRUE)
 stan.lm <- stan_glm(formula = cell.norm ~ group.id,
                        data=d28[d28$outlier.status == FALSE,],
                        family = gaussian(),

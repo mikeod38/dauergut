@@ -254,7 +254,86 @@ $(document).ready(function () {
 </div>
 
 
+<div id="high-temperature-induced-dauer-formation-and-adult-exploratory-behaviors-do-not-covary" class="section level2 tabset">
+<h2><strong>High temperature-induced dauer formation and adult exploratory behaviors do not covary</strong></h2>
+<div id="a" class="section level3">
+<h3>6A</h3>
+<pre class="r"><code>#knitr::opts_chunk$set(cache=TRUE)
+filepath&lt;-file.path(pathname, &quot;extdata/6A_wildHTdata_allbinary.csv&quot;)
+foods = &quot;OP50&quot;
+strains &lt;- c(&quot;N2&quot;,&quot;CB4856&quot;,&quot;JU561&quot;, &quot;MY14&quot;,&quot;DL238&quot;,&quot;CB4852&quot;,&quot;QX1211&quot;,&quot;JU322&quot;,&quot;JU775&quot;,&quot;JU1400&quot;,&quot;ED3072&quot;,&quot;AB1&quot;,&quot;AB3&quot;,&quot;JU362&quot;,&quot;ED3040&quot;, &quot;JU345&quot;,&quot;PX178&quot;,&quot;CB3198&quot;)
 
+##&quot;TR403&quot;,&quot;KR314&quot;,CB4507,DR1350 left off due to low n
+HT.wildall&lt;-read.csv(filepath, header=TRUE) %&gt;% format_dauer(p.dauer = &quot;exclude&quot;)
+
+lm &lt;- HT.wildall %&gt;% dauer_ANOVA()
+contrasts&lt;-dunnett_contrasts(lm, ref.index = 1, &quot;genotype&quot;)
+stan.glmm &lt;- HT.wildall %&gt;% run_dauer_stan
+mixed&lt;-stan.glmm %&gt;% getStan_CIs(type = &quot;dauer&quot;)
+
+plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:17])
+
+(p&lt;-plot_CIs(HT.wildall, title=&#39;C. elegans wild isolates vary in temp dependent dauer formation&#39;, plot.contrasts, ypos = 1.075, type = &quot;dauer&quot;, labels = strains)) + theme(
+  axis.text.x = element_text(colour =
+                               c(&quot;black&quot;,
+                                 rep(&#39;red&#39;,3),
+                                 rep(&#39;black&#39;,3),
+                                 &#39;red&#39;,
+                                 rep(&#39;black&#39;,5),
+                                 rep(&#39;green&#39;,5))
+                             )
+  )</code></pre>
+<p><img src="Figure_6_files/figure-html/wild%20screen%20dataload-1.png" width="960" /></p>
+<pre class="r"><code>#plot </code></pre>
+<p><br> <br> </br></p>
+<p><strong>Figure 6A</strong><br />
+Wild isolates vary in high temperature dauer formation. Dauers formed by the indicated C. elegans strains at 27°C. Strains also assayed for exploratory behavior in (B) are in red (weaker Hid phenotype than Bristol N2) and green (similar or stronger Hid phenotype than N2). Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 16 animals each. All shown P-values are with respect to the Bristol N2 strain; <code>**</code> and <code>***</code> - different from the Bristol N2 strain at P&lt;0.01 and P&lt;0.001, respectively (ANOVA with Dunnett-type multivariate-t post-hoc adjustment).</p>
+</div>
+<div id="s3" class="section level3">
+<h3>S3</h3>
+<pre class="r"><code>filepath&lt;-file.path(pathname, &quot;extdata/S3A_C3_sumstats.csv&quot;)
+C327&lt;-read.csv(filepath, header=TRUE)
+
+(p&lt;-dauergut::plot_regression_se(C327, &quot;mean.C3&quot;, &quot;mean.HT&quot;,&quot;SEM.C3&quot;, &quot;SEM.HT&quot;))</code></pre>
+<p><img src="Figure_6_files/figure-html/C327%20corr%20plot-1.png" width="672" /></p>
+<p><strong>Figure S3</strong><br />
+Shown are the proportion of dauers formed at 27°C and in the presence of 6 μm ascr#5 pheromone by C. elegans strains isolated from different latitudes. Assays were performed on live OP50. For ascr#5 data (A-axis), each data point is the average of at least 3 independent assays of at least 23 animals each. 27ºC data is repeated from Figure 6A. Error bars are the SEM. Line and shaded region indicate linear regression fit using mean dauer formation values for each strain.</p>
+</div>
+<div id="b" class="section level3">
+<h3>6B</h3>
+<pre class="r"><code>strains &lt;- c(&quot;N2&quot;,&quot;CB4856&quot;, &quot;JU561&quot;, &quot;MY14&quot;, &quot;JU322&quot;, &quot;JU362&quot;,&quot;ED3040&quot;, &quot;JU345&quot;, &quot;PX178&quot;, &quot;CB3198&quot;)
+
+wild.roam&lt;-read.csv(file.path(pathname, &quot;extdata/6B_7F_roam_wild_isolates.csv&quot;)) %&gt;%
+  dplyr::filter(genotype %in% strains) %&gt;%
+  mutate(genotype = factor(genotype, levels = strains),
+         strainDate = interaction(genotype, date, drop=TRUE),
+         plateID = interaction(strainDate,plate, drop=TRUE),
+         total.boxes = 186)
+
+lm &lt;- lm(n_entries ~ genotype, data = wild.roam)
+
+wild.roam %&lt;&gt;% dauergut::flag_outliers(df = ., lin.mod = lm, threshold = 4, noplot=TRUE)
+
+stan.glmm &lt;- stan_glmer(data = wild.roam[wild.roam$outlier.status == FALSE,], 
+                        formula = n_entries ~ genotype + (1|date/plateID), family = &quot;poisson&quot;,
+                        iter = 4000, adapt_delta = 0.99)
+
+lm &lt;- update(lm, data = wild.roam[wild.roam$outlier.status == FALSE,])
+
+contrasts&lt;-dauergut::tukey_contrasts(lm, &quot;genotype&quot;)
+mixed&lt;-stan.glmm %&gt;% getStan_CIs(type = &quot;roam&quot;)
+plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:9])
+
+
+
+(p&lt;-plot_CIs(wild.roam, title=&#39;Foraging behavior is not correlated with Hid phenotypes&#39;, plot.contrasts=plot.contrasts, ypos = 800, offset = 50, type = &quot;grid&quot;, labels = strains)) + theme(
+  axis.text.x = element_text(colour = c(&quot;black&quot;, rep(&#39;red&#39;,4), rep(&#39;green&#39;,5)))
+)</code></pre>
+<p><img src="Figure_6_files/figure-html/wild%20isolate%20roaming-1.png" width="672" /></p>
+<p><strong>Figure 6B</strong><br />
+Exploratory behavior of indicated strains. Strains in red and green exhibit weaker or similar/stronger Hid phenotypes than N2, respectively (A). Each purple dot is data from a single animal. Median is indicated by a black horizontal line; error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the total number of animals examined in at least 3 independent assay days. P-values shown are with respect to N2; <code>***</code> - different from N2 at P&lt;0.001 (ANOVA with Dunnett-type multivariate-t post-hoc adjustment).</p>
+</div>
+</div>
 
 
 
