@@ -307,11 +307,162 @@ img.path &lt;- file.path(pathname,&quot;figures/2A_daf7GFP.png&quot;)</code></pr
 <div style="float: right; width: 100%;">
 <p><strong>Figure 2A</strong><br />
 Intesinal <em>rict-1</em> regulates daf7GFP levels in ASI neurons. Daf-7::GFP fluorescence quantification shows decreased expression in <em>rict-1</em> mutants. Intestinal expression of <em>rict-1</em> using the intestinal <em>ges-1</em> promoter rescues daf-7::GFP expression. (Left) Representative images of <em>daf-7p::gfp</em> expression in one of the bilateral ASI neurons in animals of the indicated genotypes. Yellow filled and open arrowheads indicate ASI and ASJ soma, respectively. Anterior is at left. Scale bar: 5 μm. (Right) Quantification of daf-7p::gfp expression in ASI (A) and daf-28p::gfp expression in ASI and ASJ (D). Each dot is the mean fluorescence intensity in a single animal (2 neurons per animal); numbers in parentheses below indicate the number of animals examined in 3 independent experiments. Horizontal thick bar indicates median. Error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. <span style="color:black"><code>**</code></span> and <span style="color:black"><code>***</code></span> - different from wild-type at P&lt;0.01 and P&lt;0.001, respectively; <span style="color:red"><code>***</code></span> - different from rict-1(ft7) at P&lt;0.001 (ANOVA with Dunnett-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
-<!-- L1 animals were grown 18hrs post egg lay at 27º. Daf-7::GFP fluorescence quantification shows decreased expression in _rict-1_ mutants. Intestinal expression of _rict-1_ using the intestinal _ges-1_ promoter rescues daf-7::GFP expression. Box and scatter plot show raw data. Bayesian 90% (grey) and 50% (red) credible intervals are shown on the right (see methods). For _rict-1(mg360)_ and _rict-1(ft7)_, *** and ** compared to N2, respectively. For _ges-1_ rescue, *** compared to _rict-1(ft7)_. n=3 independent experiments. -->
 </div>
-<pre class="r"><code>knitr::kable(contrasts, caption=&quot;Pairwise comparisons from mixed-effects model (Tukey)&quot;)</code></pre>
+<pre class="r"><code>library(sjPlot)
+sjt.lm(lm, depvar.labels = &quot;log(mean GFP intensity) (AU)&quot;, show.se = TRUE, show.fstat = TRUE)</code></pre>
+<table style="border-collapse:collapse; border:none;border-bottom:double;">
+<td style="padding:0.2cm; border-top:double;">
+ 
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="4">
+log(mean GFP intensity) (AU)
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; font-style:italic;">
+ 
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+B
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+std. Error
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; border-top:1px solid; text-align:left;">
+(Intercept)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+3.36
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+3.30 – 3.42
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.03
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm;" colspan="6">
+genotype
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+mg360
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.30
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.39 – -0.22
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.04
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+ft7
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.15
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.24 – -0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.04
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+ft7_ges1resc
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.02
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.08 – 0.11
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.05
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.744
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
+Observations
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="4">
+126
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+R<sup>2</sup> / adj. R<sup>2</sup>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+.350 / .334
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+F-statistics
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+21.856***
+</td>
+</tr>
+</table>
+<pre class="r"><code>knitr::kable(contrasts, caption=&quot;Pairwise comparisons from ANOVA (Dunnett)&quot;)</code></pre>
 <table>
-<caption>Pairwise comparisons from mixed-effects model (Tukey)</caption>
+<caption>Pairwise comparisons from ANOVA (Dunnett)</caption>
 <thead>
 <tr class="header">
 <th align="left">contrast</th>
@@ -339,7 +490,7 @@ Intesinal <em>rict-1</em> regulates daf7GFP levels in ASI neurons. Daf-7::GFP fl
 <td align="right">0.0447683</td>
 <td align="right">122</td>
 <td align="right">-3.3603231</td>
-<td align="right">0.0029526</td>
+<td align="right">0.0029492</td>
 <td align="left">**</td>
 </tr>
 <tr class="odd">
@@ -348,7 +499,7 @@ Intesinal <em>rict-1</em> regulates daf7GFP levels in ASI neurons. Daf-7::GFP fl
 <td align="right">0.0463634</td>
 <td align="right">122</td>
 <td align="right">0.3268511</td>
-<td align="right">0.9772203</td>
+<td align="right">0.9772212</td>
 <td align="left">p~0.98</td>
 </tr>
 </tbody>
@@ -451,6 +602,250 @@ labels &lt;- c(&quot;WT&quot;,&quot;rict-1(ft7)&quot;,&quot;rict-1(mg360)&quot; 
 dauergut::plot_CIs(daf7FISH[daf7FISH$outlier.status == FALSE,], title = &quot;daf7 mRNA is reduced in rict-1 mutants&quot;, plot.contrasts = plot.contrasts, plot.contrasts.2 = plot.contrasts.2, ypos = 150, offset = 0, type = &quot;expression&quot;, labels = labels)</code></pre>
 <p><img src="Figure_2_files/figure-html/daf7%20FISH-1.png" width="672" /></p>
 <p><strong>Figure 2B</strong> <em>daf-7</em> mRNA is reduced in <em>rict-1</em> mutants. Intestinal expression of <em>rict-1</em> using the intestinal <em>ges-1</em> promoter rescues <em>daf-7</em> expression. Quantification of <em>daf-7</em> mRNA levels in ASI assessed via fluorescent in situ hybridization. Expression was normalized by subtracting mean background pixel values for each image. Each dot is the fluorescence intensity in a single ASI neuron; numbers in parentheses below indicate the number of neurons examined in 3 independent pooled experiments. Horizontal thick bar indicates median. Error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. P-values of differences relative to wild-type and rict-1(mg360) animals are indicated in black and red, respectively. For <em>rict-1(mg360)</em> and <em>rict-1(ft7)</em>, p~0.04 and p~0.032 compared to N2, respectively. For <em>ges-1</em> rescue, <span style="color:red">p~0.038</span> compared to <em>rict-1(ft7)</em>. n=2 independent experiments, pooled data. 2 outlier data points were removed in total. P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
+<pre class="r"><code>library(sjPlot)
+sjt.lm(lm.1, depvar.labels = &quot;mean mRNA levels (AU)&quot;, show.se = TRUE, show.fstat = TRUE)</code></pre>
+<table style="border-collapse:collapse; border:none;border-bottom:double;">
+<td style="padding:0.2cm; border-top:double;">
+ 
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="4">
+mean mRNA levels (AU)
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; font-style:italic;">
+ 
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+B
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+std. Error
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; border-top:1px solid; text-align:left;">
+(Intercept)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+66.41
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+57.31 – 75.51
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+4.57
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm;" colspan="6">
+genotype
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+ft7
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-18.33
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-32.87 – -3.80
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+7.29
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.014
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+mg360
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-19.95
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-35.24 – -4.65
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+7.67
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.011
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+mg360resc
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+2.22
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-16.97 – 21.41
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+9.63
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.819
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
+Observations
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="4">
+77
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+R<sup>2</sup> / adj. R<sup>2</sup>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+.136 / .100
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+F-statistics
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+3.826*
+</td>
+</tr>
+</table>
+<pre class="r"><code>knitr::kable(contrasts, caption=&quot;Pairwise comparisons from ANOVA (Dunnett)&quot;)</code></pre>
+<table>
+<caption>Pairwise comparisons from ANOVA (Dunnett)</caption>
+<thead>
+<tr class="header">
+<th align="left">contrast</th>
+<th align="right">estimate</th>
+<th align="right">SE</th>
+<th align="right">df</th>
+<th align="right">t.ratio</th>
+<th align="right">p.value</th>
+<th align="left">prange</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">ft7 - N2</td>
+<td align="right">-18.334597</td>
+<td align="right">7.293687</td>
+<td align="right">73</td>
+<td align="right">-2.5137625</td>
+<td align="right">0.0400768</td>
+<td align="left">p~0.04</td>
+</tr>
+<tr class="even">
+<td align="left">mg360 - N2</td>
+<td align="right">-19.946391</td>
+<td align="right">7.674908</td>
+<td align="right">73</td>
+<td align="right">-2.5989094</td>
+<td align="right">0.0323013</td>
+<td align="left">p~0.032</td>
+</tr>
+<tr class="odd">
+<td align="left">mg360resc - N2</td>
+<td align="right">2.216681</td>
+<td align="right">9.629102</td>
+<td align="right">73</td>
+<td align="right">0.2302064</td>
+<td align="right">0.9930285</td>
+<td align="left">p~1</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>knitr::kable(mixed[,c(6,1:5)], caption = &quot;Bayesian credible intervals&quot;)</code></pre>
+<table>
+<caption>Bayesian credible intervals</caption>
+<thead>
+<tr class="header">
+<th align="left">genotype</th>
+<th align="right">mean</th>
+<th align="right">lower.CL</th>
+<th align="right">upper.CL</th>
+<th align="right">lower.25</th>
+<th align="right">upper.75</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">N2</td>
+<td align="right">66.25187</td>
+<td align="right">57.06476</td>
+<td align="right">75.51615</td>
+<td align="right">60.83129</td>
+<td align="right">71.72075</td>
+</tr>
+<tr class="even">
+<td align="left">ft7</td>
+<td align="right">48.16919</td>
+<td align="right">33.75027</td>
+<td align="right">62.74370</td>
+<td align="right">39.67153</td>
+<td align="right">56.53743</td>
+</tr>
+<tr class="odd">
+<td align="left">mg360</td>
+<td align="right">46.53596</td>
+<td align="right">31.40978</td>
+<td align="right">61.77387</td>
+<td align="right">37.72862</td>
+<td align="right">55.12430</td>
+</tr>
+<tr class="even">
+<td align="left">mg360resc</td>
+<td align="right">68.52391</td>
+<td align="right">49.15455</td>
+<td align="right">87.25295</td>
+<td align="right">57.52678</td>
+<td align="right">79.90670</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="c" class="section level2">
 <h2>2C</h2>
@@ -480,6 +875,341 @@ p&lt;-dauergut::plot_CIs(daf7supp, title=&#39;daf-7 expression in ASI suppresses
 <p><img src="Figure_2_files/figure-html/unnamed-chunk-3-1.png" width="384" /></p>
 </div>
 <p><br> <br> </br> <strong>Figure 2C</strong> Expression of <em>daf-7</em> in ASI or <em>daf-28</em> in ASI or ASJ suppressed aberrent dauer formation in <em>rict-1</em> mutants. Dauers formed by animals of the indicated genotypes at 27°C. Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 36 and 9 animals each scored for non-transgenic and transgenic animals, respectively. Promoters driving expression in ASI and ASJ were srg-47p and trx-1p, respectively. One transgenic line was tested for each condition. <span style="color:black"><code>***</code></span> - different from wild-type at P&lt;0.001; <span style="color:red"><code>**</code></span> and <span style="color:red"><code>***</code></span> - different from <em>rict-1(ft7)</em> at P&lt;0.01 and P&lt;0.001, respectively (ANOVA with Tukey-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
+<pre class="r"><code>library(sjPlot)
+sjt.lm(lm, depvar.labels = &quot;proportion of dauers&quot;, show.se = TRUE, show.fstat = TRUE)</code></pre>
+<table style="border-collapse:collapse; border:none;border-bottom:double;">
+<td style="padding:0.2cm; border-top:double;">
+ 
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="4">
+proportion of dauers
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; font-style:italic;">
+ 
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+B
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+std. Error
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; border-top:1px solid; text-align:left;">
+(Intercept)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.07
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+-0.13 – 0.26
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.09
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+.493
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm;" colspan="6">
+genotype
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+rict-1(ft7)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.89
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.61 – 1.17
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.13
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+rict-1(ft7); ex[ASI::daf7]
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.23
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.04 – 0.51
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.13
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.094
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+rict-1(ft7); ex[ASI::daf28]
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.01
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.32 – 0.31
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.15
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.971
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+rict-1(ft7); ex[ASJ::daf28]
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.37
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.09 – 0.65
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.13
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.012
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
+Observations
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="4">
+28
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+R<sup>2</sup> / adj. R<sup>2</sup>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+.709 / .658
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+F-statistics
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+14.007***
+</td>
+</tr>
+</table>
+<pre class="r"><code>knitr::kable(contrasts, caption=&quot;Pairwise comparisons from ANOVA (Tukey)&quot;)</code></pre>
+<table>
+<caption>Pairwise comparisons from ANOVA (Tukey)</caption>
+<thead>
+<tr class="header">
+<th align="left">contrast</th>
+<th align="right">estimate</th>
+<th align="right">SE</th>
+<th align="right">df</th>
+<th align="right">t.ratio</th>
+<th align="right">p.value</th>
+<th align="left">prange</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">N2 - rict-1(ft7)</td>
+<td align="right">-0.8882755</td>
+<td align="right">0.1343472</td>
+<td align="right">23</td>
+<td align="right">-6.6117898</td>
+<td align="right">0.0000063</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">N2 - rict-1(ft7); ex[ASI::daf7]</td>
+<td align="right">-0.2347136</td>
+<td align="right">0.1343472</td>
+<td align="right">23</td>
+<td align="right">-1.7470673</td>
+<td align="right">0.4257302</td>
+<td align="left">p~0.43</td>
+</tr>
+<tr class="odd">
+<td align="left">N2 - rict-1(ft7); ex[ASI::daf28]</td>
+<td align="right">0.0055423</td>
+<td align="right">0.1502047</td>
+<td align="right">23</td>
+<td align="right">0.0368985</td>
+<td align="right">0.9999995</td>
+<td align="left">p~1</td>
+</tr>
+<tr class="even">
+<td align="left">N2 - rict-1(ft7); ex[ASJ::daf28]</td>
+<td align="right">-0.3687942</td>
+<td align="right">0.1343472</td>
+<td align="right">23</td>
+<td align="right">-2.7450829</td>
+<td align="right">0.0771164</td>
+<td align="left">p~0.077</td>
+</tr>
+<tr class="odd">
+<td align="left">rict-1(ft7) - rict-1(ft7); ex[ASI::daf7]</td>
+<td align="right">0.6535619</td>
+<td align="right">0.1343472</td>
+<td align="right">23</td>
+<td align="right">4.8647225</td>
+<td align="right">0.0006150</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">rict-1(ft7) - rict-1(ft7); ex[ASI::daf28]</td>
+<td align="right">0.8938178</td>
+<td align="right">0.1502047</td>
+<td align="right">23</td>
+<td align="right">5.9506630</td>
+<td align="right">0.0000332</td>
+<td align="left">***</td>
+</tr>
+<tr class="odd">
+<td align="left">rict-1(ft7) - rict-1(ft7); ex[ASJ::daf28]</td>
+<td align="right">0.5194813</td>
+<td align="right">0.1343472</td>
+<td align="right">23</td>
+<td align="right">3.8667069</td>
+<td align="right">0.0063013</td>
+<td align="left">**</td>
+</tr>
+<tr class="even">
+<td align="left">rict-1(ft7); ex[ASI::daf7] - rict-1(ft7); ex[ASI::daf28]</td>
+<td align="right">0.2402559</td>
+<td align="right">0.1502047</td>
+<td align="right">23</td>
+<td align="right">1.5995230</td>
+<td align="right">0.5115162</td>
+<td align="left">p~0.51</td>
+</tr>
+<tr class="odd">
+<td align="left">rict-1(ft7); ex[ASI::daf7] - rict-1(ft7); ex[ASJ::daf28]</td>
+<td align="right">-0.1340806</td>
+<td align="right">0.1343472</td>
+<td align="right">23</td>
+<td align="right">-0.9980156</td>
+<td align="right">0.8530436</td>
+<td align="left">p~0.85</td>
+</tr>
+<tr class="even">
+<td align="left">rict-1(ft7); ex[ASI::daf28] - rict-1(ft7); ex[ASJ::daf28]</td>
+<td align="right">-0.3743365</td>
+<td align="right">0.1502047</td>
+<td align="right">23</td>
+<td align="right">-2.4921752</td>
+<td align="right">0.1267551</td>
+<td align="left">p~0.127</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>knitr::kable(mixed[,c(6,1:5)], caption = &quot;Bayesian credible intervals&quot;)</code></pre>
+<table>
+<caption>Bayesian credible intervals</caption>
+<thead>
+<tr class="header">
+<th align="left">genotype</th>
+<th align="right">mean</th>
+<th align="right">lower.CL</th>
+<th align="right">upper.CL</th>
+<th align="right">lower.25</th>
+<th align="right">upper.75</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">N2</td>
+<td align="right">0.0543948</td>
+<td align="right">0.0041879</td>
+<td align="right">0.4407534</td>
+<td align="right">0.0133976</td>
+<td align="right">0.1985838</td>
+</tr>
+<tr class="even">
+<td align="left">rict-1(ft7)</td>
+<td align="right">0.9049193</td>
+<td align="right">0.2489997</td>
+<td align="right">0.9925894</td>
+<td align="right">0.6095767</td>
+<td align="right">0.9804431</td>
+</tr>
+<tr class="odd">
+<td align="left">rict-1(ft7); ex[ASI::daf7]</td>
+<td align="right">0.1700235</td>
+<td align="right">0.0115412</td>
+<td align="right">0.7138531</td>
+<td align="right">0.0415848</td>
+<td align="right">0.4732610</td>
+</tr>
+<tr class="even">
+<td align="left">rict-1(ft7); ex[ASI::daf28]</td>
+<td align="right">0.0570884</td>
+<td align="right">0.0028915</td>
+<td align="right">0.4904062</td>
+<td align="right">0.0110473</td>
+<td align="right">0.2419183</td>
+</tr>
+<tr class="odd">
+<td align="left">rict-1(ft7); ex[ASJ::daf28]</td>
+<td align="right">0.1817826</td>
+<td align="right">0.0099310</td>
+<td align="right">0.7345934</td>
+<td align="right">0.0410653</td>
+<td align="right">0.5152182</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="d" class="section level2">
 <h2>2D</h2>
@@ -544,8 +1274,203 @@ img.path &lt;- file.path(pathname,&quot;figures/2D_daf-28GFP.png&quot;)</code></
 <p><img src="Figure_2_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 </div>
 <div style="float: right; width: 100%;">
-<p><strong>Figure 2D</strong> (Left) Representative images of daf-7p::gfp (A) and daf-28p::gfp (D) expression in one of the bilateral ASI (A), and ASI and ASJ (D), neurons in animals of the indicated genotypes. Yellow filled and open arrowheads indicate ASI and ASJ soma, respectively. Anterior is at left. Scale bar: 5 μm. (Right) Quantification of daf-7p::gfp expression in ASI (A) and daf-28p::gfp expression in ASI and ASJ (D). Each dot is the mean fluorescence intensity in a single animal (2 neurons per animal); numbers in parentheses below indicate the number of animals examined in 3 independent experiments. Horizontal thick bar indicates median. Error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. <span style="color:black"><code>**</code></span> and <span style="color:black"><code>***</code></span> - different from wild-type at P&lt;0.01 and P&lt;0.001, respectively; <span style="color:red"><code>***</code></span> - different from rict-1(ft7) at P&lt;0.001 (ANOVA with Tukey-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
+<p><strong>Figure 2D</strong> (Left) Representative images of <em>daf-28p::gfp</em> expression in one of the bilateral and ASI and ASJ neurons in animals of the indicated genotypes. Yellow filled and open arrowheads indicate ASI and ASJ soma, respectively. Anterior is at left. Scale bar: 5 μm. (Right) Quantification of <em>daf-28p::gfp</em> expression in ASI and ASJ. Each dot is the mean fluorescence intensity in a single animal (2 neurons per animal); numbers in parentheses below indicate the number of animals examined in 3 independent experiments. Horizontal thick bar indicates median. Error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. <span style="color:black"><code>**</code></span> and <span style="color:black"><code>***</code></span> - different from wild-type at P&lt;0.01 and P&lt;0.001, respectively; (ANOVA with Tukey-type multivariate-t post-hoc adjustment).</p>
 </div>
+<pre class="r"><code>library(sjPlot)
+sjt.lm(lm, depvar.labels = &quot;log(mean GFP intensity) (AU)&quot;, show.se = TRUE, show.fstat = TRUE)</code></pre>
+<table style="border-collapse:collapse; border:none;border-bottom:double;">
+<td style="padding:0.2cm; border-top:double;">
+ 
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="4">
+log(mean GFP intensity) (AU)
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; font-style:italic;">
+ 
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+B
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+std. Error
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; border-top:1px solid; text-align:left;">
+(Intercept)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+3.16
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+3.10 – 3.23
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.03
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+neuronASJ
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.15
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.23 – -0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.04
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotypeft7
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.12
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.21 – -0.03
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.05
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.010
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+neuronASJ:genotypeft7
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.03
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.15 – 0.10
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.662
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
+Observations
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="4">
+113
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+R<sup>2</sup> / adj. R<sup>2</sup>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+.288 / .269
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+F-statistics
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+14.721***
+</td>
+</tr>
+</table>
+<pre class="r"><code>knitr::kable(mixed[,c(6,1:5)], caption = &quot;Bayesian credible intervals&quot;)</code></pre>
+<table>
+<caption>Bayesian credible intervals</caption>
+<thead>
+<tr class="header">
+<th align="left">genotype</th>
+<th align="right">mean</th>
+<th align="right">lower.CL</th>
+<th align="right">upper.CL</th>
+<th align="right">lower.25</th>
+<th align="right">upper.75</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">N2</td>
+<td align="right">1363.9166</td>
+<td align="right">808.0188</td>
+<td align="right">2330.9185</td>
+<td align="right">1049.2631</td>
+<td align="right">1770.6739</td>
+</tr>
+<tr class="even">
+<td align="left">ft7</td>
+<td align="right">1094.5143</td>
+<td align="right">908.1686</td>
+<td align="right">1323.4981</td>
+<td align="right">982.4245</td>
+<td align="right">1219.7763</td>
+</tr>
+<tr class="odd">
+<td align="left">N2</td>
+<td align="right">1028.6831</td>
+<td align="right">851.2085</td>
+<td align="right">1235.3590</td>
+<td align="right">925.5509</td>
+<td align="right">1142.4554</td>
+</tr>
+<tr class="even">
+<td align="left">ft7</td>
+<td align="right">737.1028</td>
+<td align="right">613.5976</td>
+<td align="right">886.5751</td>
+<td align="right">661.6351</td>
+<td align="right">820.9712</td>
+</tr>
+</tbody>
+</table>
 <pre class="r"><code>knitr::kable(contrasts, caption = &quot;pairwise comparisons (Tukey)&quot;)</code></pre>
 <table>
 <caption>pairwise comparisons (Tukey)</caption>
@@ -684,8 +1609,141 @@ p&lt;-dauergut::plot_CIs(daf16supp, title=&#39;rict-1 acts in the insulin pathwa
 <p><img src="Figure_2_files/figure-html/unnamed-chunk-6-1.png" width="384" /></p>
 </div>
 <p><br> <br> </br> <strong>Figure S1A</strong> Mutations in rict-1 modulate dauer formation via downregulation of neuroendocrine signaling. <em>daf-16</em> mutations partially suppress the dauer formation phenotype of <em>rict-1</em> mutants. Dauers formed by animals of the indicated genotypes at 27°C. Each dot indicates the proportion of dauers formed in a single assay. Horizontal bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 26 animals each. <span style="color:black"><code>***</code></span> - different from wild-type at P&lt;0.001, <span style="color:red"><code>***</code></span> - different from rict-1(mg360) at P&lt;0.001 (ANOVA with Tukey-type multivariate-t post-hoc adjustments). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
+<pre class="r"><code>library(sjPlot)
+sjt.lm(lm, depvar.labels = &quot;proportion of dauers&quot;, show.se = TRUE, show.fstat = TRUE)</code></pre>
+<table style="border-collapse:collapse; border:none;border-bottom:double;">
+<td style="padding:0.2cm; border-top:double;">
+ 
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="4">
+proportion of dauers
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; font-style:italic;">
+ 
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+B
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+std. Error
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; border-top:1px solid; text-align:left;">
+(Intercept)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.27
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.19 – 0.36
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.04
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm;" colspan="6">
+genotype
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+rict-1(mg360)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.73
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.60 – 0.85
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+rict-1;daf-16
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.44
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.31 – 0.56
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
+Observations
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="4">
+18
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+R<sup>2</sup> / adj. R<sup>2</sup>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+.912 / .901
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+F-statistics
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+77.980***
+</td>
+</tr>
+</table>
+<pre class="r"><code>knitr::kable(contrasts, caption=&quot;Pairwise comparisons from ANOVA (Tukey)&quot;)</code></pre>
 <table>
-<caption>paiwrise comparisons (Tukey)</caption>
+<caption>Pairwise comparisons from ANOVA (Tukey)</caption>
 <thead>
 <tr class="header">
 <th align="left">contrast</th>
@@ -713,7 +1771,7 @@ p&lt;-dauergut::plot_CIs(daf16supp, title=&#39;rict-1 acts in the insulin pathwa
 <td align="right">0.0585246</td>
 <td align="right">15</td>
 <td align="right">-7.450922</td>
-<td align="right">0.0000028</td>
+<td align="right">0.0000034</td>
 <td align="left">***</td>
 </tr>
 <tr class="odd">
@@ -722,8 +1780,48 @@ p&lt;-dauergut::plot_CIs(daf16supp, title=&#39;rict-1 acts in the insulin pathwa
 <td align="right">0.0585246</td>
 <td align="right">15</td>
 <td align="right">4.953954</td>
-<td align="right">0.0004997</td>
+<td align="right">0.0003833</td>
 <td align="left">***</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>knitr::kable(mixed[,c(6,1:5)], caption = &quot;Bayesian credible intervals&quot;)</code></pre>
+<table>
+<caption>Bayesian credible intervals</caption>
+<thead>
+<tr class="header">
+<th align="left">genotype</th>
+<th align="right">mean</th>
+<th align="right">lower.CL</th>
+<th align="right">upper.CL</th>
+<th align="right">lower.25</th>
+<th align="right">upper.75</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">N2</td>
+<td align="right">0.3025986</td>
+<td align="right">0.1352729</td>
+<td align="right">0.6101594</td>
+<td align="right">0.202473</td>
+<td align="right">0.4314603</td>
+</tr>
+<tr class="even">
+<td align="left">rict-1(mg360)</td>
+<td align="right">0.9979879</td>
+<td align="right">0.9852862</td>
+<td align="right">0.9997994</td>
+<td align="right">0.993325</td>
+<td align="right">0.9994277</td>
+</tr>
+<tr class="odd">
+<td align="left">rict-1;daf-16</td>
+<td align="right">0.7159458</td>
+<td align="right">0.3985179</td>
+<td align="right">0.8727630</td>
+<td align="right">0.584099</td>
+<td align="right">0.8142754</td>
 </tr>
 </tbody>
 </table>
@@ -732,31 +1830,18 @@ p&lt;-dauergut::plot_CIs(daf16supp, title=&#39;rict-1 acts in the insulin pathwa
 <h2>S1B</h2>
 <pre class="r"><code>strains &lt;- c(&quot;N2&quot;, &quot;rict-1(ft7)&quot;)
 foods &lt;- &quot;OP50&quot;
-rictC3 &lt;- read.csv(file.path(pathname, &#39;extdata/S3C_rict1Pheromone.csv&#39;)) %&gt;% format_dauer(p.dauer = &quot;exclude&quot;) %&gt;% mutate(plateID = interaction(plateID,concentration.uM.))
+rictC3 &lt;- read.csv(file.path(pathname, &#39;extdata/S3C_rict1Pheromone.csv&#39;)) %&gt;% format_dauer(p.dauer = &quot;exclude&quot;) %&gt;% mutate(plateID = interaction(plateID,concentration.uM.)) 
 
 # for glm fit
-glm &lt;- glm(data = rictC3, cbind(dauer, non) ~ concentration.uM. * genotype, family = binomial)
+glm &lt;- glm(data = rictC3, cbind(dauer, non) ~ concentration.uM. + genotype + concentration.uM. * genotype, family = binomial)
 
 newdata = data.frame(genotype = rep(strains, each = 241), concentration.uM. = rep(seq(0,2.4, by = 0.01),2),plateID = rep(0, 482), n = rep(60, 482))
 
 ### for non-interaction ### 
 glm.simple &lt;- glm(data = rictC3, cbind(dauer, non) ~ concentration.uM. + genotype, family = binomial)
-predictions &lt;- predict(glm.simple, newdata = newdata, type = &quot;response&quot;, se.fit = TRUE)
+predictions &lt;- predict(glm, newdata = newdata, type = &quot;response&quot;, se.fit = TRUE)
 newdata1 &lt;- cbind(newdata, predictions)
 newdata1 %&lt;&gt;% mutate(lower = (fit - se.fit), upper = (fit + se.fit), pct = fit)
-
-
-# # for GLMM
-# glmm &lt;- glmer(data = rictC3, cbind(dauer, non) ~ concentration.uM. + genotype + (1|day/plateID), family = binomial)
-# glmm.predict &lt;- predict(glmm,newdata=newdata,type = &quot;response&quot;, re.form = NA) #re.form = ~0)
-# newdata2 &lt;- cbind(newdata, glmm.predict) %&gt;% mutate(pct = glmm.predict)
-# 
-# 
-# # for Bayesian GLMM
-# brms.glmm &lt;- brms::brm(data = rictC3, formula= dauer | trials(n) ~ concentration.uM. + genotype + (1|plateID), family = binomial)
-# brms.predict &lt;- predict(brms.glmm,newdata=newdata,type = &quot;response&quot;, re.form = NA, allow_new_levels = TRUE)
-# newdata3 &lt;- cbind(newdata, brms.predict) %&gt;% mutate(pct = Estimate/n)
-#newdata3 &lt;- effects::effect(newdata, glmm)
 
 
 (p&lt;-rictC3 %&gt;% ggplot(aes(x=concentration.uM.,y = pct)) +
@@ -784,34 +1869,143 @@ newdata1 %&lt;&gt;% mutate(lower = (fit - se.fit), upper = (fit + se.fit), pct =
                       fun.data = fun_length, geom = &quot;text&quot;, size = 4)
 )</code></pre>
 <p><img src="Figure_2_files/figure-html/rict-1%20pheromone%20response-1.png" width="672" /></p>
-<p><strong>Figure S1B</strong> <em>rict-1</em> mutants show enhanced response to pheromone ascr#5. Dauers formed by wild-type (black) and rict-1(ft7) (blue) animals at 25°C in the presence of the indicated concentrations of ascr#5. Each dot indicates the proportion of dauers formed in a single assay. Horizontal bar indicates median. Numbers in parentheses below indicate the number of independent experiments with at least 27 animals each. Lines indicate predictions from GLM fit, corresponding to an odds ratio of ~88 for rict-1 across this range of ascr#5 concentrations. For genotype, Wald Χ<sup>2</sup> = 45.3, Df =1, p &lt; 0.0001; for pheromone, Wald Χ<sup>2</sup> = 24.9, Df =1, p &lt; 0.0001 with GLMM fit.</p>
-<table>
-<caption>odds-ratio for glm</caption>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">OddsRatio</th>
-<th align="right">Std. Err.</th>
-<th align="right">z</th>
-<th align="right">P&gt;|z|</th>
+<p><strong>Figure S1B</strong> <em>rict-1</em> mutants show enhanced response to pheromone ascr#5. Dauers formed by wild-type (black) and rict-1(ft7) (blue) animals at 25°C in the presence of the indicated concentrations of ascr#5. Each dot indicates the proportion of dauers formed in a single assay. Horizontal bar indicates median. Numbers in parentheses below indicate the number of independent experiments with at least 27 animals each. Lines indicate predictions from GLM fit, corresponding to an odds ratio of ~21.3 for rict-1 across this range of ascr#5 concentrations.</p>
+<pre class="r"><code>library(sjPlot)
+sjt.glm(glm, depvar.labels = &quot;proportion of dauers&quot;, show.se = TRUE, show.chi2 = TRUE)</code></pre>
+<table style="border-collapse:collapse; border:none;border-bottom:double;">
+<tr>
+<td style="padding:0.2cm; border-top:double;">
+ 
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="4">
+proportion of dauers
+</td>
 </tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>concentration.uM.</td>
-<td align="right">7.619807</td>
-<td align="right">0.7829173</td>
-<td align="right">19.76445</td>
-<td align="right">0</td>
+<tr>
+<td style="padding:0.2cm; font-style:italic;">
+ 
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+Odds Ratio
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+std. Error
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
 </tr>
-<tr class="even">
-<td>genotyperict-1(ft7)</td>
-<td align="right">88.467217</td>
-<td align="right">16.4359884</td>
-<td align="right">24.12791</td>
-<td align="right">0</td>
+<tr>
+<td style="padding:0.2cm; border-top:1px solid; text-align:left;">
+(Intercept)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.02
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.01 – 0.02
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.00
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+&lt;.001
+</td>
 </tr>
-</tbody>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+concentration.uM.
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+4.79
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+3.83 – 6.05
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.56
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotyperict-1(ft7)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+21.28
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+12.69 – 36.47
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+5.72
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+concentration.uM.:genotyperict-1(ft7)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+4.41
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+2.73 – 7.35
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.11
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
+Observations
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="4">
+41
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+Χ<sup>2</sup><sub>deviance</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+p=.000
+</td>
+</tr>
 </table>
 </div>
 </div>

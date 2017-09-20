@@ -76,6 +76,11 @@ labels = c("WT", "rict-1(mg360)", "rict-1(ft7)", "sgk-1(ok538)", "akt-1(mg306)",
 
 TORC2 controls high temperature-induced dauer formation. Increased dauer formation occurs in TORC2-specific _rict-1_ mutants, as well as in mutants of TORC2 targets _sgk-1_ and _akt-1_. Plot shows proportion of dauers formed by animals of the indicated genotypes at 27°C. Each black dot indicates the proportion of dauers formed in a single assay. Arrested L3 and/or partial/post dauers are included as non-dauers due to excess arrest in _rict-1(ft7)_. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 25 and 9 animals each scored for non-transgenic and transgenic animals, respectively. For transgenic rescues, data are combined from 2 independent lines, with the exception of ges-1p constructs, in which one line was analyzed. <span style="color:black">`***`</span> - P<0.001 compared to wild-type (ANOVA with Dunnett-type multivariate-t adjustment for 1B and Tukey-type multivariate-t adjustment for 1C); <span style="color:red">`***`</span> - P<0.001 compared to corresponding mutant animals. P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively. 
 
+```{r model sum TORC2}
+library(sjPlot)
+sjt.lm(lm, depvar.labels = "proportion of dauers (ANOVA)", show.se = TRUE)
+```
+
 `r knitr::kable(contrasts, caption = "pairwise comparisons (Dunnett)")`
 `r knitr::kable(mixed[,c(6,1:5)], caption = "Bayesian credible intervals")`
 
@@ -131,6 +136,10 @@ labels <- c("WT","rict-1(mg360)",
 
 mTORC2 acts in the intestine to inhibit high-temperature dauer formation. Increased dauer formation of _rict-1_ and _sgk-1_ mutants is rescued by intestinal-specific expression. _akt-1_ mutants were not rescued using this promoter. Dauers formed by animals of the indicated genotypes at 27°C. Each black dot indicates the proportion of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 25 and 9 animals each scored for non-transgenic and transgenic animals, respectively. For transgenic rescues, data are combined from 2 independent lines, with the exception of ges-1p constructs, in which one line was analyzed. <span style="color:black">`***`</span> - P<0.001 compared to wild-type (ANOVA with Dunnett-type multivariate-t adjustment for 1B and Tukey-type multivariate-t adjustment for 1C); <span style="color:red">`***`</span> - P<0.001 compared to corresponding mutant animals. P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively. 
 
+```{r model rescue TORC2}
+library(sjPlot)
+sjt.lm(lm, depvar.labels = "proportion of dauers (ANOVA)", show.se = TRUE)
+```
 
 `r knitr::kable(contrasts, caption = "pairwise comparisons (Tukey)")`
 `r knitr::kable(mixed[,c(6,1:5)], caption = "Bayesian credible intervals")`

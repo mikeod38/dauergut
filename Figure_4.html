@@ -254,13 +254,8 @@ $(document).ready(function () {
 </div>
 
 
-<<<<<<< Updated upstream
 <div id="rict-1-rictor-mutants-are-insensitive-to-food-quality-and-feeding-state." class="section level1 tabset">
 <h1><strong><em>rict-1</em> Rictor mutants are insensitive to food quality and feeding state. </strong></h1>
-=======
-<div id="rict-1_-mutants-are-deficient-in-food-suppression" class="section level1 tabset">
-<h1><strong><code>_rict-1_</code> mutants are deficient in food suppression</strong></h1>
->>>>>>> Stashed changes
 <div id="a" class="section level2">
 <h2>4A</h2>
 <pre class="r"><code>strains&lt;-c(&quot;N2&quot;, &quot;rict-1(mg360)&quot;, &quot;rict-1(ft7)&quot;)
@@ -307,7 +302,6 @@ plot.contrasts.H0 &lt;- data.frame(cbind(food = foods, genotype = strains[index]
   geom_text(data = plot.contrasts.H0, aes(x=2, label = prange, y = 1.075, group = NULL), size = 4) +
     stat_summary(aes(x=as.numeric(as.factor(food)) + 0.3, y=-0.05),
                    fun.data = fun_length, geom = &quot;text&quot;, size = 3) +
-<<<<<<< Updated upstream
   theme_classic() + 
     theme(strip.text.x = element_text(size = 12, face=&quot;italic&quot;),
       axis.text.x = element_blank(),
@@ -318,7 +312,7 @@ plot.contrasts.H0 &lt;- data.frame(cbind(food = foods, genotype = strains[index]
 <p><strong>Figure 4A</strong><br />
 <em>rict-1</em> mutants are deficient in food suppression of dauer formation. Dauers formed by wild-type and rict-1 mutants on OP50 or HB101 at 27°C. Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 19 animals scored in each. Dashed lines indicate mean change in dauer formation per experimental day. P-values are with respect to growth on OP50; <code>***</code> - different from growth on OP50 at P&lt;0.001 [two-factor ANOVA with F(5.21) with 2 Df, P=0.0092 for genotype*food interaction, Tukey-type multivariate-t post-hoc adjustment].</p>
 <pre class="r"><code>library(sjPlot)
-sjt.lm(lm.int, depvar.labels = &quot;log(GFP expression)&quot;, show.fstat = TRUE)</code></pre>
+sjt.lm(lm.int, depvar.labels = &quot;proportion of dauers&quot;, show.fstat = TRUE)</code></pre>
 <table style="border-collapse:collapse; border:none;border-bottom:double;">
 <td style="padding:0.2cm; border-top:double;">
  
@@ -327,7 +321,7 @@ sjt.lm(lm.int, depvar.labels = &quot;log(GFP expression)&quot;, show.fstat = TRU
  
 </td>
 <td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="3">
-log(GFP expression)
+proportion of dauers
 </td>
 </tr>
 <tr>
@@ -488,61 +482,109 @@ F-statistics
 </td>
 </tr>
 </table>
-=======
-  theme_my_classic + 
-  theme(axis.title.x = element_blank(),
-        axis.text.x = element_blank(),
-        strip.text.x = element_text(size=10)))</code></pre>
-<p><img src="Figure_4_files/figure-html/rict-1%20food%20plot-1.png" width="672" /></p>
-<pre class="r"><code>knitr::kable(car::Anova(lm.int), caption=&quot;significant interaction of genotype on food&quot;)</code></pre>
+<pre class="r"><code>knitr::kable(contrasts[1], caption = &quot;pairwise comparisons by genotype (ANOVA)&quot;)</code></pre>
+<table class="kable_wrapper">
+<caption>
+pairwise comparisons by genotype (ANOVA)
+</caption>
+<tbody>
+<tr>
+<td>
 <table>
-<caption>significant interaction of genotype on food</caption>
 <thead>
 <tr class="header">
-<th></th>
-<th align="right">Sum Sq</th>
-<th align="right">Df</th>
-<th align="right">F value</th>
-<th align="right">Pr(&gt;F)</th>
+<th align="left">contrast</th>
+<th align="right">estimate</th>
+<th align="right">SE</th>
+<th align="right">df</th>
+<th align="right">t.ratio</th>
+<th align="right">p.value</th>
+<th align="left">prange</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>genotype</td>
-<td align="right">6.3966735</td>
-<td align="right">2</td>
-<td align="right">233.790975</td>
-<td align="right">0.0000000</td>
-</tr>
-<tr class="even">
-<td>food</td>
-<td align="right">0.0976520</td>
-<td align="right">1</td>
-<td align="right">7.138133</td>
-<td align="right">0.0104016</td>
-</tr>
-<tr class="odd">
-<td>genotype:food</td>
-<td align="right">0.1424647</td>
-<td align="right">2</td>
-<td align="right">5.206918</td>
-<td align="right">0.0091529</td>
-</tr>
-<tr class="even">
-<td>Residuals</td>
-<td align="right">0.6292950</td>
+<td align="left">rict-1(mg360) - N2</td>
+<td align="right">0.7222366</td>
+<td align="right">0.0369869</td>
 <td align="right">46</td>
-<td align="right">NA</td>
-<td align="right">NA</td>
+<td align="right">19.52681</td>
+<td align="right">0</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">rict-1(ft7) - N2</td>
+<td align="right">0.7187193</td>
+<td align="right">0.0427088</td>
+<td align="right">46</td>
+<td align="right">16.82836</td>
+<td align="right">0</td>
+<td align="left">***</td>
 </tr>
 </tbody>
 </table>
-<pre class="r"><code># lsmip(lm.int, genotype ~ food, main=&quot;interaction plot&quot;)
-# 
-# plot(rict1.lsm, comparisons = TRUE, alpha = .05, main=&quot;confidence intervals&quot;) # showing confidence intervals and gap by which they cover zero
-# 
-# knitr::kable(summary(pairs(rict1.lsm)), caption=&quot;contrast matrix for food effect in rict-1 mutants&quot;)</code></pre>
->>>>>>> Stashed changes
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>knitr::kable(contrasts[2], caption = &quot;pairwise comparisons by food (ANOVA)&quot;)</code></pre>
+<table class="kable_wrapper">
+<caption>
+pairwise comparisons by food (ANOVA)
+</caption>
+<tbody>
+<tr>
+<td>
+<table>
+<thead>
+<tr class="header">
+<th align="left">contrast</th>
+<th align="left">genotype</th>
+<th align="right">estimate</th>
+<th align="right">SE</th>
+<th align="right">df</th>
+<th align="right">t.ratio</th>
+<th align="right">p.value</th>
+<th align="left">prange</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">OP50 - HB101</td>
+<td align="left">N2</td>
+<td align="right">0.2190433</td>
+<td align="right">0.0523074</td>
+<td align="right">46</td>
+<td align="right">4.1876156</td>
+<td align="right">0.0003877</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">OP50 - HB101</td>
+<td align="left">rict-1(mg360)</td>
+<td align="right">0.0012987</td>
+<td align="right">0.0523074</td>
+<td align="right">46</td>
+<td align="right">0.0248282</td>
+<td align="right">0.9999921</td>
+<td align="left">p~1</td>
+</tr>
+<tr class="odd">
+<td align="left">OP50 - HB101</td>
+<td align="left">rict-1(ft7)</td>
+<td align="right">0.0083333</td>
+<td align="right">0.0675286</td>
+<td align="right">46</td>
+<td align="right">0.1234045</td>
+<td align="right">0.9990375</td>
+<td align="left">p~1</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="b" class="section level2">
 <h2>4B</h2>
@@ -558,55 +600,27 @@ separate(ID, c(&quot;ID.A&quot;, &quot;ID.B&quot;), sep = &quot;:&quot;, extra =
          genoID = interaction(date,genotype, ID.A), food = factor(food, levels = foods), 
          neuron = factor(neuron, levels = &quot;ASJ&quot;), cell.norm = mean)
 
-<<<<<<< Updated upstream
 # lin mod to flag outliers
 lm.add &lt;- lm(cell.norm ~ genotype + food, data = d28)
 lm.int &lt;- lm(cell.norm ~ genotype * food, data = d28)
 
-d28 %&lt;&gt;% mutate(group.id = interaction(genotype, food))
-
 d28 %&lt;&gt;% flag_outliers(lin.mod=lm.int, threshold = 4, df = ., noplot=TRUE)
 
-lm.add &lt;- lm(cell.norm ~ genotype + food, data = d28[d28$outlier.status == FALSE,])
+d28 %&lt;&gt;% mutate(group.id = interaction(genotype, food))
+
 lm.int &lt;- lm(cell.norm ~ genotype * food, data = d28[d28$outlier.status == FALSE,])
+lm.add &lt;- lm(cell.norm ~ genotype + food, data = d28[d28$outlier.status == FALSE,])
 
 stan.lm &lt;- stan_glm(formula = cell.norm ~ group.id,
                        data=d28[d28$outlier.status == FALSE,],
-=======
-lm.add &lt;- lm(cell.norm ~ genotype + food, data = d28)
-lm.int &lt;- lm(cell.norm ~ genotype * food, data = d28)
-anova(lm.add, lm.int) # F = 7.76, Df = 1, p = 0.0077 for genotype interaction</code></pre>
-<pre><code>## Analysis of Variance Table
-## 
-## Model 1: cell.norm ~ genotype + food
-## Model 2: cell.norm ~ genotype * food
-##   Res.Df      RSS Df Sum of Sq      F   Pr(&gt;F)   
-## 1     47 37320917                                
-## 2     46 31933165  1   5387751 7.7611 0.007729 **
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<pre class="r"><code>d28 %&lt;&gt;% mutate(group.id = interaction(genotype, food))
-
-library(lsmeans)
-log.tran&lt;-make.tran(type=&quot;genlog&quot;, param = c(0.5,10))
-stan.lm &lt;- with(log.tran, stan_glm(formula = linkfun(mean) ~ group.id,
-                       data=d28,
->>>>>>> Stashed changes
                        family = gaussian(),
                        prior = cauchy(),
                        prior_intercept = cauchy(),
                        chains = 3, cores =4, seed = 2000,iter=6000,
-<<<<<<< Updated upstream
                        control = list(adapt_delta=0.99))
 
 contrasts &lt;- dauergut::dunnett_contrasts(lm.int, ref.index = 1, factor = &quot;genotype&quot;, interaction = &quot;food&quot;)
 mixed &lt;- getStan_CIs(stan.lm, group = &quot;food&quot;) %&gt;% 
-=======
-                       control = list(adapt_delta=0.99)))
-
-contrasts &lt;- dauergut::dunnett_contrasts(lm.int, ref.index = 1, factor = &quot;genotype&quot;, interaction = &quot;food&quot;)
-mixed &lt;- getStan_CIs(stan.lm, type = &quot;log&quot;, group = &quot;food&quot;, base = 10) %&gt;% 
->>>>>>> Stashed changes
   mutate(food = factor(food, levels = foods), genotype = factor(genotype, levels = strains))
 
 #make contrasts with ID for facetting
@@ -618,24 +632,15 @@ plot.contrasts.H0 &lt;- data.frame(cbind(food = rep(foods, length(strains)), gen
 
 (p&lt;-ggplot(d28, aes(x=food)) +
   list(add.median(),add.quartiles()) +
-<<<<<<< Updated upstream
     add.Bayes.CI() +
        geom_quasirandom(aes(y=cell.norm, ),colour = &quot;#339900&quot;, cex=1,
                            width = 0.075,size=0.3,
                            method = &#39;smiley&#39;) +
   labs(y = &quot;mean GFP expression (AU)&quot;,
-=======
-       geom_quasirandom(aes(y=cell.norm, ),colour = &quot;#339900&quot;, cex=1,
-                           width = 0.075,size=0.3,
-                           method = &#39;smiley&#39;) +
-  labs(title = &quot;rict-1 mutants are deficient in food suppression&quot;,
-           y = &quot;mean GFP expression&quot;,
->>>>>>> Stashed changes
            x = &quot;food&quot;) +
   geom_text(data = plot.contrasts.H0, aes(x=food, label = prange, y = 4200, group = NULL), size = 4) + 
   facet_grid(.~genotype, switch=&quot;both&quot;) +
   scale_colour_manual(values = c(&quot;black&quot;, &quot;#FF9933&quot;)) +
-<<<<<<< Updated upstream
   theme_classic() +
     theme(strip.text.x = element_text(size = 12, face = &quot;italic&quot;),
       axis.text.x = element_text(size = 12),
@@ -647,10 +652,9 @@ plot.contrasts.H0 &lt;- data.frame(cbind(food = rep(foods, length(strains)), gen
                    fun.data = fun_length, geom = &quot;text&quot;, size = 3))</code></pre>
 <p><img src="Figure_4_files/figure-html/daf-28%20increased%20by%20HB101-1.png" width="672" /></p>
 <p><strong>Figure 4B</strong></p>
-<p>Quantification of <em>daf-28p::gfp</em> fluorescence in ASJ neurons of wild-type and rict-1 mutant L2 larvae grown on OP50 and HB101 at 27°C. Each data point is the average GFP fluorescence of a single animal (two neurons per animal); numbers in parentheses below indicate the total number of neurons examined. Horizontal lines are the median; error bars are the quartiles. P-values are with respect to growth on OP50; <code>**</code> - different from growth on OP50 at P&lt;0.01 [two-factor ANOVA with F(9.02) with 1 Df, P=1 for genotype*food interaction, Tukey-type multivariate-t post-hoc adjustment]. Outliers were identified using both Cook’s Distance and standardized residuals. 2 outliers were removed from analysis.</p>
+<p>Quantification of <em>daf-28p::gfp</em> fluorescence in ASJ neurons of wild-type and rict-1 mutant L2 larvae grown on OP50 and HB101 at 27°C. Each data point is the average GFP fluorescence of a single animal (two neurons per animal); numbers in parentheses below indicate the total number of neurons examined. Horizontal lines are the median; error bars are the quartiles. P-values are with respect to growth on OP50; <code>***</code> - different from growth on OP50 at P&lt;0.01 [two-factor ANOVA with F(9.02) with 1 Df, P=1 for genotype*food interaction, Tukey-type multivariate-t post-hoc adjustment]. Outliers were identified using both Cook’s Distance and standardized residuals. 2 outliers were removed from analysis.</p>
 <pre class="r"><code>library(sjPlot)
-sjt.lm(lm.int, depvar.labels = &quot;log(GFP expression)&quot;, show.fstat = TRUE)</code></pre>
-sjt.lm(lm.int, depvar.labels = &quot;proportion of dauers&quot;, show.fstat = TRUE)</code></pre>
+sjt.lm(lm.int, depvar.labels = &quot;log(GFP intensity) (AU)&quot;, show.fstat = TRUE)</code></pre>
 <table style="border-collapse:collapse; border:none;border-bottom:double;">
 <td style="padding:0.2cm; border-top:double;">
  
@@ -659,8 +663,7 @@ sjt.lm(lm.int, depvar.labels = &quot;proportion of dauers&quot;, show.fstat = TR
  
 </td>
 <td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="3">
-log(GFP expression)
-proportion of dauers
+log(GFP intensity) (AU)
 </td>
 </tr>
 <tr>
@@ -782,12 +785,90 @@ F-statistics
 </td>
 </tr>
 </table>
-=======
-  theme_my_classic +
-    stat_summary(aes(x=as.numeric(as.factor(food)) + 0.3, y=100),
-                   fun.data = fun_length, geom = &quot;text&quot;, size = 3)) </code></pre>
-<p><img src="Figure_4_files/figure-html/daf-28%20increased%20by%20HB101-1.png" width="672" /></p>
->>>>>>> Stashed changes
+<pre class="r"><code>knitr::kable(contrasts[1], caption = &quot;pairwise comparisons by genotype (ANOVA)&quot;)</code></pre>
+<table class="kable_wrapper">
+<caption>
+pairwise comparisons by genotype (ANOVA)
+</caption>
+<tbody>
+<tr>
+<td>
+<table>
+<thead>
+<tr class="header">
+<th align="left">contrast</th>
+<th align="right">estimate</th>
+<th align="right">SE</th>
+<th align="right">df</th>
+<th align="right">t.ratio</th>
+<th align="right">p.value</th>
+<th align="left">prange</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">mg360 - N2</td>
+<td align="right">-1292.479</td>
+<td align="right">215.5337</td>
+<td align="right">44</td>
+<td align="right">-5.996645</td>
+<td align="right">0.0000003</td>
+<td align="left">***</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>knitr::kable(contrasts[2], caption = &quot;pairwise comparisons by food (ANOVA)&quot;)</code></pre>
+<table class="kable_wrapper">
+<caption>
+pairwise comparisons by food (ANOVA)
+</caption>
+<tbody>
+<tr>
+<td>
+<table>
+<thead>
+<tr class="header">
+<th align="left">contrast</th>
+<th align="left">genotype</th>
+<th align="right">estimate</th>
+<th align="right">SE</th>
+<th align="right">df</th>
+<th align="right">t.ratio</th>
+<th align="right">p.value</th>
+<th align="left">prange</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">OP50 - HB101</td>
+<td align="left">N2</td>
+<td align="right">-1158.5753</td>
+<td align="right">298.3703</td>
+<td align="right">44</td>
+<td align="right">-3.8830108</td>
+<td align="right">0.0006844</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">OP50 - HB101</td>
+<td align="left">mg360</td>
+<td align="right">136.1794</td>
+<td align="right">311.1178</td>
+<td align="right">44</td>
+<td align="right">0.4377099</td>
+<td align="right">0.8857917</td>
+<td align="left">p~0.89</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 

@@ -260,7 +260,7 @@ $(document).ready(function () {
 <h2>1A</h2>
 <div style="float: left; width: 50%;">
 <div class="figure">
-<img src="/figures/1A_TORC_model.png" alt="TOR complexes are involved in nutrient homostasis" />
+<img src="figures/1A_TORC_model.png" alt="TOR complexes are involved in nutrient homostasis" />
 <p class="caption">TOR complexes are involved in nutrient homostasis</p>
 </div>
 </div>
@@ -286,6 +286,207 @@ labels = c(&quot;WT&quot;, &quot;rict-1(mg360)&quot;, &quot;rict-1(ft7)&quot;, &
 <p><img src="Figure_1_files/figure-html/plot%20TORC2-1.png" width="672" /></p>
 <p><strong>Figure 1B</strong></p>
 <p>TORC2 controls high temperature-induced dauer formation. Increased dauer formation occurs in TORC2-specific <em>rict-1</em> mutants, as well as in mutants of TORC2 targets <em>sgk-1</em> and <em>akt-1</em>. Plot shows proportion of dauers formed by animals of the indicated genotypes at 27°C. Each black dot indicates the proportion of dauers formed in a single assay. Arrested L3 and/or partial/post dauers are included as non-dauers due to excess arrest in <em>rict-1(ft7)</em>. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 25 and 9 animals each scored for non-transgenic and transgenic animals, respectively. For transgenic rescues, data are combined from 2 independent lines, with the exception of ges-1p constructs, in which one line was analyzed. <span style="color:black"><code>***</code></span> - P&lt;0.001 compared to wild-type (ANOVA with Dunnett-type multivariate-t adjustment for 1B and Tukey-type multivariate-t adjustment for 1C); <span style="color:red"><code>***</code></span> - P&lt;0.001 compared to corresponding mutant animals. P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
+<pre class="r"><code>library(sjPlot)
+sjt.lm(lm, depvar.labels = &quot;proportion of dauers (ANOVA)&quot;, show.se = TRUE)</code></pre>
+<table style="border-collapse:collapse; border:none;border-bottom:double;">
+<td style="padding:0.2cm; border-top:double;">
+ 
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="4">
+proportion of dauers (ANOVA)
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; font-style:italic;">
+ 
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+B
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+std. Error
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; border-top:1px solid; text-align:left;">
+(Intercept)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.27
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.21 – 0.33
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.03
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm;" colspan="6">
+genotype
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+rict-1(mg360)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.67
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.58 – 0.76
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.05
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+rict-1(ft7)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.63
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.50 – 0.76
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+sgk-1(ok538)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.34
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.22 – 0.45
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+akt-1(mg306)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.68
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.56 – 0.81
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+akt-2
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.03
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.11 – 0.17
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.07
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.660
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+pkc-2
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.25
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.36 – -0.13
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
+Observations
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="4">
+69
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+R<sup>2</sup> / adj. R<sup>2</sup>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+.877 / .865
+</td>
+</tr>
+</table>
 <table>
 <caption>pairwise comparisons (Dunnett)</caption>
 <thead>
@@ -324,7 +525,7 @@ labels = c(&quot;WT&quot;, &quot;rict-1(mg360)&quot;, &quot;rict-1(ft7)&quot;, &
 <td align="right">0.0570696</td>
 <td align="right">62</td>
 <td align="right">5.9145186</td>
-<td align="right">0.0000009</td>
+<td align="right">0.0000010</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -342,11 +543,7 @@ labels = c(&quot;WT&quot;, &quot;rict-1(mg360)&quot;, &quot;rict-1(ft7)&quot;, &
 <td align="right">0.0682112</td>
 <td align="right">62</td>
 <td align="right">0.4422887</td>
-<<<<<<< Updated upstream
-<td align="right">0.9975889</td>
-=======
-<td align="right">0.9975883</td>
->>>>>>> Stashed changes
+<td align="right">0.9975893</td>
 <td align="left">p~1</td>
 </tr>
 <tr class="even">
@@ -355,7 +552,7 @@ labels = c(&quot;WT&quot;, &quot;rict-1(mg360)&quot;, &quot;rict-1(ft7)&quot;, &
 <td align="right">0.0570696</td>
 <td align="right">62</td>
 <td align="right">-4.3229489</td>
-<td align="right">0.0003443</td>
+<td align="right">0.0003332</td>
 <td align="left">***</td>
 </tr>
 </tbody>
@@ -475,6 +672,307 @@ labels &lt;- c(&quot;WT&quot;,&quot;rict-1(mg360)&quot;,
 <p><img src="Figure_1_files/figure-html/gut%20resc%20plot-1.png" width="960" /></p>
 <p><strong>Figure 1C</strong></p>
 <p>mTORC2 acts in the intestine to inhibit high-temperature dauer formation. Increased dauer formation of <em>rict-1</em> and <em>sgk-1</em> mutants is rescued by intestinal-specific expression. <em>akt-1</em> mutants were not rescued using this promoter. Dauers formed by animals of the indicated genotypes at 27°C. Each black dot indicates the proportion of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 25 and 9 animals each scored for non-transgenic and transgenic animals, respectively. For transgenic rescues, data are combined from 2 independent lines, with the exception of ges-1p constructs, in which one line was analyzed. <span style="color:black"><code>***</code></span> - P&lt;0.001 compared to wild-type (ANOVA with Dunnett-type multivariate-t adjustment for 1B and Tukey-type multivariate-t adjustment for 1C); <span style="color:red"><code>***</code></span> - P&lt;0.001 compared to corresponding mutant animals. P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
+<pre class="r"><code>library(sjPlot)
+sjt.lm(lm, depvar.labels = &quot;proportion of dauers (ANOVA)&quot;, show.se = TRUE)</code></pre>
+<table style="border-collapse:collapse; border:none;border-bottom:double;">
+<td style="padding:0.2cm; border-top:double;">
+ 
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="4">
+proportion of dauers (ANOVA)
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; font-style:italic;">
+ 
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+B
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+std. Error
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; border-top:1px solid; text-align:left;">
+(Intercept)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.27
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.22 – 0.32
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.02
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm;" colspan="6">
+genotype
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+rict-1(mg360)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.69
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.59 – 0.79
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.05
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+rict-1(mg360); ex[ges1]
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.12
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.22 – -0.03
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.05
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.011
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+rict-1(mg360); ex[gpa4]
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.66
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.57 – 0.75
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.05
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+rict-1(ft7)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.66
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.57 – 0.75
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.05
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+rict-1(ft7); ex[ges1]
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.03
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.13 – 0.07
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.05
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.556
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+rict-1(ft7); ex[elt2]
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.13
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.02 – 0.23
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.05
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.017
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+rict-1(ft7); ex[ifb2]
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.06 – 0.17
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.344
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+sgk-1(ok538)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.44
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.33 – 0.56
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+sgk-1(ok538); ex[ges1]
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.08
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.20 – 0.03
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.155
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+akt-1(mg306)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.71
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.60 – 0.83
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+akt-1(mg306); ex[ges1]
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.72
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.60 – 0.83
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
+Observations
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="4">
+112
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+R<sup>2</sup> / adj. R<sup>2</sup>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+.884 / .871
+</td>
+</tr>
+</table>
 <table>
 <caption>pairwise comparisons (Tukey)</caption>
 <thead>

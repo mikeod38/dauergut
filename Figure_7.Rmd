@@ -38,9 +38,9 @@ library(lsmeans)
 dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
 ```
 
-##__Fig 7 Identification of two QTL for 27º dauer formation__{.tabset}
+#__Identification of two QTL for 27º dauer formation__{.tabset}
 
-###7A
+##7A
 ```{r CSS data load}
 filepath<-file.path(pathname,'extdata/7A_CSSdata_allbinary.csv')
 strains<- c("N2","CB4856","CSSI","CSSII","CSSIII","CSSIV","CSSV","CSSX")
@@ -61,7 +61,6 @@ mixed<- stan.glmm %>% getStan_CIs(type = "dauer") #CIs
 
 (p<-dauergut::plot_CIs(CSS, title='CB4856 Chromosome II contains 1 or more dauer QTLs', plot.contrasts, ypos = 1.075, type = "dauer", labels = strains))
 
-knitr::kable(drop1(glmm.locus, test = "Chisq"))
 ```
 
 <br>
@@ -69,9 +68,14 @@ knitr::kable(drop1(glmm.locus, test = "Chisq"))
 
 7A. Chromosome substitution strains identify a chromosome II QTL for 27º dauer formation. Dauers formed by chromosome-substituted strains at 27°C. Each dot indicates the proportion of dauers formed in a single assay. Horizontal bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent assays with at least 11 animals each. Shown P-values are with respect to the Bristol N2 strain unless indicated otherwise; `***` - different from Bristol N2 at P<0.001 (ANOVA with Dunnett-type multivariate-t post-hoc adjustment).
 
+```{r ANOVA by-strain and GLMM by-locus stats}
+library(sjPlot)
+sjt.lm(lm, depvar.labels = "proportion of dauers (ANOVA)", show.se = TRUE)
+sjt.glmer(glmm.locus, depvar.labels = "proportion of dauers (by-locus GLMM)", show.se = TRUE)
+knitr::kable(drop1(glmm.locus, test = "Chisq"))
+```
 
-
-###S4A
+##S4A
 ```{r CSSII pheromone}
 filepath <- file.path(pathname, "extdata/S4A_CSSII_ascr5.csv")
 strains = c("N2","CSSII")
@@ -108,8 +112,11 @@ plot.contrasts<-c(rep("",4))
 
 ```
 
+**Figure S4A**  
+Pheromone-induced dauer formation is not reduced in the CSSII strain. Each dot indicates the average number of dauers formed in a single assay. Horizontal bar indicates median. Numbers in parentheses below indicate the number of independent experiments with at least 40 animals each.
 
-###7C
+
+##7C
 
 ```{r ewIR ChII strain load}
 filepath<-file.path(pathname, "extdata/7C_ewIRdata_allbinary.csv")
@@ -131,7 +138,7 @@ ewIR.nocont<-merge(ewIR.nocont, mapping.nocont, by="genotype", all=TRUE)
 ```
 
 
-```{r glmm ewIR strains}
+```{r glmm ewIR strains, fig.width=10}
 
 #glmm.nest = glmer(data = ewIR, cbind(dauer,non) ~ genotype + (1|day/plateID), family="binomial",control=glmerControl(optimizer="bobyqa"))
 lm <- ewIR %>% dauer_ANOVA()
@@ -150,15 +157,15 @@ labels <- c("N2","CB4856","WN219","WN220",
 
 (p<-dauergut::plot_CIs(ewIR, title='CB4856 27º dauer formation QTL lies on ChrII', plot.contrasts, plot.contrasts.2 = plot.contrasts.2,ypos = 1.075, offset = 0.075, type = "dauer", labels = labels))
 
-img.path <- file.path(pathname, "figures/7D_QTL1.png")
+img.path <- file.path(pathname, "figures/7B_ewIR_map.png")
 
-knitr::include_graphics(img.path)
+include_graphics(img.path)
 
 ```
 
-7B. Chromosome near isogenic lines (NILs) were tested for 27º dauer formation. Each strain contains a segment of CB4856 DNA (blue, right) introgressed into an N2 background. EwIR25 contains a QTL which reduces dauer formation. ewIR27 contains an additional QTL that increases dauer formation. Diagram shows putative location of these QTL for decreased (blue) or increased (red) dauer formation. Box and scatter plot show raw data. Blue dot and bars show marginal means and 95% confidence interval, respectively, generalized linear mixed effects model using strain as a predictor (see methods). Black p-values reflect Tukey post-hoc comparision to N2, red p-values indicate comparison to ewIR25. n≥6 assays on ≥3 separate days. 
+7C. Chromosome near isogenic lines (NILs) were tested for 27º dauer formation. Each strain contains a segment of CB4856 DNA (blue, right) introgressed into an N2 background. EwIR25 contains a QTL which reduces dauer formation. ewIR27 contains an additional QTL that increases dauer formation. Diagram shows putative location of these QTL for decreased (blue) or increased (red) dauer formation. Box and scatter plot show raw data. Blue dot and bars show marginal means and 95% confidence interval, respectively, generalized linear mixed effects model using strain as a predictor (see methods). Black p-values reflect Tukey post-hoc comparision to N2, red p-values indicate comparison to ewIR25. n≥6 assays on ≥3 separate days. 
 
-###7E
+##7E
 ```{r MONIL data load}
 file<-'7E_MONIL_allbinary.csv'
 filepath<-file.path(pathname, "extdata", file)
@@ -211,9 +218,17 @@ mixed <- stanlmer %>% getStan_CIs(type = "dauer")
 plot.contrasts<-c("",contrasts$prange[1:5])
 
 (p<-plot_CIs(MONIL, title='A ~100kb interval defines QTL1', plot.contrasts, ypos = 0.8, type = "dauer", labels = strains))
+
+img.path <- file.path(pathname, "figures/7D_QTL1.png")
+
+knitr::include_graphics(img.path)
 ```
 
-###7F
+**Figure 7E**
+(Top) Dauers formed by sub-NILs at 27°C. Each dot indicates the proportion of dauers formed in a single assay. Horizontal bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent assays with at least 11 animals each. Shown P-values are with respect to the Bristol N2 strain unless indicated otherwise; `***` - different from Bristol N2 at P<0.001 (ANOVA with Tukey-type multivariate-t post-hoc adjustment)
+(Bottom) Cartoon depicting CB4856 introgression breakpoint in NIL strains. Segments in blue indicate regions of CB4856 DNA in an otherwise Bristol N2 genetic background. Yellow shaded region indicates likely position of QTL1. Horizontal axis indicates physical position in megabases (Mb).
+
+##7F
 ```{r roam QTL}
 strains<- c("N2","CB4856","QTL1","QTL2")
 days <- c("3_10_17", "3_17_17", "4_6_17")
@@ -227,7 +242,7 @@ QTL.roam<-read.csv(file.path(pathname, "extdata/6B_7F_roam_wild_isolates.csv")) 
 
 lm <- lm(n_entries ~ genotype, data = QTL.roam)
 
-QTL.roam %<>% dauergut::flag_outliers(df = ., lin.mod = lm, threshold = 4)
+QTL.roam %<>% dauergut::flag_outliers(df = ., lin.mod = lm, threshold = 4, noplot = TRUE)
 
 glmm.nest = glmer(data=QTL.roam, n_entries ~ genotype + (1|date/plateID), family="poisson")
 
@@ -246,11 +261,16 @@ plot.contrasts.2 <- c("","",contrasts$prange[4:5])
 
 ```
 
+**Figure 7F**  
+Exploratory behavior of indicated strains. Each purple dot is data from a single animal. Median is indicated by a horizontal line; error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the total number of animals examined in 3 independent assay days. P-values shown are with respect to N2; <span style="color:red">`***`</span> - different from CB4856 at P<0.001 (ANOVA with Tukey-type multivariate-t post-hoc adjustments).
 
-##__Supplemental fig 4 - analysis of QTL1 breakpoints
 
-###S4C
+##S4C
 ```{r NKDG CRISPR}
+
+img.path <- file.path(pathname, "figures/S4B_rict-1_locus.png")
+include_graphics(img.path)
+
 strains<-c("N2", "ewIR25", "NK", "NK_DG")
 foods <- "OP50"
 
@@ -265,11 +285,11 @@ contrasts<-dauergut::dunnett_contrasts(lm, ref.index = 1, "genotype")
 mixed<-stan.glmm %>% getStan_CIs(type = "dauer")
 plot.contrasts<-c("",contrasts$prange[1:3])
 
-labels <- c("N2", "WN225", "rict-1 [N1174K]", "rict-1 [N1174K, D1462G]")
+labels <- c("N2", "WN225", "rict-1 [N1174K]", "rict-1 [N1174K, D1462G]") %>% stringr::str_wrap(width = 10)
 
-(p<-dauergut::plot_CIs(NKDG, title='mTORC2 prevents high temperature dauer formation', plot.contrasts, ypos = 1.075, type = "dauer"))
+(p<-dauergut::plot_CIs(NKDG, title='', plot.contrasts, ypos = 1.075, type = "dauer", labels = labels))
 ```
 
 
 **Figure S4C**  
-Dauers formed at 27°C by N2, the WN225 NIL, and strains in which the indicated polymorphisms in CB4856 rict-1 coding sequences have been introduced into N2 rict-1 sequences via gene editing. Each dot indicates the average number of dauers formed in a single assay. Horizontal bar indicates median. Light-grey thick and thin vertical bars indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 40 animals each. P-values are relative to N2 (ANOVA with Dunnett-type multivariate-t post-hoc adjustment).
+_rict-1_ coding polymorphisms do no account for the QTL1 effect. Dauers formed at 27°C by N2, the WN225 NIL, and strains in which the indicated polymorphisms in CB4856 rict-1 coding sequences have been introduced into N2 rict-1 sequences via gene editing. Each dot indicates the average number of dauers formed in a single assay. Horizontal bar indicates median. Light-grey thick and thin vertical bars indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 40 animals each. P-values are relative to N2 (ANOVA with Dunnett-type multivariate-t post-hoc adjustment).

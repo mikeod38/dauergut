@@ -42,7 +42,7 @@ dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
 
 ##3A
 
-```{r daf7 temp data, dependson="Chunk 17: daf7 data load"}
+```{r daf7 temp data}
 strains = "N2"
 #strains<-c("N2","ft7")
 days<-c("11_23_16", "12_6_16")

@@ -108,12 +108,10 @@ _rict-1_ mutants are deficient in food suppression of dauer formation. Dauers fo
 
 ```{r rict1 food model results, fig.align="center"}
 library(sjPlot)
-sjt.lm(lm.int, depvar.labels = "log(GFP expression)", show.fstat = TRUE)
+sjt.lm(lm.int, depvar.labels = "proportion of dauers", show.fstat = TRUE)
+knitr::kable(contrasts[1], caption = "pairwise comparisons by genotype (ANOVA)")
+knitr::kable(contrasts[2], caption = "pairwise comparisons by food (ANOVA)")
 ```
-
-**Figure 4A**  
-Dauers formed by wild-type and rict-1 mutants on OP50 or HB101 at 27°C. Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 19 animals scored in each. Dashed lines indicate mean change in dauer formation per experimental day. P-values are with respect to growth on OP50; `***` - different from growth on OP50 at P<0.001 [two-factor ANOVA with F(5.20) with 2 Df, P=0.0092 for genotype*food interaction, Tukey-type multivariate-t post-hoc adjustment].
-
 
 ##4B
 
@@ -134,11 +132,13 @@ separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>%
 lm.add <- lm(cell.norm ~ genotype + food, data = d28)
 lm.int <- lm(cell.norm ~ genotype * food, data = d28)
 
+d28 %<>% flag_outliers(lin.mod=lm.int, threshold = 4, df = ., noplot=TRUE)
+
 d28 %<>% mutate(group.id = interaction(genotype, food))
 
 lm.int <- lm(cell.norm ~ genotype * food, data = d28[d28$outlier.status == FALSE,])
 lm.add <- lm(cell.norm ~ genotype + food, data = d28[d28$outlier.status == FALSE,])
-d28 %<>% flag_outliers(lin.mod=lm.int, threshold = 4, df = ., noplot=TRUE)
+
 stan.lm <- stan_glm(formula = cell.norm ~ group.id,
                        data=d28[d28$outlier.status == FALSE,],
                        family = gaussian(),
@@ -183,10 +183,12 @@ plot.contrasts.H0 <- data.frame(cbind(food = rep(foods, length(strains)), genoty
 
 **Figure 4B**
 
-Quantification of _daf-28p::gfp_ fluorescence in ASJ neurons of wild-type and rict-1 mutant L2 larvae grown on OP50 and HB101 at 27°C. Each data point is the average GFP fluorescence of a single animal (two neurons per animal); numbers in parentheses below indicate the total number of neurons examined. Horizontal lines are the median; error bars are the quartiles. P-values are with respect to growth on OP50; `**` - different from growth on OP50 at P<0.01 [two-factor ANOVA with F(`r round(anova(lm.add,lm.int)$F[2],2)`) with `r anova(lm.add,lm.int)$Df[2]` Df, P=`r round(anova(lm.add,lm.int)$Df[2],4)` for genotype*food interaction, Tukey-type multivariate-t post-hoc adjustment]. Outliers were identified using both Cook's Distance and standardized residuals. `r nrow(d28[d28$outlier.status == TRUE,])` outliers were removed from analysis. 
+Quantification of _daf-28p::gfp_ fluorescence in ASJ neurons of wild-type and rict-1 mutant L2 larvae grown on OP50 and HB101 at 27°C. Each data point is the average GFP fluorescence of a single animal (two neurons per animal); numbers in parentheses below indicate the total number of neurons examined. Horizontal lines are the median; error bars are the quartiles. P-values are with respect to growth on OP50; `***` - different from growth on OP50 at P<0.01 [two-factor ANOVA with F(`r round(anova(lm.add,lm.int)$F[2],2)`) with `r anova(lm.add,lm.int)$Df[2]` Df, P=`r round(anova(lm.add,lm.int)$Df[2],4)` for genotype*food interaction, Tukey-type multivariate-t post-hoc adjustment]. Outliers were identified using both Cook's Distance and standardized residuals. `r nrow(d28[d28$outlier.status == TRUE,])` outliers were removed from analysis. 
 
 
 ```{r d28 food model results}
 library(sjPlot)
-sjt.lm(lm.int, depvar.labels = "proportion of dauers", show.fstat = TRUE)
+sjt.lm(lm.int, depvar.labels = "log(GFP intensity) (AU)", show.fstat = TRUE)
+knitr::kable(contrasts[1], caption = "pairwise comparisons by genotype (ANOVA)")
+knitr::kable(contrasts[2], caption = "pairwise comparisons by food (ANOVA)")
 ```

@@ -102,19 +102,17 @@ p2
 </div>
 
 
-
-
 <div style="float: right; width: 100%;">
 **Figure 2A**  
 Intesinal _rict-1_ regulates daf7GFP levels in ASI neurons. Daf-7::GFP fluorescence quantification shows decreased expression in _rict-1_ mutants. Intestinal expression of _rict-1_ using the intestinal _ges-1_ promoter rescues daf-7::GFP expression. (Left) Representative images of _daf-7p::gfp_ expression in one of the bilateral ASI neurons in animals of the indicated genotypes. Yellow filled and open arrowheads indicate ASI and ASJ soma, respectively. Anterior is at left. Scale bar: 5 μm. (Right) Quantification of daf-7p::gfp expression in ASI (A) and daf-28p::gfp expression in ASI and ASJ (D). Each dot is the mean fluorescence intensity in a single animal (2 neurons per animal); numbers in parentheses below indicate the number of animals examined in 3 independent experiments. Horizontal thick bar indicates median. Error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. <span style="color:black">`**`</span> and <span style="color:black">`***`</span> - different from wild-type at P<0.01 and P<0.001, respectively; <span style="color:red">`***`</span> - different from rict-1(ft7) at P<0.001 (ANOVA with Dunnett-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.
-
-<!-- L1 animals were grown 18hrs post egg lay at 27º. Daf-7::GFP fluorescence quantification shows decreased expression in _rict-1_ mutants. Intestinal expression of _rict-1_ using the intestinal _ges-1_ promoter rescues daf-7::GFP expression. Box and scatter plot show raw data. Bayesian 90% (grey) and 50% (red) credible intervals are shown on the right (see methods). For _rict-1(mg360)_ and _rict-1(ft7)_, `r contrasts$prange[1]` and `r contrasts$prange[2]` compared to N2, respectively. For _ges-1_ rescue, `r rescue.p$prange` compared to _rict-1(ft7)_. n=3 independent experiments. -->
 
 </div>
 
 
 ```{r 2A daf-7 stats}
-knitr::kable(contrasts, caption="Pairwise comparisons from mixed-effects model (Tukey)")
+library(sjPlot)
+sjt.lm(lm, depvar.labels = "log(mean GFP intensity) (AU)", show.se = TRUE, show.fstat = TRUE)
+knitr::kable(contrasts, caption="Pairwise comparisons from ANOVA (Dunnett)")
 knitr::kable(mixed[,c(6,1:5)], caption = "Bayesian credible intervals")
 ```
 
@@ -173,6 +171,13 @@ dauergut::plot_CIs(daf7FISH[daf7FISH$outlier.status == FALSE,], title = "daf7 mR
 **Figure 2B** 
 _daf-7_ mRNA is reduced in _rict-1_ mutants. Intestinal expression of _rict-1_ using the intestinal _ges-1_ promoter rescues _daf-7_ expression. Quantification of _daf-7_ mRNA levels in ASI assessed via fluorescent in situ hybridization. Expression was normalized by subtracting mean background pixel values for each image. Each dot is the fluorescence intensity in a single ASI neuron; numbers in parentheses below indicate the number of neurons examined in 3 independent pooled experiments. Horizontal thick bar indicates median. Error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. P-values of differences relative to wild-type and rict-1(mg360) animals are indicated in black and red, respectively. For _rict-1(mg360)_ and _rict-1(ft7)_, `r contrasts$prange[1]` and `r contrasts$prange[2]` compared to N2, respectively. For _ges-1_ rescue, <span style="color:red">`r rescue.p$prange`</span> compared to _rict-1(ft7)_. n=2 independent experiments, pooled data. `r nrow(daf7FISH[daf7FISH$outlier.status == TRUE,])` outlier data points were removed in total. P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.
 
+```{r 2B daf-7mRNA stats}
+library(sjPlot)
+sjt.lm(lm.1, depvar.labels = "mean mRNA levels (AU)", show.se = TRUE, show.fstat = TRUE)
+knitr::kable(contrasts, caption="Pairwise comparisons from ANOVA (Dunnett)")
+knitr::kable(mixed[,c(6,1:5)], caption = "Bayesian credible intervals")
+```
+
 ##2C
 
 
@@ -215,6 +220,13 @@ p
 **Figure 2C**
 Expression of _daf-7_ in ASI or _daf-28_ in ASI or ASJ suppressed aberrent dauer formation in _rict-1_ mutants. Dauers formed by animals of the indicated genotypes at 27°C. Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 36 and 9 animals each scored for non-transgenic and transgenic animals, respectively. Promoters driving expression in ASI and ASJ were srg-47p and trx-1p, respectively. One transgenic line was tested for each condition. <span style="color:black">`***`</span> - different from wild-type at P<0.001; <span style="color:red">`**`</span> and <span style="color:red">`***`</span> - different from _rict-1(ft7)_ at P<0.01 and P<0.001, respectively (ANOVA with Tukey-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.
 
+
+```{r 2C daf7/28 neuron suppression stats}
+library(sjPlot)
+sjt.lm(lm, depvar.labels = "proportion of dauers", show.se = TRUE, show.fstat = TRUE)
+knitr::kable(contrasts, caption="Pairwise comparisons from ANOVA (Tukey)")
+knitr::kable(mixed[,c(6,1:5)], caption = "Bayesian credible intervals")
+```
 
 ##2D
 
@@ -305,7 +317,11 @@ p
 </div>
 
 
-```{r daf-28 stats}
+```{r 2D daf-28 stats}
+library(sjPlot)
+sjt.lm(lm, depvar.labels = "log(mean GFP intensity) (AU)", show.se = TRUE, show.fstat = TRUE)
+knitr::kable(mixed[,c(6,1:5)], caption = "Bayesian credible intervals")
+
 knitr::kable(contrasts, caption = "pairwise comparisons (Tukey)")
 ASI <- with(df[df$neuron == "ASI" & df$outlier.status == FALSE,], with(log.tran, t.test(cell.norm ~genotype))) %>% unlist %>% data.frame()
 ASJ <- with(df[df$neuron == "ASJ" & df$outlier.status == FALSE,], with(log.tran, t.test(cell.norm ~genotype))) %>% unlist %>% data.frame()
@@ -355,39 +371,31 @@ p
 **Figure S1A**
 Mutations in rict-1 modulate dauer formation via downregulation of neuroendocrine signaling. _daf-16_ mutations partially suppress the dauer formation phenotype of _rict-1_ mutants. Dauers formed by animals of the indicated genotypes at 27°C. Each dot indicates the proportion of dauers formed in a single assay. Horizontal bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 26 animals each. <span style="color:black">`***`</span> - different from wild-type at P<0.001, <span style="color:red">`***`</span> - different from rict-1(mg360) at P<0.001 (ANOVA with Tukey-type multivariate-t post-hoc adjustments). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.
 
-`r knitr::kable(contrasts, caption = "paiwrise comparisons (Tukey)")`
 
+```{r S1A daf-16 stats}
+library(sjPlot)
+sjt.lm(lm, depvar.labels = "proportion of dauers", show.se = TRUE, show.fstat = TRUE)
+knitr::kable(contrasts, caption="Pairwise comparisons from ANOVA (Tukey)")
+knitr::kable(mixed[,c(6,1:5)], caption = "Bayesian credible intervals")
+```
 
 
 ##S1B
 ```{r rict-1 pheromone response}
 strains <- c("N2", "rict-1(ft7)")
 foods <- "OP50"
-rictC3 <- read.csv(file.path(pathname, 'extdata/S3C_rict1Pheromone.csv')) %>% format_dauer(p.dauer = "exclude") %>% mutate(plateID = interaction(plateID,concentration.uM.))
+rictC3 <- read.csv(file.path(pathname, 'extdata/S3C_rict1Pheromone.csv')) %>% format_dauer(p.dauer = "exclude") %>% mutate(plateID = interaction(plateID,concentration.uM.)) 
 
 # for glm fit
-glm <- glm(data = rictC3, cbind(dauer, non) ~ concentration.uM. * genotype, family = binomial)
+glm <- glm(data = rictC3, cbind(dauer, non) ~ concentration.uM. + genotype + concentration.uM. * genotype, family = binomial)
 
 newdata = data.frame(genotype = rep(strains, each = 241), concentration.uM. = rep(seq(0,2.4, by = 0.01),2),plateID = rep(0, 482), n = rep(60, 482))
 
 ### for non-interaction ### 
 glm.simple <- glm(data = rictC3, cbind(dauer, non) ~ concentration.uM. + genotype, family = binomial)
-predictions <- predict(glm.simple, newdata = newdata, type = "response", se.fit = TRUE)
+predictions <- predict(glm, newdata = newdata, type = "response", se.fit = TRUE)
 newdata1 <- cbind(newdata, predictions)
 newdata1 %<>% mutate(lower = (fit - se.fit), upper = (fit + se.fit), pct = fit)
-
-
-# # for GLMM
-# glmm <- glmer(data = rictC3, cbind(dauer, non) ~ concentration.uM. + genotype + (1|day/plateID), family = binomial)
-# glmm.predict <- predict(glmm,newdata=newdata,type = "response", re.form = NA) #re.form = ~0)
-# newdata2 <- cbind(newdata, glmm.predict) %>% mutate(pct = glmm.predict)
-# 
-# 
-# # for Bayesian GLMM
-# brms.glmm <- brms::brm(data = rictC3, formula= dauer | trials(n) ~ concentration.uM. + genotype + (1|plateID), family = binomial)
-# brms.predict <- predict(brms.glmm,newdata=newdata,type = "response", re.form = NA, allow_new_levels = TRUE)
-# newdata3 <- cbind(newdata, brms.predict) %>% mutate(pct = Estimate/n)
-#newdata3 <- effects::effect(newdata, glmm)
 
 
 (p<-rictC3 %>% ggplot(aes(x=concentration.uM.,y = pct)) +
@@ -418,8 +426,11 @@ newdata1 %<>% mutate(lower = (fit - se.fit), upper = (fit + se.fit), pct = fit)
 ```
 
 **Figure S1B**
-_rict-1_ mutants show enhanced response to pheromone ascr#5. Dauers formed by wild-type (black) and rict-1(ft7) (blue) animals at 25°C in the presence of the indicated concentrations of ascr#5. Each dot indicates the proportion of dauers formed in a single assay. Horizontal bar indicates median. Numbers in parentheses below indicate the number of independent experiments with at least 27 animals each. Lines indicate predictions from GLM fit, corresponding to an odds ratio of ~88 for rict-1 across this range of ascr#5 concentrations. For genotype, Wald Χ^2^ = 45.3, Df =1, p < 0.0001; for pheromone, Wald Χ^2^ = 24.9, Df =1, p < 0.0001 with GLMM fit.
+_rict-1_ mutants show enhanced response to pheromone ascr#5. Dauers formed by wild-type (black) and rict-1(ft7) (blue) animals at 25°C in the presence of the indicated concentrations of ascr#5. Each dot indicates the proportion of dauers formed in a single assay. Horizontal bar indicates median. Numbers in parentheses below indicate the number of independent experiments with at least 27 animals each. Lines indicate predictions from GLM fit, corresponding to an odds ratio of ~21.3 for rict-1 across this range of ascr#5 concentrations.
+
+```{r S1B ascr#5 stats}
+library(sjPlot)
+sjt.glm(glm, depvar.labels = "proportion of dauers", show.se = TRUE, show.chi2 = TRUE)
+```
 
 
-
-`r knitr::kable(mfx::logitor(glm.simple, data = rictC3)$oddsratio, caption = "odds-ratio for glm")`
