@@ -41,7 +41,14 @@ dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
 #__Intestinal mTORC2 alters foraging behaviors__{.tabset}
 
 ##5A
-intestinal rict-1 expression rescues behavior. 
+
+```{r foraging image}
+img.path <- 
+```
+
+![_C. elegans_ foraging behavior](/Users/mikeod/git/projects/dauergut/figures/5A_cartoon.png)
+**Figure 5A**  
+Cartoon depicting foraging assay. Each plate contains a L4 hermaphrodite which is allowed to forage overnight on a uniform lawn of E. coli for ~ 16hrs. Lines show tracks on the bacterial lawn.
 
 ##5B
 ```{r rict-1 roaming import, fig.width=5}
@@ -50,13 +57,6 @@ roam<-read.csv(file.path(pathname, "extdata/5B_5E_gridentry.csv")) %>%
          strainDate = interaction(strain, date, drop=TRUE),
          plateID = interaction(strainDate,plate, drop=TRUE),
          total.boxes = 186)
-#reorder to set N2 = level1
-# newlevels<-subset(roam, genotype =! "N2")
-# newlevels<-subset(levels(newdata$genotype))
-# 
-# newlevels<-newlevels[newlevels$genotype, drop=TRUE]
-# newlevels$genotype <- factor(newlevels$genotype, drop=TRUE)
-# roam$genotype <- factor(roam$genotype, levels = c("N2", levels(newlevels$genotype))
 
 ```
 
@@ -87,7 +87,7 @@ glms <- list(glm = glm(data=roam, n_entries ~ date + genotype, family="poisson")
 
 mods<-c(lms, glms, glmms)
 
-
+# Not run #
 ###checking distributional assumptions:
 # library(DHARMa)
 
@@ -115,7 +115,7 @@ mods<-c(lms, glms, glmms)
 # nested glmm looks rougly the best for both count date (n_entries) and binary data (n_boxes/total) 
 # although there is still some small effect of 
 # predicted value on residual quantiles
-
+# end not run #
 ```
 
 
@@ -140,47 +140,40 @@ mixed<-stan.glmm %>% getStan_CIs(type = "roam")
 plot.contrasts<-c("",contrasts$prange[1], "","")
 plot.contrasts.2<-c("","",contrasts$prange[4:5])
 
+labels <- c("WT", "rict-1(ft7)", "rict-1(ft7); +ges-1p::rict-1", "rict-1(ft7); +rict-1p::rict-1") %>% stringr::str_wrap(width = 10)
 
 (p<-dauergut::plot_CIs(roam.resc, title='mTORC2 components acts in the intestine to regulate foraging', 
-                       plot.contrasts=plot.contrasts, plot.contrasts.2 = plot.contrasts.2,ypos = 800, offset = 0, type = "grid"))
+                       plot.contrasts=plot.contrasts, plot.contrasts.2 = plot.contrasts.2,ypos = 800, offset = 0, type = "grid", labels = labels))
 
-# #print this at the end
-# for (i in sim.resids) {
-#   print(summary(i$fittedModel))
-#   plotSimulatedResiduals(simulationOutput = i)
-# }
+```
 
+**Figure 5B**  
+_rict-1_ acts in the intestine to regulate foraging behavior. Foraging is increased in _rict-1_ mutants, which is rescued using the intestine-specific _ges-1_ promoter. Plot shows exploratory behavior of indicated strains. Each purple dot represents data from a single worm. Median is indicated by a horizontal purple line; error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the total number of animals examined during 3 independent days of assays. P-values shown are between indicated values; <span style="color:black">`***`</span> and <span style="color:red">`***`</span> - different from WT and rict-1 at P<0.001, respectively (ANOVA with Tukey-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.
+
+```{r rict-1 roam model results}
+library(sjPlot)
+sjt.glmer(glmm.nest, depvar.labels = "number of entries", show.se = TRUE, exp.coef=FALSE)
 ```
 
 ##5C
 ```{r roam dwell density plot}
-#### see speed_curvature function for data analysis
+#### see extdata/roaming and speed_curvature function for data and analysis, respectively - highly memory intensive
 ```
-
 
 ![rict-1 mutation increases roaming behavior](/Users/mikeod/git/projects/dauergut/figures/5C_roam_dwell_density.png)
 
+**Figure 5C**  
+Live tracking of foraging behavior. Shown is a representative assay. n > 20 animals per assay. Density plot shows mean speed and angular velocity from tracks binned over 10 sec intervals imaged at 3 frames/sec. Red line indicates delineation of roaming (upper region) and dwelling (lower region) behavior.
+
+
 ##5D 
-```{r roaming mutliple assays}
-devtools::install_github("rasmusab/bayesian_first_aid")
+```{r roaming mutliple assays, fig.width = 3}
+#devtools::install_github("rasmusab/bayesian_first_aid")
 strains <- c("N2","ft7")
 roam_beh <- read.csv(file.path(pathname, "extdata/5D_roam_dwell_all.csv")) %>% 
   mutate(genotype = factor(genotype, levels = strains), pct = pct.roam, plateID = interaction(date,genotype,plate))
 
-
 roam.t <- t.test(roam_beh[roam_beh$genotype == strains[1],]$pct, roam_beh[roam_beh$genotype == strains[2],]$pct)
-# BEST.t <- BEST::BESTmcmc(roam_beh[roam_beh$genotype == "N2",]$pct, roam_beh[roam_beh$genotype == "ft7",]$pct)
-# 
-# summary <- lapply(strains, function(x) {
-#   summary <- roam_beh %>% dplyr::filter(genotype == x) %>% 
-#   summarize(roam = sum(roam), n = (sum(roam,dwell)))
-# }) %>% unlist()
-# 
-# roamers <- summary[c(1,3)]
-# total <- summary[c(2,4)]
-# 
-# prop.test(roamers, total)
-# fit <- BayesianFirstAid::bayes.prop.test(roamers, total)
 
 glmm <- lme4::glmer(data = roam_beh, cbind(roam, dwell) ~ genotype + (1|plateID), family = binomial)
 
@@ -189,13 +182,20 @@ stan.glmm <- stan_glmer(data = roam_beh,
                         family = binomial,
                         iter = 4000)
 
-mixed <- stan.glmm %>% dauer_getStan_CIs
+mixed <- stan.glmm %>% getStan_CIs(type = "dauer")
 contrasts <- data.frame(p.value = roam.t$p.value) %>% dauergut::prange()
 plot.contrasts <- c("",contrasts$prange)
 
+labels = c("WT", "rict-1(ft7)")
 
-(p<-dauergut::plot_CIs(roam_beh, plot.contrasts = plot.contrasts, type = "dauer", title = "", ypos = 1.05, offset = 0) + labs(subtitle = "", y = "proportion roaming"))
+(p<-dauergut::plot_CIs(roam_beh, plot.contrasts = plot.contrasts, type = "dauer", title = "", ypos = 1.05, offset = 0, labels = labels)) + labs(subtitle = "", y = "proportion roaming")
+
+odds.ratio <- summary(stan.glmm)[2,1] %>% exp()
 ```
+
+**Figure 5D**  
+Quantification of roaming and dwelling states. _rict-1_ mutants show increased roaming, corresponding to an odds ratio of `r odds.ratio`. Dots show proportion of track time bins in which animals were roaming, with each dot reflecting one assay. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. P-value shown is with respect to wild-type (Welch’s t-test).
+
 
 ##5E
 pdfr-1 is epistatic to rict-1 in foraging behavior.
@@ -230,8 +230,14 @@ mixed<-stan.glmm %>% getStan_CIs()
 plot.contrasts<-c("",contrasts$prange[1:4])
 plot.contrasts.2<-c("","","","",contrasts$prange[10])
 
-(p<-dauergut::plot_CIs(roam.pdfr1, title='rict-1 effects on roaming behavior depends on pdf-1/pdfr-1 signaling', plot.contrasts=plot.contrasts, plot.contrasts.2 = plot.contrasts.2,ypos = 800, offset = 50, type = "grid"))
+labels <- c("WT", "rict-1(ft7)", "pdf-1(tm1996)", "pdfr-1(ok3425)", "rict-1(ft7); pdfr-1(ok3425)") %>%
+  stringr::str_wrap(width=10)
+
+(p<-dauergut::plot_CIs(roam.pdfr1, title='rict-1 effects on roaming behavior depends on pdf-1/pdfr-1 signaling', plot.contrasts=plot.contrasts, plot.contrasts.2 = plot.contrasts.2,ypos = 800, offset = 50, type = "grid", labels = labels))
 ```
+
+
+
 
 ##S2A
 ```{r roaming in starved WT and rict-1}
@@ -255,12 +261,13 @@ stan.glmm <- stan_glmer(data = roam_beh,
                         family = binomial,
                         iter = 4000)
 
-mixed <- stan.glmm %>% dauer_getStan_CIs
+mixed <- stan.glmm %>% getStan_CIs(type = "dauer")
 contrasts <- data.frame(p.value = roam.t$p.value) %>% dauergut::prange()
 plot.contrasts <- c("",contrasts$prange)
 
+labels <- c("WT", "rict-1(ft7)")
 
-(p<-dauergut::plot_CIs(roam_beh, plot.contrasts = plot.contrasts, type = "dauer", title = "", ypos = 1.05, offset = 0) + labs(subtitle = "", y = "proportion roaming"))
+(p<-dauergut::plot_CIs(roam_beh, plot.contrasts = plot.contrasts, type = "dauer", title = "", ypos = 1.05, offset = 0, labels = labels) + labs(subtitle = "", y = "proportion roaming"))
 ```
 
 ##S2C
@@ -281,5 +288,7 @@ mixed<-stan.glmm %>% getStan_CIs(type="dauer")
 plot.contrasts<-c("",contrasts$prange[1:2])
 plot.contrasts.2<-c("","",contrasts$prange[3])
 
-(p<-dauergut::plot_CIs(pdfr_dauer, title='pdfr-1 does not suppress the rict-1 dauer phenotype', plot.contrasts, plot.contrasts.2, ypos = 1.1, offset = 0.050, type = "dauer"))
+labels = c("WT", "rict-1(ft7)", " rict-1(ft7); pdfr-1(ok3425)") %>% stringr::str_wrap(width = 10)
+
+(p<-dauergut::plot_CIs(pdfr_dauer, title='pdfr-1 does not suppress the rict-1 dauer phenotype', plot.contrasts, plot.contrasts.2, ypos = 1.1, offset = 0.050, type = "dauer", labels = labels))
 ```

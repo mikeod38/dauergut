@@ -20,7 +20,7 @@ git clone https://github.com/mikeod38/dauergut.git
 To load and access package functions and script using Rstudio:
 
 ```{r, eval=FALSE}
-devtools::install_github("https://github.com/mikeod38/dauergut.git")
+devtools::install_github("mikeod38/dauergut")
 ```
 
 All raw data is in the "extdata" folder
