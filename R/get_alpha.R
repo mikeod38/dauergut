@@ -14,7 +14,7 @@
 #' @export
 #' @examples balanced.mod %<>% get_alpha()
 
-get_alpha <- function(df) {
+get_alpha <- function(df,lmm) {
   # for t
   t1 <- df %>% dplyr::filter(model == "t") %>% dplyr::count(genotype2 < 0.05)
   t2 <- df %>% dplyr::filter(model == "t") %>% dplyr::count(genotype3 < 0.05)
@@ -33,7 +33,16 @@ get_alpha <- function(df) {
   
   nsim <- max(df$dataset)
   
-  alpha = list(t1 = t1,t2 = t2,lm1 = lm1, lm2 = lm2, glmm1 = glmm1, glmm2 = glmm2, stan1 = stan1, stan2 = stan2)
+  if(missing(lmm)) {
+    alpha = list(t1 = t1,t2 = t2,lm1 = lm1, lm2 = lm2, glmm1 = glmm1, glmm2 = glmm2, stan1 = stan1, stan2 = stan2)
+  } else {
+    # for lmm
+    lmm1 <- df %>% dplyr::filter(model == "lmm") %>% dplyr::count(genotype2 < 0.05 & Fp < 0.05)
+    lmm2 <- df %>% dplyr::filter(model == "lmm") %>% dplyr::count(genotype3 < 0.05 & Fp < 0.05)
+    alpha = list(t1 = t1,t2 = t2,lm1 = lm1, lm2 = lm2, 
+                 glmm1 = glmm1, glmm2 = glmm2, stan1 = stan1, stan2 = stan2, 
+                 lmm1 = lmm1, lmm2 = lmm2)
+  }
   
   prop_sig <- function(df) {
     # number sig in contingency table = [2,2]

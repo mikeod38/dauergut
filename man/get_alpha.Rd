@@ -5,7 +5,7 @@
 \title{summarize results of model simulations to get proportion p <0.05
  doesn't work if too few simulations and no p < 0.05 for one of the models}
 \usage{
-get_alpha(df)
+get_alpha(df, lmm)
 }
 \arguments{
 \item{df}{simulation data frame from sim_dauer, sim_dauer_unbal, or sim_dauer_biased. Pre-processed

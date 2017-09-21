@@ -1,17 +1,23 @@
-#' sim_dauer_unbal
+#' sim_dauer_biased
 #'
 #' simulate unbalanced dauer assay data using 3 groups of strains
 #' I, A and B. Simulation uses day-to-day and plate-to-plate variance. 
 #' Can be used to simulate any binomial data with hierarchical clusters.
+#' Contains nested function gen.dauer.data which is specific for unbalanced.data.
 #' 
 #' 
 #' @param settings input list of settings for the simulation. See sim_dauer
 #' 
+#' @importFrom magrittr '%>%'
+#' @importFrom magrittr '%<>%'
+#' @importFrom dplyr '%>%'
+#' @importFrom lmerTest 'lmer'
+#' 
 #' @export
 #' @examples settings <- list(settings <- list(
 #' I = 0 #population control intercept (in logit). 0 = p(0.5)
-#' ,nP = 10 # number of plates in total (for group I)
-#' ,nD = 5 # number of days (some will be randomly missing)
+#' ,nP = 12 # number of plates in total (for group I) min = 12
+#' ,nD = 6 # number of days (some will be randomly missing) min = 6
 #' ,sP = 0.1 # plate to plate variance (0.3)
 #' ,sD = 0.5 # day to day variance (0.2)
 #' ,sG = 0.5 # genotype variance due to culture history (logit) (0.2)
@@ -21,11 +27,11 @@
 #' ))
 #' 
 #' ### to plot one simulation
-#' sim_dauer_unbal(settings = c(settings, do.plot = TRUE)) 
+#' sim_dauer_biased(settings = c(settings, do.plot = TRUE)) 
 #' 
 #' ### to simulate and perform model tests once - see scripts/sim_dauer_data.r for multiple simulations
 #' simulation <- sim_dauer_unbal(settings = c(settings, do.plot = FALSE, do.stan = TRUE))
-sim_dauer_unbal<-function(settings) {
+sim_dauer_biased<-function(settings) {
   # get settings
   I = settings$I    #population control intercept (in logit)
   nP = settings$nP  # number of plates
@@ -38,65 +44,69 @@ sim_dauer_unbal<-function(settings) {
   B = settings$B    # pop B intercept
   do.plot = settings$do.plot # plot for vis inpection (no model fits)
   do.stan = settings$do.stan # fit stan_glmer 
-
   
   ############### generate simulated data #############
   
   day = (seq(1:nD))
   plate = seq(1:(nP))
   
-  missing.days.1 <- sample(day,2) #missing days for group A
-  missing.days.2 <- sample(day[!day %in% missing.days.1],2) # missing days for group B
+  #correlation matrix for multivariate normal random effect 
+  rho <- cbind(c(1, .8, .8), c(.8, 1, .8), c(.8, .8, 1)) # high correlation
+  Sigma <- sD * rho
+  
+  missing.days.1 <- sample(day,3) #missing days for group A
+  missing.days.2 <- sample(day[!day %in% missing.days.1],3) #missing days for group B
   missing.plates.1 <- c(missing.days.1*2 - 1, missing.days.1*2) # missing plates for group A (for indexing)
-  missing.plates.2 <- c(missing.days.1*2 - 1, missing.days.1*2) # missing plates for group B
+  missing.plates.2 <- c(missing.days.2*2 - 1, missing.days.2*2) # missing plates for group B
   
   gen.dauer.data <- function(...) {
     # random effects with mean 0 and var = sP,sD or sG N
-    RE.p.I = as.numeric(rnorm(nP, 0, sd = sP))
+    RE.p.I = as.numeric(rnorm(nP, 0, sd = sP)) # random plate intercept based on sP
     RE.p.A = as.numeric(rnorm(nP, 0, sd = sP))
     RE.p.B = as.numeric(rnorm(nP, 0, sd = sP))
     RE.GP.I = as.numeric(rnorm(nD, 0, sd = sG))
     RE.GP.A = as.numeric(rnorm(nD, 0, sd = sG))
     RE.GP.B = as.numeric(rnorm(nD, 0, sd = sG))
-    RE.d = as.numeric(rnorm(nD, 0, sd = sD))
+    RE.d.1 = as.numeric(mvrnorm(1,c(0,0,0),Sigma)) #correlated random effects for 3 days
+    RE.d.2 = as.numeric(mvrnorm(1,c(0,0,0),Sigma)) #correlated random effects for other 3
     
-    # data for three groups - unbalanced
+    days.1 <- cbind(day = missing.days.2,RE.d = RE.d.1)
+    days.2 <- cbind(day = missing.days.1,RE.d = RE.d.2)
+    days.all <- rbind(days.1,days.2) %>% data.frame
+    
+    # data for three groups - balanced
     data.I <- cbind(genotype = 1,
                     plate = plate,
                     mean = I,
-                    k = rpois(nP, k), # poisson distributed k observations, mean = 60
-                    RE.p = RE.p.I, # random effect for plate
-                    day = rep(day, each = nP/nD), 
-                    RE.d = rep(RE.d, each = nP/nD), # day random effect (repeat for plates from same day) = same across all groups
-                    RE.GP = rep(RE.GP.I, each = nP/nD), # genotype*day random effect
+                    k = rpois(nP, k),
+                    RE.p = RE.p.I,
+                    day = rep(days.all$day, each = nP/nD),
+                    RE.d = rep(days.all$RE.d, each = nP/nD),
+                    RE.GP = rep(RE.GP.I, each = nP/nD),
                     y = NA) %>% data.frame() %>%
-      dplyr::mutate(y=rbinom(nP,k,boot::inv.logit(RE.p + RE.d + RE.GP + mean))) 
+      dplyr::mutate(y=rbinom(nP,k,boot::inv.logit(RE.p + RE.d + RE.GP + mean)))
     
     data.A <- cbind(genotype = 2,
                     plate = plate,
                     mean = A,
-                    k = rpois(nP, 60)[-missing.plates.1],
-                    RE.p = RE.p.A[-missing.plates.1], # drop missing plates using index
-                    day = rep(day, each = nP/nD)[-missing.plates.1], # drop missing days using index
-                    RE.d = rep(RE.d, each = nP/nD)[-missing.plates.1], # drop missing day RE using index
-                    RE.GP = rep(RE.GP.A, each = nP/nD)[-missing.plates.1], # drop missing plates using index 
-                    y = NA) %>% data.frame() %>%
-      dplyr::mutate(y=rbinom(nP-(length(missing.days.1)*2),
-                             k,
-                             boot::inv.logit(RE.p + RE.d + RE.GP + mean))) # sample for non-missing days.
+                    k = rpois(nP, 60),
+                    RE.p = RE.p.A,
+                    day = rep(days.all$day, each = nP/nD),
+                    RE.d = rep(days.all$RE.d, each = nP/nD),
+                    RE.GP = rep(RE.GP.A, each = nP/nD),
+                    y = NA)[-missing.plates.1,] %>% data.frame() %>%
+      dplyr::mutate(y=rbinom(nP-(length(missing.days.1)*2),k,boot::inv.logit(RE.p + RE.d + RE.GP + mean)))
     
     data.B <- cbind(genotype = 3,
                     plate = plate,
-                    k = rpois(nP, 60)[-missing.plates.2],
+                    k = rpois(nP, 60),
                     mean = B,
-                    RE.p = RE.p.B,[-missing.plates.2]
-                    day = rep(day, each = nP/nD)[-missing.plates.2],
-                    RE.d = rep(RE.d, each = nP/nD)[-missing.plates.2],
-                    RE.GP = rep(RE.GP.B, each = nP/nD)[-missing.plates.2],
-                    y = NA) %>% data.frame() %>%
-      dplyr::mutate(y=rbinom(nP-(length(missing.days.2)*2),
-                             k,
-                             boot::inv.logit(RE.p + RE.d + RE.GP + mean)))
+                    RE.p = RE.p.B,
+                    day = rep(days.all$day, each = nP/nD),
+                    RE.d = rep(days.all$RE.d, each = nP/nD),
+                    RE.GP = rep(RE.GP.B, each = nP/nD),
+                    y = NA)[-missing.plates.2,] %>% data.frame() %>%
+      dplyr::mutate(y=rbinom(nP-(length(missing.days.2)*2),k,boot::inv.logit(RE.p + RE.d + RE.GP + mean)))
     
     data <- rbind(data.I, data.A, data.B) %>%
       dplyr::mutate(genotype = as.factor(genotype),
@@ -108,13 +118,14 @@ sim_dauer_unbal<-function(settings) {
   
   data <- gen.dauer.data()
   
-    
+  
+  
   ############# model functions #######################
   lm.sim <-   function(df) {
     modsum <- df %>% lm(formula = p~genotype) %>% summary()
     genotype2 <- as.numeric(modsum$coefficients[,4][2])
     genotype3 <- as.numeric(modsum$coefficients[,4][3])
-    Fp <- as.numeric(1-pf(modsum$fstatistic[1],modsum$fstatistic[2], modsum$fstatistic[3]))
+    Fp <- as.numeric(1-pf(modsum$fstatistic[1],modsum$fstatistic[2],modsum$fstatistic[3]))
     Chisq.p = NA
     model <- "anova"
     p.val <- data.frame(cbind(model, genotype2, genotype3, Fp, Chisq.p))
@@ -171,9 +182,20 @@ sim_dauer_unbal<-function(settings) {
     return(p.val)
     #return(mod)
   }
-  # 
-  #   
-
+  
+  lmm.sim <-   function(df) {
+    mod <- df %>% lmer(formula = p~genotype + (1|day) + (1|strainDate)) 
+    rg <- mod %>% lsmeans::ref.grid()
+    modsum <- rg %>% lsmeans("genotype") %>% 
+      lsmeans::contrast("trt.vs.ctrl", ref = 1) %>% summary(adjust = "none")
+    genotype2 <- as.numeric(modsum$p.value[1])
+    genotype3 <- as.numeric(modsum$p.value[2])
+    Fp <-  as.numeric(car::Anova(lmer(formula = p~genotype + (1|day) + (1|strainDate), data = data), test = "F")[4])
+    Chisq.p = NA
+    model <- "lmm"
+    p.val <- data.frame(cbind(model, genotype2, genotype3, Fp, Chisq.p))
+    return(p.val)
+  }
   
   # optional plot (use only for single simulation inspection)
   if(do.plot) {
@@ -187,15 +209,17 @@ sim_dauer_unbal<-function(settings) {
       t <- t.sim(data)
       glmm <- glmm.sim(data)
       stan <- stan.sim(data)
+      lmm <- lmm.sim(data)
       
-      p.val <- rbind(lm, t, glmm, stan)
+      p.val <- rbind(lm, t, glmm, stan, lmm)
       return(p.val)
     } else {
       lm <- lm.sim(data)
       t <- t.sim(data)
       glmm <- glmm.sim(data)
+      lmm <- lmm.sim(data)
       
-      p.val <- rbind(lm, t, glmm)
+      p.val <- rbind(lm, t, glmm, lmm)
       return(p.val)
     }
   }
