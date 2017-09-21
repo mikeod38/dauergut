@@ -81,6 +81,12 @@ plot.contrasts<-c("",contrasts$prange[1:17])
 Wild isolates vary in high temperature dauer formation. Dauers formed by the indicated C. elegans strains at 27°C. Strains also assayed for exploratory behavior in (B) are in red (weaker Hid phenotype than Bristol N2) and green (similar or stronger Hid phenotype than N2). Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 16 animals each. All shown P-values are with respect to the Bristol N2 strain; `**` and `***` - different from the Bristol N2 strain at P<0.01 and P<0.001, respectively (ANOVA with Dunnett-type multivariate-t post-hoc adjustment). 
 
 
+```{r 6B wild dauer model results}
+library(sjPlot)
+sjt.lm(lm, depvar.labels = "number of entries", show.se = TRUE, show.fstat = TRUE)
+knitr::kable(contrasts, caption = "pairwise comparisons (ANOVA)")
+```
+
 ###S3
 
 ```{r C327 corr plot, warning=FALSE}
@@ -116,8 +122,9 @@ stan.glmm <- stan_glmer(data = wild.roam[wild.roam$outlier.status == FALSE,],
                         iter = 4000, adapt_delta = 0.99)
 
 lm <- update(lm, data = wild.roam[wild.roam$outlier.status == FALSE,])
+glmm.nest <- glmer(data=wild.roam, n_entries ~ genotype + (1|date/plateID), family="poisson")
 
-contrasts<-dauergut::tukey_contrasts(lm, "genotype")
+contrasts<-dauergut::tukey_contrasts(glmm.nest, "genotype")
 mixed<-stan.glmm %>% getStan_CIs(type = "roam")
 plot.contrasts<-c("",contrasts$prange[1:9])
 
@@ -132,3 +139,11 @@ plot.contrasts<-c("",contrasts$prange[1:9])
 
 **Figure 6B**  
 Exploratory behavior of indicated strains. Strains in red and green exhibit weaker or similar/stronger Hid phenotypes than N2, respectively (A). Each purple dot is data from a single animal. Median is indicated by a black horizontal line; error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the total number of animals examined in at least 3 independent assay days. P-values shown are with respect to N2; `***` - different from N2 at P<0.001 (ANOVA with Dunnett-type multivariate-t post-hoc adjustment).
+
+
+```{r 6B wild roam model results}
+library(sjPlot)
+sjt.glmer(glmm.nest, depvar.labels = "number of entries", show.se = TRUE)
+knitr::kable(drop1(glmm.nest, test = "Chisq"), caption = "Wald chi square test")
+knitr::kable(contrasts, caption = "pairwise comparisons (GLMM)")
+```

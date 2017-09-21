@@ -288,6 +288,608 @@ plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:17])
 <p><br> <br> </br></p>
 <p><strong>Figure 6A</strong><br />
 Wild isolates vary in high temperature dauer formation. Dauers formed by the indicated C. elegans strains at 27°C. Strains also assayed for exploratory behavior in (B) are in red (weaker Hid phenotype than Bristol N2) and green (similar or stronger Hid phenotype than N2). Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 16 animals each. All shown P-values are with respect to the Bristol N2 strain; <code>**</code> and <code>***</code> - different from the Bristol N2 strain at P&lt;0.01 and P&lt;0.001, respectively (ANOVA with Dunnett-type multivariate-t post-hoc adjustment).</p>
+<pre class="r"><code>library(sjPlot)
+sjt.lm(lm, depvar.labels = &quot;number of entries&quot;, show.se = TRUE, show.fstat = TRUE)</code></pre>
+<table style="border-collapse:collapse; border:none;border-bottom:double;">
+<td style="padding:0.2cm; border-top:double;">
+ 
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="4">
+number of entries
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; font-style:italic;">
+ 
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+B
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+std. Error
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; border-top:1px solid; text-align:left;">
+(Intercept)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.44
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.37 – 0.52
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+0.04
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm;" colspan="6">
+genotype
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+CB4856
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.44
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.56 – -0.33
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+JU561
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.44
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.56 – -0.32
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+MY14
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.43
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.55 – -0.32
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+DL238
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.43
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.59 – -0.27
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.08
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+CB4852
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.42
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.54 – -0.30
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+QX1211
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.41
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.54 – -0.27
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.07
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+JU322
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.41
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.53 – -0.29
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+JU775
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.35
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.48 – -0.23
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+JU1400
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.25
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.37 – -0.13
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+ED3072
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.21
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.33 – -0.09
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+AB1
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.03
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.15 – 0.09
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.640
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+AB3
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.02
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.15 – 0.10
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.730
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+JU362
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.18 – 0.05
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.299
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+ED3040
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.03
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.15 – 0.09
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.625
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+JU345
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.06 – 0.18
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.301
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+PX178
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.24
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.12 – 0.35
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+CB3198
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.32
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.19 – 0.45
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.07
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
+Observations
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="4">
+159
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+R<sup>2</sup> / adj. R<sup>2</sup>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+.769 / .741
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+F-statistics
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+27.580***
+</td>
+</tr>
+</table>
+<pre class="r"><code>knitr::kable(contrasts, caption = &quot;pairwise comparisons (ANOVA)&quot;)</code></pre>
+<table>
+<caption>pairwise comparisons (ANOVA)</caption>
+<thead>
+<tr class="header">
+<th align="left">contrast</th>
+<th align="right">estimate</th>
+<th align="right">SE</th>
+<th align="right">df</th>
+<th align="right">t.ratio</th>
+<th align="right">p.value</th>
+<th align="left">prange</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">CB4856 - N2</td>
+<td align="right">-0.4409536</td>
+<td align="right">0.0585877</td>
+<td align="right">141</td>
+<td align="right">-7.5263826</td>
+<td align="right">0.0000000</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">JU561 - N2</td>
+<td align="right">-0.4406758</td>
+<td align="right">0.0585877</td>
+<td align="right">141</td>
+<td align="right">-7.5216414</td>
+<td align="right">0.0000000</td>
+<td align="left">***</td>
+</tr>
+<tr class="odd">
+<td align="left">MY14 - N2</td>
+<td align="right">-0.4334073</td>
+<td align="right">0.0585877</td>
+<td align="right">141</td>
+<td align="right">-7.3975793</td>
+<td align="right">0.0000000</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">DL238 - N2</td>
+<td align="right">-0.4296227</td>
+<td align="right">0.0796411</td>
+<td align="right">141</td>
+<td align="right">-5.3944862</td>
+<td align="right">0.0000042</td>
+<td align="left">***</td>
+</tr>
+<tr class="odd">
+<td align="left">CB4852 - N2</td>
+<td align="right">-0.4198412</td>
+<td align="right">0.0585877</td>
+<td align="right">141</td>
+<td align="right">-7.1660268</td>
+<td align="right">0.0000000</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">QX1211 - N2</td>
+<td align="right">-0.4074181</td>
+<td align="right">0.0687454</td>
+<td align="right">141</td>
+<td align="right">-5.9264755</td>
+<td align="right">0.0000004</td>
+<td align="left">***</td>
+</tr>
+<tr class="odd">
+<td align="left">JU322 - N2</td>
+<td align="right">-0.4127995</td>
+<td align="right">0.0603994</td>
+<td align="right">141</td>
+<td align="right">-6.8344955</td>
+<td align="right">0.0000000</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">JU775 - N2</td>
+<td align="right">-0.3513550</td>
+<td align="right">0.0625903</td>
+<td align="right">141</td>
+<td align="right">-5.6135662</td>
+<td align="right">0.0000023</td>
+<td align="left">***</td>
+</tr>
+<tr class="odd">
+<td align="left">JU1400 - N2</td>
+<td align="right">-0.2507300</td>
+<td align="right">0.0603994</td>
+<td align="right">141</td>
+<td align="right">-4.1511991</td>
+<td align="right">0.0009195</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">ED3072 - N2</td>
+<td align="right">-0.2122871</td>
+<td align="right">0.0603994</td>
+<td align="right">141</td>
+<td align="right">-3.5147202</td>
+<td align="right">0.0090458</td>
+<td align="left">**</td>
+</tr>
+<tr class="odd">
+<td align="left">AB1 - N2</td>
+<td align="right">-0.0293200</td>
+<td align="right">0.0625903</td>
+<td align="right">141</td>
+<td align="right">-0.4684431</td>
+<td align="right">0.9999994</td>
+<td align="left">p~1</td>
+</tr>
+<tr class="even">
+<td align="left">AB3 - N2</td>
+<td align="right">-0.0216323</td>
+<td align="right">0.0625903</td>
+<td align="right">141</td>
+<td align="right">-0.3456173</td>
+<td align="right">1.0000000</td>
+<td align="left">p~1</td>
+</tr>
+<tr class="odd">
+<td align="left">JU362 - N2</td>
+<td align="right">-0.0610929</td>
+<td align="right">0.0585877</td>
+<td align="right">141</td>
+<td align="right">-1.0427596</td>
+<td align="right">0.9856359</td>
+<td align="left">p~0.99</td>
+</tr>
+<tr class="even">
+<td align="left">ED3040 - N2</td>
+<td align="right">-0.0296249</td>
+<td align="right">0.0603994</td>
+<td align="right">141</td>
+<td align="right">-0.4904834</td>
+<td align="right">0.9999988</td>
+<td align="left">p~1</td>
+</tr>
+<tr class="odd">
+<td align="left">JU345 - N2</td>
+<td align="right">0.0626901</td>
+<td align="right">0.0603994</td>
+<td align="right">141</td>
+<td align="right">1.0379262</td>
+<td align="right">0.9862421</td>
+<td align="left">p~0.99</td>
+</tr>
+<tr class="even">
+<td align="left">PX178 - N2</td>
+<td align="right">0.2362373</td>
+<td align="right">0.0585877</td>
+<td align="right">141</td>
+<td align="right">4.0321992</td>
+<td align="right">0.0014694</td>
+<td align="left">**</td>
+</tr>
+<tr class="odd">
+<td align="left">CB3198 - N2</td>
+<td align="right">0.3230826</td>
+<td align="right">0.0652993</td>
+<td align="right">141</td>
+<td align="right">4.9477178</td>
+<td align="right">0.0000329</td>
+<td align="left">***</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="s3" class="section level3">
 <h3>S3</h3>
@@ -319,8 +921,9 @@ stan.glmm &lt;- stan_glmer(data = wild.roam[wild.roam$outlier.status == FALSE,],
                         iter = 4000, adapt_delta = 0.99)
 
 lm &lt;- update(lm, data = wild.roam[wild.roam$outlier.status == FALSE,])
+glmm.nest &lt;- glmer(data=wild.roam, n_entries ~ genotype + (1|date/plateID), family=&quot;poisson&quot;)
 
-contrasts&lt;-dauergut::tukey_contrasts(lm, &quot;genotype&quot;)
+contrasts&lt;-dauergut::tukey_contrasts(glmm.nest, &quot;genotype&quot;)
 mixed&lt;-stan.glmm %&gt;% getStan_CIs(type = &quot;roam&quot;)
 plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:9])
 
@@ -332,6 +935,781 @@ plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:9])
 <p><img src="Figure_6_files/figure-html/wild%20isolate%20roaming-1.png" width="672" /></p>
 <p><strong>Figure 6B</strong><br />
 Exploratory behavior of indicated strains. Strains in red and green exhibit weaker or similar/stronger Hid phenotypes than N2, respectively (A). Each purple dot is data from a single animal. Median is indicated by a black horizontal line; error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the total number of animals examined in at least 3 independent assay days. P-values shown are with respect to N2; <code>***</code> - different from N2 at P&lt;0.001 (ANOVA with Dunnett-type multivariate-t post-hoc adjustment).</p>
+<pre class="r"><code>library(sjPlot)
+sjt.glmer(glmm.nest, depvar.labels = &quot;number of entries&quot;, show.se = TRUE)</code></pre>
+<table style="border-collapse:collapse; border:none;border-bottom:double;">
+<tr>
+<td style="padding:0.2cm; border-top:double;">
+ 
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="4">
+number of entries
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; font-style:italic;">
+ 
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+IRR
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+std. Error
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
+</tr>
+<tr>
+<td colspan="6" style="padding:0.2cm; text-align:left; border-top:1px solid; font-weight:bold; text-align:left;">
+Fixed Parts
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+(Intercept)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+210.34
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+184.15 – 240.25
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+14.27
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (CB4856)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.97
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.63 – 2.38
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.19
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (JU561)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.18
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.94 – 1.50
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.14
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.160
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (MY14)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.24
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.95 – 1.63
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.17
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.109
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (JU322)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.95
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.73 – 1.23
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.13
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.677
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (JU362)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.00
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.75 – 1.33
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.15
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.997
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (ED3040)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.33
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.99 – 1.77
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.20
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.056
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (JU345)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.11
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.81 – 1.51
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.17
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.526
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (PX178)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.67
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.25 – 2.24
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.25
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (CB3198)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.08
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.81 – 1.44
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.16
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.596
+</td>
+</tr>
+<tr>
+<td colspan="6" style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; font-weight:bold; text-align:left; padding-top:0.5em;">
+Random Parts
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+τ<sub>00, plateID:date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.155
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+τ<sub>00, date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.013
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+N<sub>plateID:date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+169
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+N<sub>date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+9
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+ICC<sub>plateID:date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.132
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+ICC<sub>date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.011
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
+Observations
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="4">
+169
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+Deviance
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+6.846
+</td>
+</tr>
+</table>
+<pre class="r"><code>knitr::kable(car::Anova(glmm.nest, test = &quot;Chisq&quot;), caption = &quot;Wald chi square test&quot;)</code></pre>
+<table>
+<caption>Wald chi square test</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Chisq</th>
+<th align="right">Df</th>
+<th align="right">Pr(&gt;Chisq)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>genotype</td>
+<td align="right">64.60256</td>
+<td align="right">9</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>knitr::kable(contrasts, caption = &quot;pairwise comparisons (GLMM)&quot;)</code></pre>
+<table>
+<caption>pairwise comparisons (GLMM)</caption>
+<thead>
+<tr class="header">
+<th align="left">contrast</th>
+<th align="right">rate.ratio</th>
+<th align="right">SE</th>
+<th align="right">df</th>
+<th align="right">z.ratio</th>
+<th align="right">p.value</th>
+<th align="left">prange</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">N2 - CB4856</td>
+<td align="right">0.5083058</td>
+<td align="right">0.0495027</td>
+<td align="right">NA</td>
+<td align="right">-6.9482277</td>
+<td align="right">0.0000000</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">N2 - JU561</td>
+<td align="right">0.8442069</td>
+<td align="right">0.1017525</td>
+<td align="right">NA</td>
+<td align="right">-1.4051055</td>
+<td align="right">0.3272521</td>
+<td align="left">p~0.33</td>
+</tr>
+<tr class="odd">
+<td align="left">N2 - MY14</td>
+<td align="right">0.8036547</td>
+<td align="right">0.1095922</td>
+<td align="right">NA</td>
+<td align="right">-1.6029182</td>
+<td align="right">0.2550498</td>
+<td align="left">p~0.26</td>
+</tr>
+<tr class="even">
+<td align="left">N2 - JU322</td>
+<td align="right">1.0568465</td>
+<td align="right">0.1401219</td>
+<td align="right">NA</td>
+<td align="right">0.4170120</td>
+<td align="right">0.7807726</td>
+<td align="left">p~0.78</td>
+</tr>
+<tr class="odd">
+<td align="left">N2 - JU362</td>
+<td align="right">1.0005047</td>
+<td align="right">0.1453279</td>
+<td align="right">NA</td>
+<td align="right">0.0034738</td>
+<td align="right">0.9972283</td>
+<td align="left">p~1</td>
+</tr>
+<tr class="even">
+<td align="left">N2 - ED3040</td>
+<td align="right">0.7540483</td>
+<td align="right">0.1114761</td>
+<td align="right">NA</td>
+<td align="right">-1.9095308</td>
+<td align="right">0.1581648</td>
+<td align="left">p~0.158</td>
+</tr>
+<tr class="odd">
+<td align="left">N2 - JU345</td>
+<td align="right">0.9048790</td>
+<td align="right">0.1426752</td>
+<td align="right">NA</td>
+<td align="right">-0.6339315</td>
+<td align="right">0.7130674</td>
+<td align="left">p~0.71</td>
+</tr>
+<tr class="even">
+<td align="left">N2 - PX178</td>
+<td align="right">0.5978794</td>
+<td align="right">0.0892449</td>
+<td align="right">NA</td>
+<td align="right">-3.4458981</td>
+<td align="right">0.0042687</td>
+<td align="left">**</td>
+</tr>
+<tr class="odd">
+<td align="left">N2 - CB3198</td>
+<td align="right">0.9245871</td>
+<td align="right">0.1366262</td>
+<td align="right">NA</td>
+<td align="right">-0.5306087</td>
+<td align="right">0.7244878</td>
+<td align="left">p~0.72</td>
+</tr>
+<tr class="even">
+<td align="left">CB4856 - JU561</td>
+<td align="right">1.6608247</td>
+<td align="right">0.2189335</td>
+<td align="right">NA</td>
+<td align="right">3.8484756</td>
+<td align="right">0.0013371</td>
+<td align="left">**</td>
+</tr>
+<tr class="odd">
+<td align="left">CB4856 - MY14</td>
+<td align="right">1.5810456</td>
+<td align="right">0.2284924</td>
+<td align="right">NA</td>
+<td align="right">3.1697135</td>
+<td align="right">0.0076295</td>
+<td align="left">**</td>
+</tr>
+<tr class="even">
+<td align="left">CB4856 - JU322</td>
+<td align="right">2.0791549</td>
+<td align="right">0.2995088</td>
+<td align="right">NA</td>
+<td align="right">5.0811910</td>
+<td align="right">0.0000084</td>
+<td align="left">***</td>
+</tr>
+<tr class="odd">
+<td align="left">CB4856 - JU362</td>
+<td align="right">1.9683125</td>
+<td align="right">0.3112340</td>
+<td align="right">NA</td>
+<td align="right">4.2826142</td>
+<td align="right">0.0002771</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">CB4856 - ED3040</td>
+<td align="right">1.4834540</td>
+<td align="right">0.2390780</td>
+<td align="right">NA</td>
+<td align="right">2.4470438</td>
+<td align="right">0.0540125</td>
+<td align="left">p~0.054</td>
+</tr>
+<tr class="odd">
+<td align="left">CB4856 - JU345</td>
+<td align="right">1.7801862</td>
+<td align="right">0.3024871</td>
+<td align="right">NA</td>
+<td align="right">3.3940796</td>
+<td align="right">0.0044267</td>
+<td align="left">**</td>
+</tr>
+<tr class="even">
+<td align="left">CB4856 - PX178</td>
+<td align="right">1.1762199</td>
+<td align="right">0.1911839</td>
+<td align="right">NA</td>
+<td align="right">0.9985532</td>
+<td align="right">0.5110894</td>
+<td align="left">p~0.51</td>
+</tr>
+<tr class="odd">
+<td align="left">CB4856 - CB3198</td>
+<td align="right">1.8189583</td>
+<td align="right">0.2941548</td>
+<td align="right">NA</td>
+<td align="right">3.6994709</td>
+<td align="right">0.0019444</td>
+<td align="left">**</td>
+</tr>
+<tr class="even">
+<td align="left">JU561 - MY14</td>
+<td align="right">0.9519642</td>
+<td align="right">0.1520429</td>
+<td align="right">NA</td>
+<td align="right">-0.3082233</td>
+<td align="right">0.7931642</td>
+<td align="left">p~0.79</td>
+</tr>
+<tr class="odd">
+<td align="left">JU561 - JU322</td>
+<td align="right">1.2518810</td>
+<td align="right">0.1944984</td>
+<td align="right">NA</td>
+<td align="right">1.4459328</td>
+<td align="right">0.3175630</td>
+<td align="left">p~0.32</td>
+</tr>
+<tr class="even">
+<td align="left">JU561 - JU362</td>
+<td align="right">1.1851416</td>
+<td align="right">0.1988868</td>
+<td align="right">NA</td>
+<td align="right">1.0121881</td>
+<td align="right">0.5110894</td>
+<td align="left">p~0.51</td>
+</tr>
+<tr class="odd">
+<td align="left">JU561 - ED3040</td>
+<td align="right">0.8932032</td>
+<td align="right">0.1512789</td>
+<td align="right">NA</td>
+<td align="right">-0.6668437</td>
+<td align="right">0.7099762</td>
+<td align="left">p~0.71</td>
+</tr>
+<tr class="even">
+<td align="left">JU561 - JU345</td>
+<td align="right">1.0718688</td>
+<td align="right">0.1901897</td>
+<td align="right">NA</td>
+<td align="right">0.3911443</td>
+<td align="right">0.7826519</td>
+<td align="left">p~0.78</td>
+</tr>
+<tr class="odd">
+<td align="left">JU561 - PX178</td>
+<td align="right">0.7082143</td>
+<td align="right">0.1210507</td>
+<td align="right">NA</td>
+<td align="right">-2.0184930</td>
+<td align="right">0.1399498</td>
+<td align="left">p~0.14</td>
+</tr>
+<tr class="even">
+<td align="left">JU561 - CB3198</td>
+<td align="right">1.0952139</td>
+<td align="right">0.1859918</td>
+<td align="right">NA</td>
+<td align="right">0.5355577</td>
+<td align="right">0.7244878</td>
+<td align="left">p~0.72</td>
+</tr>
+<tr class="odd">
+<td align="left">MY14 - JU322</td>
+<td align="right">1.3150505</td>
+<td align="right">0.2231575</td>
+<td align="right">NA</td>
+<td align="right">1.6139257</td>
+<td align="right">0.2550498</td>
+<td align="left">p~0.26</td>
+</tr>
+<tr class="even">
+<td align="left">MY14 - JU362</td>
+<td align="right">1.2449435</td>
+<td align="right">0.2279188</td>
+<td align="right">NA</td>
+<td align="right">1.1967196</td>
+<td align="right">0.4186275</td>
+<td align="left">p~0.42</td>
+</tr>
+<tr class="odd">
+<td align="left">MY14 - ED3040</td>
+<td align="right">0.9382740</td>
+<td align="right">0.1741248</td>
+<td align="right">NA</td>
+<td align="right">-0.3433199</td>
+<td align="right">0.7931642</td>
+<td align="left">p~0.79</td>
+</tr>
+<tr class="even">
+<td align="left">MY14 - JU345</td>
+<td align="right">1.1259549</td>
+<td align="right">0.2173040</td>
+<td align="right">NA</td>
+<td align="right">0.6146861</td>
+<td align="right">0.7130674</td>
+<td align="left">p~0.71</td>
+</tr>
+<tr class="odd">
+<td align="left">MY14 - PX178</td>
+<td align="right">0.7439506</td>
+<td align="right">0.1389804</td>
+<td align="right">NA</td>
+<td align="right">-1.5832897</td>
+<td align="right">0.2550498</td>
+<td align="left">p~0.26</td>
+</tr>
+<tr class="even">
+<td align="left">MY14 - CB3198</td>
+<td align="right">1.1504780</td>
+<td align="right">0.2146873</td>
+<td align="right">NA</td>
+<td align="right">0.7511911</td>
+<td align="right">0.6569095</td>
+<td align="left">p~0.66</td>
+</tr>
+<tr class="odd">
+<td align="left">JU322 - JU362</td>
+<td align="right">0.9466887</td>
+<td align="right">0.1655377</td>
+<td align="right">NA</td>
+<td align="right">-0.3133080</td>
+<td align="right">0.7931642</td>
+<td align="left">p~0.79</td>
+</tr>
+<tr class="even">
+<td align="left">JU322 - ED3040</td>
+<td align="right">0.7134889</td>
+<td align="right">0.1261605</td>
+<td align="right">NA</td>
+<td align="right">-1.9091993</td>
+<td align="right">0.1581648</td>
+<td align="left">p~0.158</td>
+</tr>
+<tr class="odd">
+<td align="left">JU322 - JU345</td>
+<td align="right">0.8562066</td>
+<td align="right">0.1580227</td>
+<td align="right">NA</td>
+<td align="right">-0.8411485</td>
+<td align="right">0.6211004</td>
+<td align="left">p~0.62</td>
+</tr>
+<tr class="even">
+<td align="left">JU322 - PX178</td>
+<td align="right">0.5657202</td>
+<td align="right">0.1007625</td>
+<td align="right">NA</td>
+<td align="right">-3.1982696</td>
+<td align="right">0.0076295</td>
+<td align="left">**</td>
+</tr>
+<tr class="odd">
+<td align="left">JU322 - CB3198</td>
+<td align="right">0.8748546</td>
+<td align="right">0.1555674</td>
+<td align="right">NA</td>
+<td align="right">-0.7518664</td>
+<td align="right">0.6569095</td>
+<td align="left">p~0.66</td>
+</tr>
+<tr class="even">
+<td align="left">JU362 - ED3040</td>
+<td align="right">0.7536679</td>
+<td align="right">0.1342568</td>
+<td align="right">NA</td>
+<td align="right">-1.5875535</td>
+<td align="right">0.2550498</td>
+<td align="left">p~0.26</td>
+</tr>
+<tr class="odd">
+<td align="left">JU362 - JU345</td>
+<td align="right">0.9044225</td>
+<td align="right">0.1694381</td>
+<td align="right">NA</td>
+<td align="right">-0.5362255</td>
+<td align="right">0.7244878</td>
+<td align="left">p~0.72</td>
+</tr>
+<tr class="even">
+<td align="left">JU362 - PX178</td>
+<td align="right">0.5975778</td>
+<td align="right">0.1065366</td>
+<td align="right">NA</td>
+<td align="right">-2.8879775</td>
+<td align="right">0.0174477</td>
+<td align="left">p~0.017</td>
+</tr>
+<tr class="odd">
+<td align="left">JU362 - CB3198</td>
+<td align="right">0.9241207</td>
+<td align="right">0.1647885</td>
+<td align="right">NA</td>
+<td align="right">-0.4425357</td>
+<td align="right">0.7793309</td>
+<td align="left">p~0.78</td>
+</tr>
+<tr class="even">
+<td align="left">ED3040 - JU345</td>
+<td align="right">1.2000279</td>
+<td align="right">0.2151714</td>
+<td align="right">NA</td>
+<td align="right">1.0169515</td>
+<td align="right">0.5110894</td>
+<td align="left">p~0.51</td>
+</tr>
+<tr class="odd">
+<td align="left">ED3040 - PX178</td>
+<td align="right">0.7928927</td>
+<td align="right">0.1345797</td>
+<td align="right">NA</td>
+<td align="right">-1.3672532</td>
+<td align="right">0.3356334</td>
+<td align="left">p~0.34</td>
+</tr>
+<tr class="even">
+<td align="left">ED3040 - CB3198</td>
+<td align="right">1.2261643</td>
+<td align="right">0.2094249</td>
+<td align="right">NA</td>
+<td align="right">1.1937626</td>
+<td align="right">0.4186275</td>
+<td align="left">p~0.42</td>
+</tr>
+<tr class="odd">
+<td align="left">JU345 - PX178</td>
+<td align="right">0.6607286</td>
+<td align="right">0.1186767</td>
+<td align="right">NA</td>
+<td align="right">-2.3072252</td>
+<td align="right">0.0728386</td>
+<td align="left">p~0.073</td>
+</tr>
+<tr class="even">
+<td align="left">JU345 - CB3198</td>
+<td align="right">1.0217798</td>
+<td align="right">0.1842493</td>
+<td align="right">NA</td>
+<td align="right">0.1194865</td>
+<td align="right">0.9254556</td>
+<td align="left">p~0.93</td>
+</tr>
+<tr class="odd">
+<td align="left">PX178 - CB3198</td>
+<td align="right">1.5464441</td>
+<td align="right">0.2648507</td>
+<td align="right">NA</td>
+<td align="right">2.5455278</td>
+<td align="right">0.0446370</td>
+<td align="left">p~0.045</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 

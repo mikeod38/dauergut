@@ -6,3 +6,12 @@ output:
     fig_height: 5
     fig_width: 7
 ---
+
+```{r model}
+pathname = getwd()
+img.path = file.path(pathname, "figures/8_model.png")
+knitr::include_graphics(img.path)
+```
+
+**Figure 8**  
+Model for weighting of environmental cues in the regulation of dauer development and behavior. In larvae, pheromone primarily downregulates expression of _daf-7_ and _daf-28_ in ASI, whereas heat downregulates _daf-28_ expression in both ASI and ASJ to promote dauer formation. TORC2 signaling acts in the gut in a diet-dependent manner to target both _daf-7_ and _daf-28_ expression, thereby allowing hierarchical integration of internal metabolic state signals with external cues. TORC2 signaling in the gut also acts via PDFR-1 to modulate adult exploratory behaviors. 

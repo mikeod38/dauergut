@@ -1,6 +1,6 @@
 
 ########## simulation function ####################
-sim_dauer_3G_stan<-function(settings) {
+sim_dauer<-function(settings) {
   # get settings
   I = settings$I    #population control intercept (in logit)
   nP = settings$nP  # number of plates
