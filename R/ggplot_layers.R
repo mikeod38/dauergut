@@ -51,11 +51,19 @@ add.median.dauer <- function(width) {
 #' @export
 #' @rdname ggplot_layers
 
-add.quartiles <- function() {
-  stat_summary(aes(y=cell.norm),fun.y = median,
-               fun.ymin = function(z) {quantile(z,0.25)},
-               fun.ymax = function(z) {quantile(z,0.75)},
-               geom = "errorbar", width = 0.15, lwd = 0.15)
+add.quartiles <- function(width) {
+  if(missing(width)) {
+    stat_summary(aes(y=cell.norm),fun.y = median,
+                 fun.ymin = function(z) {quantile(z,0.25)},
+                 fun.ymax = function(z) {quantile(z,0.75)},
+                 geom = "errorbar", width = 0.15, lwd = 0.15)
+  } else {
+    stat_summary(aes(y=cell.norm),fun.y = median,
+                 fun.ymin = function(z) {quantile(z,0.25)},
+                 fun.ymax = function(z) {quantile(z,0.75)},
+                 geom = "errorbar", width = width, lwd = 0.15)
+  }
+
 }
 
 #' @export

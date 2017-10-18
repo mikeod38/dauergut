@@ -22,7 +22,7 @@ add.median(width)
 
 add.median.dauer(width)
 
-add.quartiles()
+add.quartiles(width)
 
 figure.axes()
 

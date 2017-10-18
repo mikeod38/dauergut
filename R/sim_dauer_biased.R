@@ -54,10 +54,10 @@ sim_dauer_biased<-function(settings) {
   rho <- cbind(c(1, .8, .8), c(.8, 1, .8), c(.8, .8, 1)) # high correlation
   Sigma <- sD * rho
   
-  missing.days.1 <- sample(day,3) #missing days for group A
-  missing.days.2 <- sample(day[!day %in% missing.days.1],3) #missing days for group B
-  missing.plates.1 <- c(missing.days.1*2 - 1, missing.days.1*2) # missing plates for group A (for indexing)
-  missing.plates.2 <- c(missing.days.2*2 - 1, missing.days.2*2) # missing plates for group B
+  missing.days.1 <- sample(day,3) #missing days for group A = genotype2
+  missing.days.2 <- day[!day %in% missing.days.1] #missing days for group B = genotype3
+  #missing.plates.1 <- c((missing.days.1*2) - 1, missing.days.1*2) # missing plates for group A (for indexing)
+  #missing.plates.2 <- c((missing.days.2*2) - 1, missing.days.2*2) # missing plates for group B)
   
   gen.dauer.data <- function(...) {
     # random effects with mean 0 and var = sP,sD or sG N
@@ -94,7 +94,8 @@ sim_dauer_biased<-function(settings) {
                     day = rep(days.all$day, each = nP/nD),
                     RE.d = rep(days.all$RE.d, each = nP/nD),
                     RE.GP = rep(RE.GP.A, each = nP/nD),
-                    y = NA)[-missing.plates.1,] %>% data.frame() %>%
+                    y = NA)%>% data.frame() %>% 
+      dplyr::filter(!day %in% missing.days.1) %>%
       dplyr::mutate(y=rbinom(nP-(length(missing.days.1)*2),k,boot::inv.logit(RE.p + RE.d + RE.GP + mean)))
     
     data.B <- cbind(genotype = 3,
@@ -105,7 +106,8 @@ sim_dauer_biased<-function(settings) {
                     day = rep(days.all$day, each = nP/nD),
                     RE.d = rep(days.all$RE.d, each = nP/nD),
                     RE.GP = rep(RE.GP.B, each = nP/nD),
-                    y = NA)[-missing.plates.2,] %>% data.frame() %>%
+                    y = NA) %>% data.frame() %>% 
+      dplyr::filter(!day %in% missing.days.2) %>%
       dplyr::mutate(y=rbinom(nP-(length(missing.days.2)*2),k,boot::inv.logit(RE.p + RE.d + RE.GP + mean)))
     
     data <- rbind(data.I, data.A, data.B) %>%
@@ -184,13 +186,17 @@ sim_dauer_biased<-function(settings) {
   }
   
   lmm.sim <-   function(df) {
+    library(lme4)
+    #library(lsmeans)
     mod <- df %>% lmer(formula = p~genotype + (1|day) + (1|strainDate)) 
     rg <- mod %>% lsmeans::ref.grid()
-    modsum <- rg %>% lsmeans("genotype") %>% 
-      lsmeans::contrast("trt.vs.ctrl", ref = 1) %>% summary(adjust = "none")
+    modsum <- rg %>% lsmeans::lsmeans("genotype") %>% 
+    lsmeans::contrast("trt.vs.ctrl", ref = 1) %>% summary(adjust = "none")
     genotype2 <- as.numeric(modsum$p.value[1])
     genotype3 <- as.numeric(modsum$p.value[2])
-    Fp <-  as.numeric(car::Anova(lmer(formula = p~genotype + (1|day) + (1|strainDate), data = data), test = "F")[4])
+    Fp <-  as.numeric(lmerTest::anova(
+      lmerTest::lmer(formula = p~genotype + (1|day) + (1|strainDate), data = data), 
+      test = "F")[6][1,1])
     Chisq.p = NA
     model <- "lmm"
     p.val <- data.frame(cbind(model, genotype2, genotype3, Fp, Chisq.p))

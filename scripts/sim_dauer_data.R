@@ -1,8 +1,8 @@
 
 ####### run test simulations ############################
 settings <- list(I = 0 #population control intercept (in logit). 0 = p(0.5)
-                 ,nP = 6 # number of plates
-                 ,nD = 3 # number of days
+                 ,nP = 12 # number of plates
+                 ,nD = 6 # number of days
                  ,sP = 0.1 # plate to plate variance (0.3)
                  ,sD = 0.5 # day to day variance (0.2)
                  ,sG = 0.5 # genotype variance due to culture history (logit) (0.2)
@@ -27,26 +27,27 @@ library(lmerTest)
 library(lsmeans)
 library(rstan)
 library(rstanarm)
-  library(car)
-  library(dauergut)
+library(dauergut)
   })
-clusterExport(cl=cl, varlist=c("sim_dauer", "sim_dauer_unbal", "sim_dauer_biased", "settings", "par.replicate"))
+clusterExport(cl=cl, varlist=c("sim_dauer", "sim_dauer_unbal", 
+                               "sim_dauer_biased", "settings", "par.replicate",
+                               "add.setts.attr"))
 
 
 ##### sampling ~ 700 simulations ~ 1hr using 6 cores ######
 simulation <- do.call( rbind, 
-                       par.replicate(cl,n=10, # number of sims here 
-                                     sim_dauer(c(settings, # simulation fxn goes here
+                       par.replicate(cl,n=1000, # number of sims here 
+                                     sim_dauer_biased(c(settings, # simulation fxn goes here
                                                  do.plot = FALSE,
-                                                 do.stan = TRUE)),
+                                                 do.stan = FALSE)),
                                      simplify=FALSE )) %>% 
   add.setts.attr(settings = c(settings, model = "biased")) # change to "unbal" or "biased" dep on fxn
 
-
+stopCluster(cl)
 
 #### output is a list of p.values (and/or binary cutoff with alpha < 0.05) ####
-filename <- paste(names(attributes(simulation)$settings[c(1,4:6,8,9,11)]),
-      attributes(simulation)$settings[c(1,4:6,8,9,11)], sep = "", collapse = "_")
+filename <- paste(names(attributes(simulation)$settings[c(1,4:6,8,9,10)]),
+      attributes(simulation)$settings[c(1,4:6,8,9,10)], sep = "", collapse = "_")
 dput(simulation, file.path(pathname, "extdata/sim_data/", paste(filename,"data", sep = ".",collapse = ".")))
 #for multiple simulations, rename object with filename
 assign(filename,simulation)

@@ -433,4 +433,107 @@ library(sjPlot)
 sjt.glm(glm, depvar.labels = "proportion of dauers", show.se = TRUE, show.chi2 = TRUE)
 ```
 
+##S1C
+```{r daf7 pheromone response}
+strains<-c("N2","mg360")
+conc.adjust <-15
+dates<-c("8_10_16")
+d7GFP<-read.csv(file.path(pathname,"extdata/2A_3A_daf7GFP.csv")) %>% filter(mean!=4095 & genotype %in% strains & date %in% dates & temp == "25" & food == "OP50") %>% mutate(genotype = factor(genotype, levels=strains), ID = as.character(ID)) %>%
+  separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>% 
+  mutate(genoID = paste(date, genotype, ID.A, sep = ":"), cell.norm = mean, adj.pheromone = pheromone + conc.adjust, 
+         inv.pher = 1/adj.pheromone) #genoID is animal, 2 cells per animal measured.
 
+df <- d7GFP %>% group_by(date, genotype, genoID, adj.pheromone) %>% summarise(cell.norm = mean(cell.norm))
+# AU <- convertToProp(df$cell.norm)
+# df <-  data.frame(df,AU = AU)
+
+log.tran<-lsmeans::make.tran(type="genlog", param = c(0,10))
+# lm <- with(log.tran, lm(linkfun(cell.norm) ~ genotype + adj.pheromone, data = df))
+# lm1 <- with(log.tran, lm(linkfun(cell.norm) ~ genotype +  adj.pheromone +  adj.pheromone * genotype, data = df))
+# lm2 <- with(log.tran, lm(linkfun(cell.norm) ~ genotype + poly( adj.pheromone, 2), data = df))
+# lm3 <- with(log.tran, lm(linkfun(cell.norm) ~ genotype + poly( adj.pheromone, 2) + genotype* adj.pheromone, data = df))
+# lm4 <- with(log.tran, lm(linkfun(cell.norm) ~ genotype + log10(adj.pheromone), data = df))
+# lm5 <- with(log.tran, lm(linkfun(cell.norm) ~ genotype * log10(adj.pheromone), data = df))
+#convert to proportion:
+lm <- lm(cell.norm ~ genotype + adj.pheromone,  data = df)
+lm1<- lm(cell.norm ~ genotype + poly(adj.pheromone,2),  data = df)
+lm2 <- lm(cell.norm ~ genotype * poly(adj.pheromone, 2), data = df)
+# lm <- glm(AU ~ genotype + adj.pheromone, family = binomial, data = df)
+# lm1 <- glm(AU ~ genotype +adj.pheromone +  adj.pheromone * genotype, family = binomial, data = df)
+# lm2 <- lm(cell.norm ~ genotype + poly( adj.pheromone, 3), data = df)
+# lm3 <- lm(cell.norm ~ genotype + poly( adj.pheromone, 3) + genotype* adj.pheromone, data = df)
+# lm4 <- lm(cell.norm ~ genotype + log10(adj.pheromone) + adj.pheromone, data = df)
+# lm5 <- lm(cell.norm ~ genotype + genotype * adj.pheromone + log(adj.pheromone), data = df)
+
+# stanlmer <- with(log.tran, rstanarm::stan_lmer(linkfun(cell.norm) ~ genotype + (1|date) + (1:genotype:date),
+#                                                data = df,
+#                                                chains = 3,
+#                                                cores =4,
+#                                                seed = 2000,
+#                                                iter=6000,
+#                                                control = list(adapt_delta=0.99)))
+
+
+newdata = data.frame(genotype = rep(strains, each = 241), adj.pheromone = rep(seq(10,2410, by = 10),2),genoID = rep(0, 482))
+
+### for non-interaction ### 
+#glm.simple <- glm(data = rictC3, cbind(dauer, non) ~ concentration.uM. + genotype, family = binomial)
+predictions <- predict(lm, newdata = newdata, type = "response", se.fit = TRUE)
+predictions.2 <- predict(lm2, newdata = newdata, type = "response", se.fit = TRUE)
+newdata1 <- cbind(newdata, predictions.2)
+newdata1 %<>% mutate(lower = (fit - se.fit), upper = (fit + se.fit), AU = fit, genotype = factor(genotype, levels = strains))
+
+
+
+
+### do n-parameter logistic fit on WT:
+
+# N2 <- df %>% dplyr::filter(genotype == "N2") %>% dplyr::select(cell.norm, adj.pheromone)
+# model0.N2 <- nplr(N2$adj.pheromone, N2$cell.norm)
+# model1.N2 <- nplr(N2$adj.pheromone, convertToProp(N2$cell.norm))
+# plot(model0, main = "Original y values")
+# plot(model1, ylim = range(0, 1), main = "Rescaled y values")
+
+# mg360 <- df %>% dplyr::filter(genotype == "mg360") %>% dplyr::select(cell.norm, adj.pheromone)
+# model0.mg360 <- nplr(mg360$adj.pheromone, mg360$cell.norm)
+# model1.mg360 <- nplr(mg360$adj.pheromone, convertToProp(mg360$cell.norm))
+# 
+# par(mfrow = c(2,2))
+# plot(model0.N2, main = "N2 Original y values")
+# plot(model1.N2, ylim = range(0, 1), main = "N2 Rescaled y values")
+# plot(model0.mg360, main = "N2 Original y values")
+# plot(model1.mg360, ylim = range(0, 1), main = "N2 Rescaled y values")
+
+
+(p<-df %>% ggplot(aes(x= adj.pheromone,y = AU)) +
+  geom_ribbon(data = newdata1,aes(ymin=lower, ymax=upper,fill=genotype), alpha=0.3) +
+  geom_line(data = newdata1,aes(x =  adj.pheromone, y = AU, colour = genotype)) +
+  add.median(width = 150) +
+  add.quartiles(width = 60) +
+  geom_point(aes(y=cell.norm), size = 0.6, alpha = 0.75) +
+  labs(y = "GFP intensity (AU)", 
+       x = "ascr#5 concentration (nM)") +
+  facet_grid(.~genotype) +
+  scale_fill_manual(values = c("grey", "lightblue")) +
+  scale_colour_manual(values = c("grey", "lightblue")) +
+  geom_text(aes(y = 1.075, x= adj.pheromone), label = "") +
+  theme_classic() +
+  theme(
+        axis.text.x=element_text(angle=45, hjust=1, size=12),
+        axis.text.y = element_text(size=16),
+        axis.title.y = element_text(size =20),
+        axis.title.x = element_text(size=16),
+        strip.text.x = element_blank(),
+        panel.spacing = unit(2,"lines")) +
+    stat_summary(aes(x= adj.pheromone + 0.3, y=-.025),
+                      fun.data = fun_length, geom = "text", size = 4))
+
+```
+
+**Figure S1C**
+_rict-1_ mutants show enhanced response to pheromone ascr#5. *daf-7::*GFP expression in wild-type (black) and rict-1(mg360) (blue) animals at 25°C in the presence of the indicated concentrations of ascr#5 and live OP50. Each dot indicates the average ASI GFP intensity in each each animal (2 neurons per animal). Horizontal bar indicates median, error bars indicate quartiles. The number of animals are indicated in parentheses. Lines indicate predictions from quadratic fit.
+
+```{r S1C ascr#5 daf-7 stats}
+library(sjPlot)
+sjt.lm(lm, depvar.labels = "proportion of dauers", show.se = TRUE, show.chi2 = TRUE)
+```

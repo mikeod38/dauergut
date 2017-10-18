@@ -51,8 +51,8 @@ sim_dauer_unbal<-function(settings) {
   
   missing.days.1 <- sample(day,2) #missing days for group A
   missing.days.2 <- sample(day[!day %in% missing.days.1],2) # missing days for group B
-  missing.plates.1 <- c(missing.days.1*2 - 1, missing.days.1*2) # missing plates for group A (for indexing)
-  missing.plates.2 <- c(missing.days.2*2 - 1, missing.days.2*2) # missing plates for group B
+  #missing.plates.1 <- c(missing.days.1*2 - 1, missing.days.1*2) # missing plates for group A (for indexing)
+  #missing.plates.2 <- c(missing.days.2*2 - 1, missing.days.2*2) # missing plates for group B
   
   gen.dauer.data <- function(...) {
     # random effects with mean 0 and var = sP,sD or sG N
@@ -73,7 +73,7 @@ sim_dauer_unbal<-function(settings) {
                     day = rep(day, each = nP/nD), 
                     RE.d = rep(RE.d, each = nP/nD), # day random effect (repeat for plates from same day) = same across all groups
                     RE.GP = rep(RE.GP.I, each = nP/nD), # genotype*day random effect
-                    y = NA) %>% data.frame() %>%
+                    y = NA) %>% data.frame() %>% 
       dplyr::mutate(y=rbinom(nP,k,boot::inv.logit(RE.p + RE.d + RE.GP + mean))) 
     
     data.A <- cbind(genotype = 2,
@@ -84,7 +84,8 @@ sim_dauer_unbal<-function(settings) {
                     day = rep(day, each = nP/nD),
                     RE.d = rep(RE.d, each = nP/nD),
                     RE.GP = rep(RE.GP.A, each = nP/nD),
-                    y = NA)[-missing.plates.1,] %>% data.frame() %>% #remove missing plates
+                    y = NA) %>% data.frame() %>% 
+      dplyr::filter(!day %in% missing.days.1) %>%
       dplyr::mutate(y=rbinom(nP-(length(missing.days.1)*2),
                              k,
                              boot::inv.logit(RE.p + RE.d + RE.GP + mean))) # sample for non-missing days.
@@ -97,7 +98,8 @@ sim_dauer_unbal<-function(settings) {
                     day = rep(day, each = nP/nD),
                     RE.d = rep(RE.d, each = nP/nD),
                     RE.GP = rep(RE.GP.B, each = nP/nD),
-                    y = NA)[-missing.plates.2,] %>% data.frame() %>% #remove missing plates
+                    y = NA) %>% data.frame() %>% 
+      dplyr::filter(!day %in% missing.days.2)
       dplyr::mutate(y=rbinom(nP-(length(missing.days.2)*2),
                              k,
                              boot::inv.logit(RE.p + RE.d + RE.GP + mean)))
