@@ -535,5 +535,5 @@ _rict-1_ mutants show enhanced response to pheromone ascr#5. *daf-7::*GFP expres
 
 ```{r S1C ascr#5 daf-7 stats}
 library(sjPlot)
-sjt.lm(lm, depvar.labels = "proportion of dauers", show.se = TRUE, show.chi2 = TRUE)
+sjt.lm(lm2, depvar.labels = "proportion of dauers", show.se = TRUE, show.fstat = TRUE)
 ```
