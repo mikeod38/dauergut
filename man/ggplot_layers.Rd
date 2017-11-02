@@ -28,7 +28,7 @@ figure.axes()
 
 add.n.categorical()
 
-add.n()
+add.n(x_axis)
 
 add.Bayes.CI()
 

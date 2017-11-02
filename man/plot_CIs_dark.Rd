@@ -4,7 +4,8 @@
 \alias{plot_CIs_dark}
 \title{plot_CIs_dark}
 \usage{
-plot_CIs_dark(df, title, plot.contrasts, plot.contrasts.2, ypos, type, offset)
+plot_CIs_dark(df, title, plot.contrasts, plot.contrasts.2, ypos, type, offset,
+  labels)
 }
 \arguments{
 \item{df}{input dataset. Requires a "genotype" column. Response needs to be "pct" for
