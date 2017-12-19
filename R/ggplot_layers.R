@@ -33,6 +33,9 @@ add.median <- function(width) {
                geom = "crossbar", width = width, lwd = 0.35)
 }
 
+#' @export
+#' @rdname ggplot_layers
+
 add.mean <- function(width) {
   if(missing(width)) {
     width = 0.25

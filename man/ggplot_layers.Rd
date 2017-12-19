@@ -5,6 +5,7 @@
 \alias{ggplot_layers}
 \alias{add.scatter}
 \alias{add.median}
+\alias{add.mean}
 \alias{add.median.dauer}
 \alias{add.quartiles}
 \alias{figure.axes}
@@ -19,6 +20,8 @@
 add.scatter()
 
 add.median(width)
+
+add.mean(width)
 
 add.median.dauer(width)
 

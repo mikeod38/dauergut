@@ -62,20 +62,16 @@ plot_CIs_dark<-function (df, title, plot.contrasts, plot.contrasts.2, ypos, type
           geom_dotplot(aes(y=n_entries), binaxis = "y",
                        binwidth = 7.5,
                        stackdir = "center",
-                       colour = "#482677FF",
-                       fill = "#482677FF") +
-          # geom_quasirandom(aes(y=n_entries),colour = "grey", cex=1,
-          #                  width = 0,size=0.3*point.size,
-          #                  method = 'smiley') +
-          #geom_point(aes(y=n_entries), size=0.3*point.size)) + 
+                       colour = "#404788FF",
+                       fill = "#404788FF") +
           stat_summary(aes(y=n_entries),fun.y = median, 
                        fun.ymin = function(z) {quantile(z,0.25)}, 
                        fun.ymax = function(z) {quantile(z,0.75)},
-                       geom = "errorbar", width = 0.15, lwd = line.width) +
+                       geom = "errorbar", width = 0.15, lwd = line.width, colour = "grey") +
           stat_summary(aes(y=n_entries),fun.y = median, 
                        fun.ymin = median, 
                        fun.ymax = median,
-                       geom = "crossbar", width = 0.25, lwd = line.width+0.2) +
+                       geom = "crossbar", width = 0.25, lwd = line.width+0.2, colour = "grey") +
           #stat_boxplot(aes(y=n_entries), geom ='errorbar') +
           labs(title = title,subtitle="roaming plot",y = "grid entries",x = "genotype")
       } else {#GFP expression plots
@@ -115,13 +111,13 @@ plot_CIs_dark<-function (df, title, plot.contrasts, plot.contrasts.2, ypos, type
     }
     if(missing(plot.contrasts.2)) {
       p1 + stat_summary(aes(x=as.numeric(as.factor(genotype)) + 0.3, y=-.05),
-                        fun.data = fun_length, geom = "text", size = text.size) +
+                        fun.data = fun_length, geom = "text", size = text.size, colour = "white") +
         scale_x_discrete(labels = labels) + 
         theme(axis.text.x = element_text(face = "italic"))
     } else { # add secondary comparisons
       p1 + stat_summary(aes(x=genotype, y=ypos-offset), geom="text", label=plot.contrasts.2, size=text.size, colour="red") +
         stat_summary(aes(x=as.numeric(as.factor(genotype)) + 0.3, y=-.05),
-                     fun.data = fun_length, geom = "text", size = text.size-1) +
+                     fun.data = fun_length, geom = "text", size = text.size-1, colour = "white") +
         scale_x_discrete(labels = labels) + 
         theme(axis.text.x = element_text(face = "italic"))
     }
