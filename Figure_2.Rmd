@@ -12,7 +12,6 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(message = FALSE)
 knitr::opts_chunk$set(warning = FALSE)
-pathname = getwd()
 library(magrittr)
 library(knitr)
 library(dplyr)
@@ -32,8 +31,10 @@ library(rstan)
 library(rstanarm)
 library(MASS)
 library(png)
+devtools::install_github("krlmlr/here")
 devtools::install_github("mikeod38/dauergut")
 library(dauergut)
+pathname = here::here()
 
 dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
 ```

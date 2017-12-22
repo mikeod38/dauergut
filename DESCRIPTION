@@ -26,28 +26,9 @@ Imports:
     rstanarm,
     ggrepel,
     rstan,
-    rstanarm,
     MASS,
+    sjPlot,
     png
-Depends:
-    knitr,
-    dplyr,
-    ggplot2,
-    magrittr,
-    ggbeeswarm,
-    beeswarm,
-    ggthemes,
-    viridis,
-    lme4,
-    schoRsch,
-    DHARMa,
-    multcomp,
-    tidyr,
-    rstanarm,
-    ggrepel,
-    rstan,
-    rstanarm,
-    MASS,
-    sjPlot
+    
 RoxygenNote: 6.0.1
 Suggests: testthat

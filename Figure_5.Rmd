@@ -61,7 +61,7 @@ include_graphics(img.path)
 **Figure 5A**  
 Cartoon depicting foraging assay. Each plate contains a L4 hermaphrodite which is allowed to forage overnight on a uniform lawn of E. coli for ~ 16hrs. Lines show tracks on the bacterial lawn.
 
-```{r rict-1 roaming import, fig.width=5}
+```{r rict-1 roaming import and model analysis, fig.width=5}
 roam<-read.csv(file.path(pathname, "extdata/5B_5E_gridentry.csv")) %>% 
   mutate(strain = interaction(genotype, line, drop=TRUE),
          strainDate = interaction(strain, date, drop=TRUE),
@@ -283,6 +283,10 @@ sjt.glmer(glmm.nest, depvar.labels = "number of entries", show.se = TRUE)
 knitr::kable(drop1(glmm.nest, test = "Chisq"))
 knitr::kable(contrasts, caption = "pairwise comparisons (GLMM)")
 ```
+
+##5F
+
+
 
 ##S2A-B
 
