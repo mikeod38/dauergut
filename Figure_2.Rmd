@@ -45,42 +45,141 @@ dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
 ##2A
 
 ```{r daf7 data load} 
-strains<-c("N2","mg360","ft7","ft7_ges1resc")
-dates<-c("10_22_16", "11_9_16", "11_23_16") #dropped "12_6_16" due to missingness
-d7GFP<-read.csv(file.path(pathname,"extdata/2A_3A_daf7GFP.csv")) %>% filter(mean!=4095 & genotype %in% strains & date %in% dates & temp == "27" & food == "OP50") %>% mutate(genotype = factor(genotype, levels=strains), ID = as.character(ID)) %>%
+strains<-c("N2","mg360","ft7","ft7_ges1resc", "ft7_ifb2resc", "ft7_gpa4resc")
+dates<-c("10_22_16", "11_9_16", "11_23_16", "12_16_17", "12_20_17") #dropped "12_6_16" due to missingness
+d7GFP<-read.csv(file.path(pathname,"extdata/2A_3A_daf7GFP.csv")) %>%
+  filter(mean!=4095 & genotype %in% strains & date %in% dates & temp == "27" & food == "OP50") %>%
+  mutate(genotype = factor(genotype, levels=strains), 
+         ID = as.character(ID),
+         date = factor(date, levels = dates),
+         dataset = case_when(
+           date %in% dates[1:3] ~ "1",
+           date %in% dates[4:5] ~ "2",
+           )) %>%
   separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>% 
-  mutate(genoID = paste(date, genotype, ID.A, sep = ":"), cell.norm = mean) #genoID is animal, 2 cells per animal measured.
+  mutate(genoID = paste(date, genotype, ID.A, sep = ":"), cell.norm = mean) %>%
+  filter(note == "")
 
-df <- d7GFP %>% group_by(date, genotype, genoID) %>% summarise(cell.norm = mean(cell.norm)) # take mean of each worm
+df <- d7GFP %>% 
+  group_by(date, genotype, genoID, dataset) %>% 
+  summarise(cell.norm = mean(cell.norm)) # take mean of each worm
 
-### Linear models ###
+#normalize to mean ft7 each day
+day.means <- df %>% 
+  filter(genotype == "ft7") %>% 
+  group_by(date) %>%
+  summarise(mean_ft7 = mean(cell.norm)) %>% data.frame()
+
+df %<>% mutate(cell.norm = case_when(
+  date == dates[1] ~ cell.norm,
+  date == dates[2] ~ (cell.norm * day.means[1,2]) / day.means[2,2],
+  date == dates[3] ~ (cell.norm * day.means[1,2]) / day.means[3,2],
+  date == dates[4] ~ (cell.norm * day.means[1,2]) / day.means[4,2],
+  date == dates[5] ~ (cell.norm * day.means[1,2]) / day.means[5,2]
+)) %>% data.frame()
+
 
 log.tran<-lsmeans::make.tran(type="genlog", param = c(0,10))
-lmm2<-with(log.tran, lmer(linkfun(cell.norm) ~ genotype + (1|date) + (1|genotype:date), data = df))
-lm <- with(log.tran, lm(linkfun(cell.norm) ~ genotype, data = df))
+linmod <- with(log.tran, lm(linkfun(cell.norm) ~ genotype, data = df))
+df <- flag_outliers(linmod, df = df, threshold = 4, noplot = TRUE)
+
+
+# ### Linear models ###
+# lsm_geno_tukey <- purrr::compose(
+#   prange,
+#   summary,
+#   purrr::partial(lsmeans::contrast, method = "pairwise"),
+#   purrr::partial(lsmeans::lsmeans, specs = "genotype"),
+#   purrr::partial(lsmeans::ref.grid, transform = "response", data = df),
+#   lm)
+       
+                            
+
+#lmm2<-with(log.tran, lmer(linkfun(cell.norm) ~ genotype + (1|date) + (1|genotype:date), data = df))
+# df_1 <- df %>% filter(dataset == "1") %>% filter(outlier.status == FALSE) %>% droplevels()
+# df_2 <- df %>% filter(dataset == "2") %>% filter(outlier.status == FALSE) %>% droplevels()
+# 
+# linmod1 <- with(log.tran, lm(linkfun(cell.norm) ~ genotype, data = df_1))
+linmod2 <- with(log.tran, lm(linkfun(cell.norm) ~ genotype, data = df_2))
+linmod <- with(log.tran, lm(linkfun(cell.norm) ~ genotype, data = df[df$outlier.status == FALSE,]))
+# stanlmer_1 <- with(log.tran, rstanarm::stan_lmer(linkfun(cell.norm) ~ genotype + (1|date) + (1:genotype:date), 
+#                                                data = df_1, 
+#                                                chains = 3, 
+#                                                cores =4, 
+#                                                seed = 2000,
+#                                                iter=6000,
+#                                                control = list(adapt_delta=0.99)))
+# stanlmer_2 <- with(log.tran, rstanarm::stan_lmer(linkfun(cell.norm) ~ genotype + (1|date) + (1:genotype:date), 
+#                                                data = df_2, 
+#                                                chains = 3, 
+#                                                cores =4, 
+#                                                seed = 2000,
+#                                                iter=6000,
+#                                                control = list(adapt_delta=0.99)))
+
 stanlmer <- with(log.tran, rstanarm::stan_lmer(linkfun(cell.norm) ~ genotype + (1|date) + (1:genotype:date), 
-                                               data = df, 
+                                               data = df[df$outlier.status == FALSE,], 
                                                chains = 3, 
                                                cores =4, 
                                                seed = 2000,
                                                iter=6000,
                                                control = list(adapt_delta=0.99)))
+### compare ft7 ges-1 to rescue H0, ft7 = ft7_resc ###
 
-### compare ft7 to rescue H0, ft7 = ft7_resc ###
-rescue.test <- d7GFP %>% subset(genotype %in% c("ft7", "ft7_ges1resc")) %$% with(log.tran, t.test(linkfun(cell.norm) ~ genotype))
-rescue.p <- data.frame(p.value = rescue.test$p.value) %>% dauergut::prange()
 
-#H0, all genotypes = N2
-contrasts<-dauergut::dunnett_contrasts(lm, ref.index = 1, "genotype")
-mixed <- stanlmer %>% getStan_CIs(type = "log", base = 10)
+contrasts <- tukey_contrasts(linmod, factor = "genotype")
+linmod %>% lsmeans::ref.grid(., type = "response") %>% lsmeans::lsmeans(.,"genotype") %>% lsmeans::contrast(method = "pairwise", adjust = "mvt")
+plot.contrasts <- c("",contrasts$prange[1:5])
+plot.contrasts.2 <- c("","","",contrasts$prange[10:12])
 
-plot.contrasts<-c("",contrasts$prange[1:2],"")
-plot.contrasts.2 <- c("", "", "", rescue.p$prange)
+mixed <- stanlmer %>% dauergut::getStan_CIs(type = "log", base = 10)
+#contrasts.1 <- linmod1 %>% tukey_contrasts(factor = "genotype")
+#contrasts.2 <- linmod2 %>% tukey_contrasts(factor = "genotype")
 
-labels <- c("WT","rict-1(mg360)","rict-1(ft7)","rict-1(ft7); +ges1p::rict-1") %>% stringr::str_wrap(width = 10)
+# plot.contrasts_N2_d1<-c("",contrasts.1$prange[1:3])
+# plot.contrasts_ft7_d1 <- c("", "", "", contrasts.1$prange[6])
+# 
+# plot.contrasts_N2_d2<-c("",contrasts.2$prange[1:3])
+# plot.contrasts_ft7_d2 <- c("", "", contrasts.2$prange[4:5])
 
-p2<-dauergut::plot_CIs(df=df, title='daf-7 expression in ASI at 27º is
-controlled by intestinal rict-1', plot.contrasts=plot.contrasts, plot.contrasts.2 = plot.contrasts.2, ypos = 4700, offset = 0, type = "GFP", labels = labels)
+# strains <- c("N2","mg360","ft7","ft7_ges1resc")
+# estimates_1 <- stanlmer_1 %>% getStan_CIs(type = "log", base = 10)
+# strains <- c("N2","ft7","ft7_ifb2resc", "ft7_gpa4resc")
+# estimates_2 <- stanlmer_2 %>% getStan_CIs(type = "log", base = 10)
+
+#df %>% ggplot(aes(x = genotype, y = cell.norm)) + geom_point(aes(colour = date)) + add.median() + add.quartiles()
+
+labels <- c("WT","rict-1(mg360)",
+            "rict-1(ft7)",
+            "rict-1(ft7); +ges1p::rict-1", 
+            "rict-1(ft7); +ifb2p::rict-1",
+            "rict-1(ft7); +gpa4p::rict-1") %>% stringr::str_wrap(width = 10)
+
+p <- df[df$outlier.status == FALSE,] %>% 
+  dauergut::plot_CIs(df = .,
+                     plot.contrasts = plot.contrasts,
+                     plot.contrasts.2 = plot.contrasts.2, 
+                     type = "GFP",
+                     title = "",
+                     labels = labels,
+                     ypos = 6000,
+                     offset = 500)
+
+labels_1 <- labels[1:4]
+labels_2 <- labels[c(1,3,5:6)]
+
+mixed <- estimates_1
+p1 <- df_1 %>% filter(dataset == "1") %>%
+  dauergut::plot_CIs(plot.contrasts = plot.contrasts_N2_d1, plot.contrasts.2 = plot.contrasts_ft7_d1, type= "GFP", title = "", labels = labels_1, ypos = 6500, offset = 500)
+
+mixed <- estimates_2
+p2 <- df_2 %>% filter(dataset == "2") %>%
+  dauergut::plot_CIs(plot.contrasts = plot.contrasts_N2_d2, plot.contrasts.2 = plot.contrasts_ft7_d2, type= "GFP", title = "", labels = labels_2, ypos = 6500, offset = 500) + 
+  theme(
+    axis.line.y  = element_blank(),
+    axis.title.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    axis.text.y  = element_blank())
 
 img.path <- file.path(pathname,"figures/2A_daf7GFP.png")
 
@@ -97,7 +196,7 @@ include_graphics(img.path)
 <div style="float: left; width: 425;">
 
 ```{r, results = 'markup', eval = TRUE, fig.height=5.5}
-p2
+gridExtra::grid.arrange(p1,p2, nrow = 1, top = "Intestinal TORC2 regulates daf-7::GFP expression", widths = c(4,3.7))
 ```
 
 </div>
@@ -112,9 +211,12 @@ Intesinal _rict-1_ regulates daf7GFP levels in ASI neurons. Daf-7::GFP fluoresce
 
 ```{r 2A daf-7 stats}
 library(sjPlot)
-sjt.lm(lm, depvar.labels = "log(mean GFP intensity) (AU)", show.se = TRUE, show.fstat = TRUE)
-knitr::kable(contrasts, caption="Pairwise comparisons from ANOVA (Dunnett)")
-knitr::kable(mixed[,c(6,1:5)], caption = "Bayesian credible intervals")
+sjt.lm(linmod1, depvar.labels = "log(mean GFP intensity) (AU)", show.se = TRUE, show.fstat = TRUE)
+sjt.lm(linmod2, depvar.labels = "log(mean GFP intensity) (AU)", show.se = TRUE, show.fstat = TRUE)
+knitr::kable(contrasts.1, caption="Pairwise comparisons from ANOVA (Dunnett)")
+knitr::kable(contrasts.2, caption="Pairwise comparisons from ANOVA (Dunnett)")
+knitr::kable(estimates_1[,c(6,1:5)], caption = "Bayesian credible intervals")
+knitr::kable(estimates_2[,c(6,1:5)], caption = "Bayesian credible intervals")
 ```
 
 
