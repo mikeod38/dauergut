@@ -11,7 +11,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(message = FALSE)
 knitr::opts_chunk$set(warning = FALSE)
-pathname = getwd()
+pathname = here::here()
 library(magrittr)
 library(knitr)
 library(dplyr)
@@ -56,7 +56,7 @@ d7GFP<-read.csv(file.path(pathname, "extdata/2A_3A_daf7GFP.csv")) %>%
 
 df <- d7GFP %>% group_by(genotype, date, neuron, temp, genoID) %>% summarise(cell.norm = mean(cell.norm))
 
-#### plot ####
+#plot
 p<-df %>% ggplot(aes(x=temp, y=cell.norm)) +
   list(add.scatter(),add.median(width = .5),add.quartiles()) + 
   labs(
@@ -92,7 +92,7 @@ sjt.lm(lm.ASI.lin, depvar.labels = "log(GFP expression)", show.fstat = TRUE)
 tempdays<-c("1", "4", "6", "8", "10")
 foods <- "OP50"
 strains <- "N2"
-d28<-read.csv('extdata/2D_3B_4B_daf-28_GFP_rict-1.csv') %>%
+d28<-read.csv(file.path(pathname,'extdata/2D_3B_4B_daf-28_GFP_rict-1.csv')) %>%
 separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>%
   subset(pheromone == 0) %>% 
   mutate(day = as.factor(day), genotype = factor(genotype, levels = strains),
@@ -101,7 +101,7 @@ separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>%
 df <- d28 %>% subset(day %in% tempdays & food %in% foods & mean !=4095 & genotype %in% strains) %>% group_by(date,temp,genotype,neuron,genoID) %>% summarise(cell.norm = mean(mean)) %>%
   data.frame() %>% mutate(group.id = interaction(genotype, neuron)) # take mean of each worm
 
-#### plot ####
+## plot
 (p<-df %>% ggplot(aes(x=temp, y=cell.norm)) +
    list(add.scatter(),add.median(width = .5),add.quartiles()) + 
     theme_classic() +
@@ -140,6 +140,13 @@ sjt.lm(lm.ASI.lin, lm.ASJ.lin, depvar.labels = c("ASI", "ASJ"), show.fstat = TRU
 ```
 
 ##3C
+
+```{r daf7 and daf-28 FISH data}
+
+
+```
+
+##3E-F
 ```{r daf-28GFP rict-1 25v27, results='hide', fig.keep='all'}
 days = as.factor(8:10) # days containing N2 and ft7 27º data
 temps = c("25","27")
