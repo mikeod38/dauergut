@@ -582,7 +582,7 @@ F-statistics
 <td align="right">0.0343846</td>
 <td align="right">256</td>
 <td align="right">2.4129517</td>
-<td align="right">0.1502062</td>
+<td align="right">0.1499391</td>
 <td align="left">p~0.15</td>
 </tr>
 <tr class="odd">
@@ -591,7 +591,7 @@ F-statistics
 <td align="right">0.0358656</td>
 <td align="right">256</td>
 <td align="right">4.5804970</td>
-<td align="right">0.0001001</td>
+<td align="right">0.0001007</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -600,7 +600,7 @@ F-statistics
 <td align="right">0.0336587</td>
 <td align="right">256</td>
 <td align="right">-5.1423072</td>
-<td align="right">0.0000068</td>
+<td align="right">0.0000060</td>
 <td align="left">***</td>
 </tr>
 <tr class="odd">
@@ -627,7 +627,7 @@ F-statistics
 <td align="right">0.0421934</td>
 <td align="right">256</td>
 <td align="right">-4.2691946</td>
-<td align="right">0.0003681</td>
+<td align="right">0.0003474</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -636,7 +636,7 @@ F-statistics
 <td align="right">0.0349688</td>
 <td align="right">256</td>
 <td align="right">-4.8573587</td>
-<td align="right">0.0000236</td>
+<td align="right">0.0000241</td>
 <td align="left">***</td>
 </tr>
 <tr class="odd">
@@ -645,7 +645,7 @@ F-statistics
 <td align="right">0.0345066</td>
 <td align="right">256</td>
 <td align="right">-2.5607400</td>
-<td align="right">0.1066615</td>
+<td align="right">0.1066950</td>
 <td align="left">p~0.107</td>
 </tr>
 <tr class="even">
@@ -663,7 +663,7 @@ F-statistics
 <td align="right">0.0420256</td>
 <td align="right">256</td>
 <td align="right">1.9391429</td>
-<td align="right">0.3715409</td>
+<td align="right">0.3713625</td>
 <td align="left">p~0.37</td>
 </tr>
 <tr class="even">
@@ -672,7 +672,7 @@ F-statistics
 <td align="right">0.0432458</td>
 <td align="right">256</td>
 <td align="right">3.7647094</td>
-<td align="right">0.0027050</td>
+<td align="right">0.0027101</td>
 <td align="left">**</td>
 </tr>
 <tr class="odd">
@@ -681,7 +681,7 @@ F-statistics
 <td align="right">0.0428729</td>
 <td align="right">256</td>
 <td align="right">1.8966308</td>
-<td align="right">0.3970201</td>
+<td align="right">0.3971391</td>
 <td align="left">p~0.4</td>
 </tr>
 </tbody>
@@ -762,7 +762,8 @@ F-statistics
 
 #measured background fluorescence of each of 4 frames to normalize the sum projection of the neuron
 #merge to add mean background value to each row:
-background &lt;- filter(daf7FISH, type == &quot;background&quot;) %&gt;% dplyr::select(ID, mean)
+background &lt;- filter(daf7FISH, type == &quot;background&quot;) %&gt;% 
+  dplyr::select(ID, mean)
 colnames(background) &lt;- c(&quot;ID&quot;, &quot;background&quot;)
 
 cells&lt;-dplyr::filter(daf7FISH, type == &quot;cell&quot;) %&gt;% dplyr::select(ID, sample, mean, genotype)
@@ -782,8 +783,8 @@ lm.0&lt;-lm(data=daf7FISH[daf7FISH$outlier.status == FALSE,], formula=cell.norm~
 lm.1&lt;-lm(data=daf7FISH[daf7FISH$outlier.status == FALSE,], formula=cell.norm~genotype)
 #anova(lm.0, lm.1) p ~ 0.013
 
-stanlm &lt;- stan_glm(cell.norm ~ genotype, data = daf7FISH[daf7FISH$outlier.status == FALSE,])
 
+stanlm &lt;- stan_glm(cell.norm ~ genotype, data = daf7FISH[daf7FISH$outlier.status == FALSE,])
 
 #plot daf7 FISH
 strains &lt;- levels(daf7FISH$genotype)
@@ -973,7 +974,7 @@ F-statistics
 <td align="right">7.293687</td>
 <td align="right">73</td>
 <td align="right">-2.5137625</td>
-<td align="right">0.0400859</td>
+<td align="right">0.0400817</td>
 <td align="left">p~0.04</td>
 </tr>
 <tr class="even">
@@ -982,7 +983,7 @@ F-statistics
 <td align="right">7.674908</td>
 <td align="right">73</td>
 <td align="right">-2.5989094</td>
-<td align="right">0.0322387</td>
+<td align="right">0.0322736</td>
 <td align="left">p~0.032</td>
 </tr>
 <tr class="odd">
@@ -991,7 +992,7 @@ F-statistics
 <td align="right">9.629102</td>
 <td align="right">73</td>
 <td align="right">0.2302064</td>
-<td align="right">0.9930308</td>
+<td align="right">0.9930284</td>
 <td align="left">p~1</td>
 </tr>
 </tbody>
@@ -1012,35 +1013,35 @@ F-statistics
 <tbody>
 <tr class="odd">
 <td align="left">N2</td>
-<td align="right">66.41702</td>
-<td align="right">57.11784</td>
-<td align="right">75.27683</td>
-<td align="right">61.15888</td>
-<td align="right">71.54209</td>
+<td align="right">66.24025</td>
+<td align="right">57.44365</td>
+<td align="right">75.24567</td>
+<td align="right">61.20921</td>
+<td align="right">71.43419</td>
 </tr>
 <tr class="even">
 <td align="left">ft7</td>
-<td align="right">48.13377</td>
-<td align="right">34.30551</td>
-<td align="right">62.40664</td>
-<td align="right">39.84702</td>
-<td align="right">56.64030</td>
+<td align="right">48.14157</td>
+<td align="right">33.32620</td>
+<td align="right">62.49622</td>
+<td align="right">39.93442</td>
+<td align="right">56.58006</td>
 </tr>
 <tr class="odd">
 <td align="left">mg360</td>
-<td align="right">46.61535</td>
-<td align="right">31.02478</td>
-<td align="right">62.53852</td>
-<td align="right">37.82220</td>
-<td align="right">55.45030</td>
+<td align="right">46.72586</td>
+<td align="right">31.48452</td>
+<td align="right">61.87346</td>
+<td align="right">37.96765</td>
+<td align="right">55.38265</td>
 </tr>
 <tr class="even">
 <td align="left">mg360resc</td>
-<td align="right">68.32258</td>
-<td align="right">49.99310</td>
-<td align="right">86.70246</td>
-<td align="right">57.46951</td>
-<td align="right">79.26983</td>
+<td align="right">68.69806</td>
+<td align="right">50.79371</td>
+<td align="right">86.91569</td>
+<td align="right">57.68211</td>
+<td align="right">79.36948</td>
 </tr>
 </tbody>
 </table>
@@ -1406,67 +1407,67 @@ F-statistics
 <tbody>
 <tr class="odd">
 <td align="left">N2</td>
-<td align="right">1302.8574</td>
-<td align="right">1144.3361</td>
-<td align="right">1495.4412</td>
-<td align="right">1213.2099</td>
-<td align="right">1399.1919</td>
+<td align="right">1300.0657</td>
+<td align="right">1139.2766</td>
+<td align="right">1485.2352</td>
+<td align="right">1213.0843</td>
+<td align="right">1391.0664</td>
 </tr>
 <tr class="even">
 <td align="left">ft7</td>
-<td align="right">861.3135</td>
-<td align="right">773.7165</td>
-<td align="right">957.6607</td>
-<td align="right">807.8751</td>
-<td align="right">916.0258</td>
+<td align="right">858.7757</td>
+<td align="right">769.7244</td>
+<td align="right">961.1909</td>
+<td align="right">804.5549</td>
+<td align="right">913.8147</td>
 </tr>
 <tr class="odd">
 <td align="left">ft7exifb2</td>
-<td align="right">1267.9751</td>
-<td align="right">1109.5101</td>
-<td align="right">1449.2616</td>
-<td align="right">1174.5398</td>
-<td align="right">1370.5845</td>
+<td align="right">1264.1975</td>
+<td align="right">1105.7374</td>
+<td align="right">1442.9993</td>
+<td align="right">1170.2541</td>
+<td align="right">1364.6102</td>
 </tr>
 <tr class="even">
 <td align="left">ft7exgpa4</td>
-<td align="right">788.1605</td>
-<td align="right">699.1904</td>
-<td align="right">891.7357</td>
-<td align="right">733.5229</td>
-<td align="right">846.7257</td>
+<td align="right">784.1874</td>
+<td align="right">692.4622</td>
+<td align="right">880.0949</td>
+<td align="right">729.7354</td>
+<td align="right">841.0402</td>
 </tr>
 <tr class="odd">
 <td align="left">N2</td>
-<td align="right">817.8481</td>
-<td align="right">741.2370</td>
-<td align="right">903.9728</td>
-<td align="right">772.6145</td>
-<td align="right">868.8909</td>
+<td align="right">814.5682</td>
+<td align="right">738.4445</td>
+<td align="right">897.5871</td>
+<td align="right">767.8443</td>
+<td align="right">862.9498</td>
 </tr>
 <tr class="even">
 <td align="left">ft7</td>
-<td align="right">630.9423</td>
-<td align="right">569.8926</td>
-<td align="right">701.1888</td>
-<td align="right">594.4533</td>
-<td align="right">670.1599</td>
+<td align="right">628.9904</td>
+<td align="right">566.5905</td>
+<td align="right">700.4577</td>
+<td align="right">592.2207</td>
+<td align="right">668.1658</td>
 </tr>
 <tr class="odd">
 <td align="left">ft7exifb2</td>
-<td align="right">826.7441</td>
-<td align="right">727.1024</td>
-<td align="right">949.0640</td>
-<td align="right">764.3196</td>
-<td align="right">894.5403</td>
+<td align="right">823.6092</td>
+<td align="right">719.9826</td>
+<td align="right">947.8131</td>
+<td align="right">761.4847</td>
+<td align="right">888.6536</td>
 </tr>
 <tr class="even">
 <td align="left">ft7exgpa4</td>
-<td align="right">648.3726</td>
-<td align="right">578.6562</td>
-<td align="right">729.7910</td>
-<td align="right">605.3897</td>
-<td align="right">692.9681</td>
+<td align="right">645.6057</td>
+<td align="right">575.6400</td>
+<td align="right">723.2008</td>
+<td align="right">603.8360</td>
+<td align="right">690.8866</td>
 </tr>
 </tbody>
 </table>
@@ -1909,7 +1910,7 @@ pairwise comparisons by food (ANOVA)
 <td align="right">0.0523074</td>
 <td align="right">46</td>
 <td align="right">4.1876156</td>
-<td align="right">0.0003784</td>
+<td align="right">0.0003688</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -1929,7 +1930,7 @@ pairwise comparisons by food (ANOVA)
 <td align="right">0.0675286</td>
 <td align="right">46</td>
 <td align="right">0.1234045</td>
-<td align="right">0.9990375</td>
+<td align="right">0.9990379</td>
 <td align="left">p~1</td>
 </tr>
 </tbody>
@@ -2599,7 +2600,7 @@ F-statistics
 <td align="right">0.1343472</td>
 <td align="right">23</td>
 <td align="right">-6.6117898</td>
-<td align="right">0.0000103</td>
+<td align="right">0.0000094</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -2608,7 +2609,7 @@ F-statistics
 <td align="right">0.1343472</td>
 <td align="right">23</td>
 <td align="right">-1.7470673</td>
-<td align="right">0.4257739</td>
+<td align="right">0.4257357</td>
 <td align="left">p~0.43</td>
 </tr>
 <tr class="odd">
@@ -2626,7 +2627,7 @@ F-statistics
 <td align="right">0.1343472</td>
 <td align="right">23</td>
 <td align="right">-2.7450829</td>
-<td align="right">0.0770823</td>
+<td align="right">0.0771845</td>
 <td align="left">p~0.077</td>
 </tr>
 <tr class="odd">
@@ -2635,7 +2636,7 @@ F-statistics
 <td align="right">0.1343472</td>
 <td align="right">23</td>
 <td align="right">4.8647225</td>
-<td align="right">0.0005580</td>
+<td align="right">0.0005828</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -2644,7 +2645,7 @@ F-statistics
 <td align="right">0.1502047</td>
 <td align="right">23</td>
 <td align="right">5.9506630</td>
-<td align="right">0.0000463</td>
+<td align="right">0.0000384</td>
 <td align="left">***</td>
 </tr>
 <tr class="odd">
@@ -2653,7 +2654,7 @@ F-statistics
 <td align="right">0.1343472</td>
 <td align="right">23</td>
 <td align="right">3.8667069</td>
-<td align="right">0.0063181</td>
+<td align="right">0.0062872</td>
 <td align="left">**</td>
 </tr>
 <tr class="even">
@@ -2662,7 +2663,7 @@ F-statistics
 <td align="right">0.1502047</td>
 <td align="right">23</td>
 <td align="right">1.5995230</td>
-<td align="right">0.5115496</td>
+<td align="right">0.5115131</td>
 <td align="left">p~0.51</td>
 </tr>
 <tr class="odd">
@@ -2671,7 +2672,7 @@ F-statistics
 <td align="right">0.1343472</td>
 <td align="right">23</td>
 <td align="right">-0.9980156</td>
-<td align="right">0.8530477</td>
+<td align="right">0.8530479</td>
 <td align="left">p~0.85</td>
 </tr>
 <tr class="even">
@@ -2680,7 +2681,7 @@ F-statistics
 <td align="right">0.1502047</td>
 <td align="right">23</td>
 <td align="right">-2.4921752</td>
-<td align="right">0.1267962</td>
+<td align="right">0.1266954</td>
 <td align="left">p~0.127</td>
 </tr>
 </tbody>
@@ -2933,7 +2934,7 @@ F-statistics
 <td align="right">0.0585246</td>
 <td align="right">15</td>
 <td align="right">-7.450922</td>
-<td align="right">0.0000027</td>
+<td align="right">0.0000026</td>
 <td align="left">***</td>
 </tr>
 <tr class="odd">
@@ -2942,7 +2943,7 @@ F-statistics
 <td align="right">0.0585246</td>
 <td align="right">15</td>
 <td align="right">4.953954</td>
-<td align="right">0.0004513</td>
+<td align="right">0.0005542</td>
 <td align="left">***</td>
 </tr>
 </tbody>

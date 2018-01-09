@@ -62,8 +62,8 @@ p<-df %>% ggplot(aes(x=temp, y=cell.norm)) +
   labs(
   title = "daf-7 expression does not decrease at high temperatures",
   x = "temperature (ºC)",
-  y = "mean intensity"
-) + stat_smooth(method="lm",linetype="dashed", size = 0.2, colour = "grey", alpha = 0.05) +
+  y = "mean intensity") +
+  stat_smooth(method="lm",linetype="dashed", size = 0.2, colour = "grey", alpha = 0.05) +
   add.n() +
   theme_classic() + 
   theme(axis.title.x = element_text(size=16),
@@ -141,10 +141,176 @@ sjt.lm(lm.ASI.lin, lm.ASJ.lin, depvar.labels = c("ASI", "ASJ"), show.fstat = TRU
 
 ##3C
 
-```{r daf7 and daf-28 FISH data}
+```{r daf7 and daf-28 FISH dataload}
+FISH <- read.csv(file.path(pathname, 'extdata', '3C_daf7_28_FISH.csv')) %>%
+  separate(Label, c("group","number"), sep = "-") %>%
+  mutate(number = case_when(
+    is.na(number) ~ "01",
+    TRUE ~ number
+  )) %>% 
+  separate(group, c("measure", "genotype", "probe", "temp", "tube"), sep = "_") %>%
+  mutate(animal = interaction(genotype,probe,temp,tube,number))
 
+background <- FISH %>% filter(type == "background") %>% 
+  select(animal,Mean) %>%
+  rename(Mean.background = Mean)
+
+df <- filter(FISH, type == "cell") %>% 
+  left_join(.,background) %>% mutate(cell.norm = Mean - Mean.background)
+```
+
+
+```{r daf7 FISH analysis, results='hide'}
+daf7 <- filter(df, probe == "daf7Cy5")
+
+#simple lm
+linmod<-lm(data=daf7, formula=cell.norm~temp)
+#check for outliers
+daf7 <- dauergut::flag_outliers(linmod, daf7, threshold = 4, noplot = TRUE) %>% filter(outlier.status == FALSE)
+
+
+contrast <- daf7 %$% t.test(cell.norm ~ temp)
+contrast <- data.frame(p.value = contrast$p.value) %>% dauergut::prange()
+plot.contrasts <- c("",contrast$prange)
+
+#linmod<-lm(data=daf7[daf7$outlier.status == FALSE,], formula=cell.norm~temp)
+#Fstat not sig#
+fit <- BayesianFirstAid::bayes.t.test(daf7[daf7$temp == "25", "cell.norm"], 
+                               daf7[daf7$temp == "27", "cell.norm"])
+fit_sum <- fit$stats %>% 
+  data.frame() %>% 
+  select(mean,q2.5.,q97.5.,q25.,q75.) %>%
+  tibble::rownames_to_column('parameter') %>%
+  dplyr::filter(., grepl("mu",parameter)) %>%
+  dplyr::filter(., !grepl("diff",parameter)) %>%
+  rename(lower.CL = q2.5., 
+         upper.CL = q97.5.,
+         lower.25 = q25.,
+         upper.75 = q75.) %>%
+  mutate(temp = as.factor(c(25,27)),
+         x.pos = c(1.3,2.3))
+
+p <- ggplot(daf7, aes(x=temp)) + #x-layer
+    theme_my +
+    geom_errorbar(data=fit_sum, aes(x=x.pos,y=mean, ymin=lower.CL, ymax=upper.CL),
+                  width=0,colour ="grey", lwd=0.15) + #90% cred int for 95% one-sided H0
+    geom_errorbar(data=fit_sum, aes(x=x.pos,y=mean, ymin = lower.25, ymax = upper.75),
+                  width=0,colour = "darkgrey", lwd = 0.15+0.7) + #75% cred interval
+    geom_segment(data = fit_sum, aes(x = x.pos-0.005*nrow(fit_sum),
+                                   y = mean, xend = x.pos+0.005*nrow(fit_sum), 
+                                   yend = mean), colour = "darkgrey") + 
+    scale_x_discrete(labels=function(x) sub(" ","\n",x,fixed=TRUE)) +
+    stat_summary(aes(x=temp, y=800), geom="text", label=plot.contrasts, show.legend = TRUE, size=4) + # pvalues
+    theme(axis.text.x = element_text(size = 12),
+          axis.text.y = element_text(size = 12),
+          axis.line = element_line(size=0.2),
+          axis.title = element_text(size=16)) +
+  geom_quasirandom(aes(y=cell.norm),colour = "#990000", cex=1,
+                           width = 0.02,size=0.3,
+                           method = 'smiley') +
+          stat_summary(aes(y=cell.norm),fun.y = median, 
+                       fun.ymin = function(z) {quantile(z,0.25)}, 
+                       fun.ymax = function(z) {quantile(z,0.75)},
+                       geom = "errorbar", width = 0.15, lwd = 0.15) +
+          stat_summary(aes(y=cell.norm),fun.y = median, 
+                       fun.ymin = median, 
+                       fun.ymax = median,
+                       geom = "crossbar", width = 0.25, lwd = 0.35) +
+          labs(y = "normalized expression",x = "temperature")
 
 ```
+
+```{r daf7FISH plot}
+p
+```
+
+
+
+##3D
+
+```{r daf28 FISH analysis, results = 'hide'}
+daf28 <- filter(df, probe == "daf28Cy5")
+
+#simple lm
+linmod<-lm(data=daf28, formula=cell.norm~temp)
+#check for outliers
+daf28 <- dauergut::flag_outliers(linmod, daf28, threshold = 4, noplot = TRUE) %>%
+  filter(outlier.status == FALSE)
+
+contrast <- daf28 %$% t.test(cell.norm ~ temp)
+contrast <- data.frame(p.value = contrast$p.value) %>% dauergut::prange()
+plot.contrasts <- c("",contrast$prange)
+
+#linmod<-lm(data=daf28[daf28$outlier.status == FALSE,], formula=cell.norm~temp)
+#Fstat not sig#
+fit <- BayesianFirstAid::bayes.t.test(daf28[daf28$temp == "25", "cell.norm"], 
+                               daf28[daf28$temp == "27", "cell.norm"])
+fit_sum <- fit$stats %>% 
+  data.frame() %>% 
+  select(mean,q2.5.,q97.5.,q25.,q75.) %>%
+  tibble::rownames_to_column('parameter') %>%
+  dplyr::filter(., grepl("mu",parameter)) %>%
+  dplyr::filter(., !grepl("diff",parameter)) %>%
+  rename(lower.CL = q2.5., 
+         upper.CL = q97.5.,
+         lower.25 = q25.,
+         upper.75 = q75.) %>%
+  mutate(temp = as.factor(c(25,27)),
+         x.pos = c(1.3,2.3))
+
+p <- ggplot(daf28, aes(x = temp)) + # x-layer
+  theme_my +
+  geom_errorbar(
+    data = fit_sum, aes(x = x.pos, y = mean, ymin = lower.CL, ymax = upper.CL),
+    width = 0, colour = "grey", lwd = 0.15
+  ) + # 90% cred int for 95% one-sided H0
+  geom_errorbar(
+    data = fit_sum, aes(x = x.pos, y = mean, ymin = lower.25, ymax = upper.75),
+    width = 0, colour = "darkgrey", lwd = 0.15 + 0.7
+  ) + # 75% cred interval
+  geom_segment(data = fit_sum, aes(
+    x = x.pos - 0.005 * nrow(fit_sum),
+    y = mean, xend = x.pos + 0.005 * nrow(fit_sum),
+    yend = mean
+  ), colour = "darkgrey") +
+  scale_x_discrete(labels = function(x) sub(" ", "\n", x, fixed = TRUE)) +
+  coord_cartesian(ylim = c(0,320)) +
+  stat_summary(aes(x = temp, y = 300), geom = "text", label = plot.contrasts, show.legend = TRUE, size = 4) + # pvalues
+  theme(
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.line = element_line(size = 0.2),
+    axis.title = element_text(size = 16)
+  ) +
+  geom_quasirandom(
+    aes(y = cell.norm), colour = "#990000", cex = 1,
+    width = 0.02, size = 0.3,
+    method = "smiley"
+  ) +
+  stat_summary(
+    aes(y = cell.norm), fun.y = median,
+    fun.ymin = function(z) {
+      quantile(z, 0.25)
+    },
+    fun.ymax = function(z) {
+      quantile(z, 0.75)
+    },
+    geom = "errorbar", width = 0.15, lwd = 0.15
+  ) +
+  stat_summary(
+    aes(y = cell.norm), fun.y = median,
+    fun.ymin = median,
+    fun.ymax = median,
+    geom = "crossbar", width = 0.25, lwd = 0.35
+  ) +
+  labs(y = "normalized expression", x = "temperature")
+
+```
+
+```{r plot daf28FISH}
+p
+```
+
 
 ##3E-F
 ```{r daf-28GFP rict-1 25v27, results='hide', fig.keep='all'}
@@ -152,7 +318,7 @@ days = as.factor(8:10) # days containing N2 and ft7 27º data
 temps = c("25","27")
 strains = c("N2", "ft7")
 foods = "OP50"
-d28<-read.csv('extdata/2D_3B_4B_daf-28_GFP_rict-1.csv') %>%
+d28<-read.csv(file.path(pathname,'extdata', '2D_3B_4B_daf-28_GFP_rict-1.csv')) %>%
 separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>%
   subset(mean!=4095 & food == foods &
            temp %in% temps &

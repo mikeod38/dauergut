@@ -85,10 +85,12 @@ add.quartiles <- function(width) {
 #' @rdname ggplot_layers
 
 figure.axes <- function() {
-  theme(axis.title.x = ggplot2::element_blank(),
+  list(theme(axis.title.x = ggplot2::element_blank(),
         axis.text.x = ggplot2::element_blank(),
         axis.text.y = ggplot2::element_text(size = 15),
-        strip.text.x = ggplot2::element_blank())
+        strip.text.x = ggplot2::element_blank()),
+    labs( title = NULL,
+          subtitle = NULL))
 }
 
 #' @export
@@ -102,8 +104,8 @@ add.n.categorical <- function() {
 #' @export
 #' @rdname ggplot_layers
 
-add.n <- function(x_axis) {
-  stat_summary(aes(x=quo(x_axis) + 0.3, y=0),
+add.n <- function() {
+  stat_summary(aes(x= temp + 0.3, y=0),
                fun.data = fun_length, geom = "text", size = 3)
 }
 

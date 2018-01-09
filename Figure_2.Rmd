@@ -94,6 +94,27 @@ stanlmer <- with(log.tran, rstanarm::stan_lmer(linkfun(cell.norm) ~ genotype + (
                                                iter=6000,
                                                control = list(adapt_delta=0.99)))
 
+#refit stanlmer using ft7 as reference to get credible interval for ifb-2 rescue:
+# df2 <- df %>% mutate(genotype = factor(genotype, levels = c(strains[3],strains[1:2],strains[4:6])))
+# stanlmer2 <- with(log.tran, rstanarm::stan_lmer(linkfun(cell.norm) ~ genotype + (1|date) + (1:genotype:date),
+#                                                data = df2[df2$outlier.status == FALSE,],
+#                                                chains = 3,
+#                                                cores =4,
+#                                                seed = 2000,
+#                                                iter=6000,
+#                                                control = list(adapt_delta=0.99)))
+# 
+# stanlmer3 <- with(log.tran, rstanarm::stan_lmer(linkfun(cell.norm) ~ genotype + (1 + genotype|date),
+#                                                data = df2[df2$outlier.status == FALSE,],
+#                                                chains = 3,
+#                                                cores =4,
+#                                                seed = 2000,
+#                                                iter=6000,
+#                                                control = list(adapt_delta=0.99)))
+# 
+# PI_ifb2 <- rstanarm::posterior_interval(stanlmer2, pars = "(Intercept)", regex_pars = "ifb", prob = 0.90)
+# plot(stanlmer2, regex_pars = "genotype")
+
 contrasts <- tukey_contrasts(linmod, factor = "genotype")
 plot.contrasts <- c("",contrasts$prange[1:5])
 plot.contrasts.2 <- c("","","",contrasts$prange[10:12])
@@ -164,7 +185,8 @@ daf7FISH<-read.csv("extdata/2B_daf7FISH_4frames.csv") %>%
 
 #measured background fluorescence of each of 4 frames to normalize the sum projection of the neuron
 #merge to add mean background value to each row:
-background <- filter(daf7FISH, type == "background") %>% dplyr::select(ID, mean)
+background <- filter(daf7FISH, type == "background") %>% 
+  dplyr::select(ID, mean)
 colnames(background) <- c("ID", "background")
 
 cells<-dplyr::filter(daf7FISH, type == "cell") %>% dplyr::select(ID, sample, mean, genotype)
@@ -184,8 +206,8 @@ lm.0<-lm(data=daf7FISH[daf7FISH$outlier.status == FALSE,], formula=cell.norm~1)
 lm.1<-lm(data=daf7FISH[daf7FISH$outlier.status == FALSE,], formula=cell.norm~genotype)
 #anova(lm.0, lm.1) p ~ 0.013
 
-stanlm <- stan_glm(cell.norm ~ genotype, data = daf7FISH[daf7FISH$outlier.status == FALSE,])
 
+stanlm <- stan_glm(cell.norm ~ genotype, data = daf7FISH[daf7FISH$outlier.status == FALSE,])
 
 #plot daf7 FISH
 strains <- levels(daf7FISH$genotype)

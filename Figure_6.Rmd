@@ -1,5 +1,5 @@
 ---
-title: "Figure 6"
+title: "Figure 7"
 output:
   html_document:
     code_folding: hide
@@ -38,112 +38,258 @@ library(lsmeans)
 dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
 ```
 
+#__Identification of two QTL for 27º dauer formation__{.tabset}
 
-##__High temperature-induced dauer formation and adult exploratory behaviors do not covary__{.tabset}
+##7A
+```{r CSS data load}
+filepath<-file.path(pathname,'extdata/7A_CSSdata_allbinary.csv')
+strains<- c("N2","CB4856","CSSI","CSSII","CSSIII","CSSIV","CSSV","CSSX")
+foods <- "OP50"
+CSS<-read.csv(filepath, header=TRUE) %>% format_dauer(p.dauer = "exclude") %>% dplyr::filter(n > 9)
 
-###6A
-
-```{r wild screen dataload, warning=FALSE, fig.width=10}
-#knitr::opts_chunk$set(cache=TRUE)
-filepath<-file.path(pathname, "extdata/6A_wildHTdata_allbinary.csv")
-foods = "OP50"
-strains <- c("N2","CB4856","JU561", "MY14","DL238","CB4852","QX1211","JU322","JU775","JU1400","ED3072","AB1","AB3","JU362","ED3040", "JU345","PX178","CB3198")
-
-##"TR403","KR314",CB4507,DR1350 left off due to low n
-HT.wildall<-read.csv(filepath, header=TRUE) %>% format_dauer(p.dauer = "exclude")
-
-lm <- HT.wildall %>% dauer_ANOVA()
-contrasts<-dunnett_contrasts(lm, ref.index = 1, "genotype")
-stan.glmm <- HT.wildall %>% run_dauer_stan
-mixed<-stan.glmm %>% getStan_CIs(type = "dauer")
-
-plot.contrasts<-c("",contrasts$prange[1:17])
-
-(p<-plot_CIs(HT.wildall, title='C. elegans wild isolates vary in temp dependent dauer formation', plot.contrasts, ypos = 1.075, type = "dauer", labels = strains)) + theme(
-  axis.text.x = element_text(colour =
-                               c("black",
-                                 rep('red',3),
-                                 rep('black',3),
-                                 'red',
-                                 rep('black',5),
-                                 rep('green',5))
-                             )
-  )
-
-
-#plot 
 ```
-<br>
+
+```{r CSS glmm}
+
+lm <- CSS %>% dauer_ANOVA()
+glmm.locus <- glmer(CSS,formula = cbind(dauer,non) ~ gtChrI + gtChrII + gtChrIII + gtChrIV + gtChrV + gtChrX + (1|plateID) + (1|strainDate), family = binomial(link = logit),control=glmerControl(optimizer="bobyqa"))
+contrasts<-dauergut::dunnett_contrasts(lm, ref.index = 1, "genotype")
+plot.contrasts<-c("",contrasts$prange[1:7])
+
+stan.glmm <- CSS %>% run_dauer_stan
+mixed<- stan.glmm %>% getStan_CIs(type = "dauer") #CIs
+
+(p<-dauergut::plot_CIs(CSS, title='CB4856 Chromosome II contains 1 or more dauer QTLs', plot.contrasts, ypos = 1.075, type = "dauer", labels = strains))
+
+```
+
 <br>
 </br>
 
-**Figure 6A**  
-Wild isolates vary in high temperature dauer formation. Dauers formed by the indicated C. elegans strains at 27°C. Strains also assayed for exploratory behavior in (B) are in red (weaker Hid phenotype than Bristol N2) and green (similar or stronger Hid phenotype than N2). Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 16 animals each. All shown P-values are with respect to the Bristol N2 strain; `**` and `***` - different from the Bristol N2 strain at P<0.01 and P<0.001, respectively (ANOVA with Dunnett-type multivariate-t post-hoc adjustment). 
+7A. Chromosome substitution strains identify a chromosome II QTL for 27º dauer formation. Dauers formed by chromosome-substituted strains at 27°C. Each dot indicates the proportion of dauers formed in a single assay. Horizontal bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent assays with at least 11 animals each. Shown P-values are with respect to the Bristol N2 strain unless indicated otherwise; `***` - different from Bristol N2 at P<0.001 (ANOVA with Dunnett-type multivariate-t post-hoc adjustment).
 
-
-```{r 6B wild dauer model results}
+```{r ANOVA by-strain and GLMM by-locus stats}
 library(sjPlot)
-sjt.lm(lm, depvar.labels = "number of entries", show.se = TRUE, show.fstat = TRUE)
-knitr::kable(contrasts, caption = "pairwise comparisons (ANOVA)")
+sjt.lm(lm, depvar.labels = "proportion of dauers (ANOVA)", show.se = TRUE)
+sjt.glmer(glmm.locus, depvar.labels = "proportion of dauers (by-locus GLMM)", show.se = TRUE)
+knitr::kable(drop1(glmm.locus, test = "Chisq"))
 ```
 
-###S3
+##S4A
+```{r CSSII pheromone}
+filepath <- file.path(pathname, "extdata/S4A_CSSII_ascr5.csv")
+strains = c("N2","CSSII")
 
-```{r C327 corr plot, warning=FALSE}
-filepath<-file.path(pathname, "extdata/S3A_C3_sumstats.csv")
-C327<-read.csv(filepath, header=TRUE)
+CSSII.C3 <- read.csv(filepath, header =TRUE) %>% dauergut::format_dauer(p.dauer = "exclude") %>% mutate(pheromone = factor(pheromone, levels = c("control","C3")))
 
-(p<-dauergut::plot_regression_se(C327, "mean.C3", "mean.HT","SEM.C3", "SEM.HT"))
+lm <- CSSII.C3 %>% lm(., formula = pct ~ genotype*pheromone)
+contrasts<-dauergut::dunnett_contrasts(lm, ref.index = 1, factor  = "genotype", interaction = "pheromone")
+
+plot.contrasts<-c(rep("",4))
+
+(p<-ggplot(CSSII.C3, aes(x=pheromone)) +
+  stat_summary(aes(y=pct, group=day), colour = "black", fun.y = mean, geom = "line", alpha = 0.2, linetype = 2) +
+  add.median.dauer() +
+  #add.Bayes.CI() +
+  geom_dotplot(aes(y=pct, colour = pheromone, fill=pheromone),binwidth=.015, binaxis="y", position="dodge", stackdir="center", size =.3) +
+    scale_color_manual( values = c("black","blue")) + 
+    scale_fill_manual(values = c("black","blue")) +
+  labs(title = "Pheromone-induced dauer is not altered in CSSII",
+           y = "proportion dauer",
+           x = "pheromone") +
+  facet_grid(.~genotype, switch="both") +
+  #scale_colour_manual(values = c("black", "#FF9933")) +
+    #scale_fill_manual(values = c("black", "#FF9933")) +
+      scale_y_continuous(breaks=c(0,0.25,0.5,0.75, 1.0)) +
+      scale_x_discrete(labels=function(x) sub(" ","\n",x,fixed=TRUE)) +
+  #geom_text(data = plot.contrasts.H0, aes(x=2, label = prange, y = 1.075, group = NULL), size = 4) +
+    stat_summary(aes(x=as.numeric(as.factor(pheromone)) + 0.3, y=-0.05),
+                   fun.data = fun_length, geom = "text", size = 3) +
+  theme_my_classic + 
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        strip.text.x = element_text(size=10)))
 
 ```
 
-**Figure S3**  
-Shown are the proportion of dauers formed at 27°C and in the presence of 6 μm ascr#5 pheromone by C. elegans strains isolated from different latitudes. Assays were performed on live OP50. For ascr#5 data (A-axis), each data point is the average of at least 3 independent assays of at least 23 animals each. 27ºC data is repeated from Figure 6A. Error bars are the SEM. Line and shaded region indicate linear regression fit using mean dauer formation values for each strain. 
+**Figure S4A**  
+Pheromone-induced dauer formation is not reduced in the CSSII strain. Each dot indicates the average number of dauers formed in a single assay. Horizontal bar indicates median. Numbers in parentheses below indicate the number of independent experiments with at least 40 animals each.
 
 
-###6B
-```{r wild isolate roaming}
+##7C
 
-strains <- c("N2","CB4856", "JU561", "MY14", "JU322", "JU362","ED3040", "JU345", "PX178", "CB3198")
+```{r ewIR ChII strain load}
+filepath<-file.path(pathname, "extdata/7C_ewIRdata_allbinary.csv")
 
-wild.roam<-read.csv(file.path(pathname, "extdata/6B_7F_roam_wild_isolates.csv")) %>%
-  dplyr::filter(genotype %in% strains) %>%
+strains=c("N2","CB4856","ewIR19","ewIR20",
+          "ewIR21","ewIR22","ewIR23","ewIR24",
+          "ewIR25","ewIR26","ewIR27")
+
+ewIR<-read.csv(filepath, header=TRUE) %>% format_dauer(p.dauer = "exclude") %>% dplyr::filter(n > 9)
+
+
+ewIR.nocont<-subset(ewIR, !(genotype %in% c("N2","CB4856")))
+mapping<-read.csv(file.path(pathname, 'extdata/7C_chrII.markers.concise.csv'))
+mapping.nocont<-subset(mapping, !(genotype %in% c("N2","CB4856")))
+mapping.nocont$other.loci<-NULL
+ewIR<-merge(ewIR, mapping, by="genotype", all=TRUE)
+ewIR.nocont<-merge(ewIR.nocont, mapping.nocont, by="genotype", all=TRUE)
+
+```
+
+
+```{r glmm ewIR strains, fig.width=10}
+
+#glmm.nest = glmer(data = ewIR, cbind(dauer,non) ~ genotype + (1|day/plateID), family="binomial",control=glmerControl(optimizer="bobyqa"))
+lm <- ewIR %>% dauer_ANOVA()
+contrasts<-dauergut::tukey_contrasts(lm, "genotype")
+stan.glmm <- ewIR %>% run_dauer_stan
+
+mixed<- stan.glmm %>% getStan_CIs(type = "dauer")
+plot.contrasts<-c("",contrasts$prange[1:10])
+# get contrasts compared to ewIR25
+#plot.contrasts.2<-c("","",contrasts$prange[c(25,32,38,43,47,50)], "", contrasts$prange[53:54]) 
+plot.contrasts.2 <- c(rep("",9),contrasts$prange[53:54])
+
+labels <- c("N2","CB4856","WN219","WN220",
+          "WN221","WN222","WN223","WN224",
+          "WN225","WN226","WN227")
+
+(p<-dauergut::plot_CIs(ewIR, title='CB4856 27º dauer formation QTL lies on ChrII', plot.contrasts, plot.contrasts.2 = plot.contrasts.2,ypos = 1.075, offset = 0.075, type = "dauer", labels = labels))
+
+img.path <- file.path(pathname, "figures/7B_ewIR_map.png")
+
+include_graphics(img.path)
+
+```
+
+7C. Chromosome near isogenic lines (NILs) were tested for 27º dauer formation. Each strain contains a segment of CB4856 DNA (blue, right) introgressed into an N2 background. EwIR25 contains a QTL which reduces dauer formation. ewIR27 contains an additional QTL that increases dauer formation. Diagram shows putative location of these QTL for decreased (blue) or increased (red) dauer formation. Box and scatter plot show raw data. Blue dot and bars show marginal means and 95% confidence interval, respectively, generalized linear mixed effects model using strain as a predictor (see methods). Black p-values reflect Tukey post-hoc comparision to N2, red p-values indicate comparison to ewIR25. n≥6 assays on ≥3 separate days. 
+
+##7E
+```{r MONIL data load}
+file<-'7E_MONIL_allbinary.csv'
+filepath<-file.path(pathname, "extdata", file)
+strains<-c("N2","CB4856","NIL10","NIL59",
+                               "NIL76","NIL78")
+
+MONIL<-read.csv(filepath, header=TRUE) %>% format_dauer(p.dauer = "exclude")
+  # mutate(genotype = factor(genotype, levels = strains),
+  #        pct = as.numeric(paste(dauer/(dauer+non))),
+  #        strainDate = interaction(genotype, day),
+  #        plateID = interaction(strainDate, plate))
+
+file2<-'7E_MONIL_mapping.csv'
+filepath2<-file.path(pathname, "extdata", file2)
+mapping<-read.csv(filepath2)
+controls <- c("N2", "CB")
+
+MONIL <- merge(MONIL, mapping, by="genotype", all=TRUE) %>% mutate(binII12680000 = factor(binII12680000, levels = controls), 
+                 binII12790000 = factor(binII12790000, levels = controls),
+                 binII12900000 = factor(binII12900000, levels = controls),
+                 binII13050000 = factor(binII13050000, levels = controls),
+                 other = factor(other, levels = controls))
+
+```
+
+```{r MONIL glmm}
+glmm.nest = glmer(data = MONIL, cbind(dauer,non) ~ genotype + (1|day/plateID), family="binomial", control=glmerControl(optimizer="bobyqa"))
+
+lm <- MONIL %>% dauer_ANOVA()
+stanlmer <- MONIL %>% run_dauer_stan
+#per-locus glmm - loci are fixed effects
+loci<-paste(names(mapping[-1]), collapse=" + ")
+rand<-"(1|day/plateID)"
+f<-paste("cbind(dauer,non) ~",loci," + ",rand)
+f.rev <- paste("cbind(dauer,non) ~",rev(loci)," + ",rand)
+locus.glmm<-glmer(f, data=MONIL, family=binomial, control=glmerControl(optimizer="bobyqa"))
+locus.rev.glmm <-glmer(f.rev, data=MONIL, family=binomial, control=glmerControl(optimizer="bobyqa"))
+
+# #bootstrapping
+# # Not run:
+# nsim=100 # takes ~12 seconds per iteration
+# PBmod<-drop1(locus.glmer,test="user",sumFun=PBSumFun)
+# PBmod
+# # end (**Not run**)
+```
+
+```{r MONIL plot}
+contrasts<-dauergut::tukey_contrasts(glmm.nest, "genotype")
+mixed <- stanlmer %>% getStan_CIs(type = "dauer")
+plot.contrasts<-c("",contrasts$prange[1:5])
+
+(p<-plot_CIs(MONIL, title='A ~100kb interval defines QTL1', plot.contrasts, ypos = 0.8, type = "dauer", labels = strains))
+
+img.path <- file.path(pathname, "figures/7D_QTL1.png")
+
+knitr::include_graphics(img.path)
+```
+
+**Figure 7E**
+(Top) Dauers formed by sub-NILs at 27°C. Each dot indicates the proportion of dauers formed in a single assay. Horizontal bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent assays with at least 11 animals each. Shown P-values are with respect to the Bristol N2 strain unless indicated otherwise; `***` - different from Bristol N2 at P<0.001 (ANOVA with Tukey-type multivariate-t post-hoc adjustment)
+(Bottom) Cartoon depicting CB4856 introgression breakpoint in NIL strains. Segments in blue indicate regions of CB4856 DNA in an otherwise Bristol N2 genetic background. Yellow shaded region indicates likely position of QTL1. Horizontal axis indicates physical position in megabases (Mb).
+
+##7F
+```{r roam QTL}
+strains<- c("N2","CB4856","QTL1","QTL2")
+days <- c("3_10_17", "3_17_17", "4_6_17")
+QTL.roam<-read.csv(file.path(pathname, "extdata/6B_7F_roam_wild_isolates.csv")) %>%
+  dplyr::filter(genotype %in% strains & date %in% days) %>%
   mutate(genotype = factor(genotype, levels = strains),
          strainDate = interaction(genotype, date, drop=TRUE),
          plateID = interaction(strainDate,plate, drop=TRUE),
          total.boxes = 186)
 
-lm <- lm(n_entries ~ genotype, data = wild.roam)
 
-wild.roam %<>% dauergut::flag_outliers(df = ., lin.mod = lm, threshold = 4, noplot=TRUE)
+lm <- lm(n_entries ~ genotype, data = QTL.roam)
 
-stan.glmm <- stan_glmer(data = wild.roam[wild.roam$outlier.status == FALSE,], 
+QTL.roam %<>% dauergut::flag_outliers(df = ., lin.mod = lm, threshold = 4, noplot = TRUE)
+
+glmm.nest = glmer(data=QTL.roam, n_entries ~ genotype + (1|date/plateID), family="poisson")
+
+stan.glmm <- stan_glmer(data = QTL.roam[QTL.roam$outlier.status == FALSE,], 
                         formula = n_entries ~ genotype + (1|date/plateID), family = "poisson",
                         iter = 4000, adapt_delta = 0.99)
 
-lm <- update(lm, data = wild.roam[wild.roam$outlier.status == FALSE,])
-glmm.nest <- glmer(data=wild.roam, n_entries ~ genotype + (1|date/plateID), family="poisson")
+lm <- update(lm, data = QTL.roam[QTL.roam$outlier.status == FALSE,])
 
-contrasts<-dauergut::tukey_contrasts(glmm.nest, "genotype")
+contrasts<-dauergut::tukey_contrasts(lm, "genotype")
 mixed<-stan.glmm %>% getStan_CIs(type = "roam")
-plot.contrasts<-c("",contrasts$prange[1:9])
+plot.contrasts<-c("",contrasts$prange[1:3])
+plot.contrasts.2 <- c("","",contrasts$prange[4:5])
 
-
-
-(p<-plot_CIs(wild.roam, title='Foraging behavior is not correlated with Hid phenotypes', plot.contrasts=plot.contrasts, ypos = 800, offset = 50, type = "grid", labels = strains)) + theme(
-  axis.text.x = element_text(colour = c("black", rep('red',4), rep('green',5)))
-)
-
+(p<-dauergut::plot_CIs(QTL.roam, title='Foraging behavior is not correlated with Hid phenotypes', plot.contrasts=plot.contrasts, plot.contrasts.2 = plot.contrasts.2, ypos = 800, offset = 50, type = "grid", labels = strains))
 
 ```
 
-**Figure 6B**  
-Exploratory behavior of indicated strains. Strains in red and green exhibit weaker or similar/stronger Hid phenotypes than N2, respectively (A). Each purple dot is data from a single animal. Median is indicated by a black horizontal line; error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the total number of animals examined in at least 3 independent assay days. P-values shown are with respect to N2; `***` - different from N2 at P<0.001 (ANOVA with Dunnett-type multivariate-t post-hoc adjustment).
+**Figure 7F**  
+Exploratory behavior of indicated strains. Each purple dot is data from a single animal. Median is indicated by a horizontal line; error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the total number of animals examined in 3 independent assay days. P-values shown are with respect to N2; <span style="color:red">`***`</span> - different from CB4856 at P<0.001 (ANOVA with Tukey-type multivariate-t post-hoc adjustments).
 
 
-```{r 6B wild roam model results}
-library(sjPlot)
-sjt.glmer(glmm.nest, depvar.labels = "number of entries", show.se = TRUE)
-knitr::kable(drop1(glmm.nest, test = "Chisq"), caption = "Wald chi square test")
-knitr::kable(contrasts, caption = "pairwise comparisons (GLMM)")
+##S4C
+```{r NKDG CRISPR}
+
+img.path <- file.path(pathname, "figures/S4B_rict-1_locus.png")
+include_graphics(img.path)
+
+strains<-c("N2", "ewIR25", "NK", "NK_DG")
+foods <- "OP50"
+
+NKDG<-read.csv(file.path(pathname, "extdata", "S4C_NKDG_allbinary.csv"), header=TRUE) %>% format_dauer(p.dauer = "non") #including partial/pd as non-dauer due to excess zeros. 
+
+
+lm <- NKDG %>% dauer_ANOVA()
+#stan
+stan.glmm <- NKDG %>% run_dauer_stan
+
+contrasts<-dauergut::dunnett_contrasts(lm, ref.index = 1, "genotype")
+mixed<-stan.glmm %>% getStan_CIs(type = "dauer")
+plot.contrasts<-c("",contrasts$prange[1:3])
+
+labels <- c("N2", "WN225", "rict-1 [N1174K]", "rict-1 [N1174K, D1462G]") %>% stringr::str_wrap(width = 10)
+
+(p<-dauergut::plot_CIs(NKDG, title='', plot.contrasts, ypos = 1.075, type = "dauer", labels = labels))
 ```
+
+
+**Figure S4C**  
+_rict-1_ coding polymorphisms do no account for the QTL1 effect. Dauers formed at 27°C by N2, the WN225 NIL, and strains in which the indicated polymorphisms in CB4856 rict-1 coding sequences have been introduced into N2 rict-1 sequences via gene editing. Each dot indicates the average number of dauers formed in a single assay. Horizontal bar indicates median. Light-grey thick and thin vertical bars indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 40 animals each. P-values are relative to N2 (ANOVA with Dunnett-type multivariate-t post-hoc adjustment).

@@ -255,7 +255,7 @@ $(document).ready(function () {
 
 
 <div id="daf-28-but-not-daf-7-is-strongly-reduced-by-temperature" class="section level1 tabset">
-<h1><strong>daf-28, but not daf-7, is strongly reduced by temperature</strong></h1>
+<h1><strong><em>daf-28</em>, but not <em>daf-7</em>, is strongly reduced by temperature</strong></h1>
 <div id="a" class="section level2">
 <h2>3A</h2>
 <pre class="r"><code>strains = &quot;N2&quot;
@@ -271,14 +271,14 @@ d7GFP&lt;-read.csv(file.path(pathname, &quot;extdata/2A_3A_daf7GFP.csv&quot;)) %
 
 df &lt;- d7GFP %&gt;% group_by(genotype, date, neuron, temp, genoID) %&gt;% summarise(cell.norm = mean(cell.norm))
 
-#### plot ####
+#plot
 p&lt;-df %&gt;% ggplot(aes(x=temp, y=cell.norm)) +
   list(add.scatter(),add.median(width = .5),add.quartiles()) + 
   labs(
   title = &quot;daf-7 expression does not decrease at high temperatures&quot;,
   x = &quot;temperature (ºC)&quot;,
-  y = &quot;mean intensity&quot;
-) + stat_smooth(method=&quot;lm&quot;,linetype=&quot;dashed&quot;, size = 0.2, colour = &quot;grey&quot;, alpha = 0.05) +
+  y = &quot;mean intensity&quot;) +
+  stat_smooth(method=&quot;lm&quot;,linetype=&quot;dashed&quot;, size = 0.2, colour = &quot;grey&quot;, alpha = 0.05) +
   add.n() +
   theme_classic() + 
   theme(axis.title.x = element_text(size=16),
@@ -395,7 +395,7 @@ F-statistics
 <pre class="r"><code>tempdays&lt;-c(&quot;1&quot;, &quot;4&quot;, &quot;6&quot;, &quot;8&quot;, &quot;10&quot;)
 foods &lt;- &quot;OP50&quot;
 strains &lt;- &quot;N2&quot;
-d28&lt;-read.csv(&#39;extdata/2D_3B_4B_daf-28_GFP_rict-1.csv&#39;) %&gt;%
+d28&lt;-read.csv(file.path(pathname,&#39;extdata/2D_3B_4B_daf-28_GFP_rict-1.csv&#39;)) %&gt;%
 separate(ID, c(&quot;ID.A&quot;, &quot;ID.B&quot;), sep = &quot;:&quot;, extra = &quot;drop&quot;) %&gt;%
   subset(pheromone == 0) %&gt;% 
   mutate(day = as.factor(day), genotype = factor(genotype, levels = strains),
@@ -404,7 +404,7 @@ separate(ID, c(&quot;ID.A&quot;, &quot;ID.B&quot;), sep = &quot;:&quot;, extra =
 df &lt;- d28 %&gt;% subset(day %in% tempdays &amp; food %in% foods &amp; mean !=4095 &amp; genotype %in% strains) %&gt;% group_by(date,temp,genotype,neuron,genoID) %&gt;% summarise(cell.norm = mean(mean)) %&gt;%
   data.frame() %&gt;% mutate(group.id = interaction(genotype, neuron)) # take mean of each worm
 
-#### plot ####
+## plot
 (p&lt;-df %&gt;% ggplot(aes(x=temp, y=cell.norm)) +
    list(add.scatter(),add.median(width = .5),add.quartiles()) + 
     theme_classic() +
@@ -592,11 +592,167 @@ F-statistics
 </div>
 <div id="c" class="section level2">
 <h2>3C</h2>
+<pre class="r"><code>FISH &lt;- read.csv(file.path(pathname, &#39;extdata&#39;, &#39;3C_daf7_28_FISH.csv&#39;)) %&gt;%
+  separate(Label, c(&quot;group&quot;,&quot;number&quot;), sep = &quot;-&quot;) %&gt;%
+  mutate(number = case_when(
+    is.na(number) ~ &quot;01&quot;,
+    TRUE ~ number
+  )) %&gt;% 
+  separate(group, c(&quot;measure&quot;, &quot;genotype&quot;, &quot;probe&quot;, &quot;temp&quot;, &quot;tube&quot;), sep = &quot;_&quot;) %&gt;%
+  mutate(animal = interaction(genotype,probe,temp,tube,number))
+
+background &lt;- FISH %&gt;% filter(type == &quot;background&quot;) %&gt;% 
+  select(animal,Mean) %&gt;%
+  rename(Mean.background = Mean)
+
+df &lt;- filter(FISH, type == &quot;cell&quot;) %&gt;% 
+  left_join(.,background) %&gt;% mutate(cell.norm = Mean - Mean.background)</code></pre>
+<pre class="r"><code>daf7 &lt;- filter(df, probe == &quot;daf7Cy5&quot;)
+
+#simple lm
+linmod&lt;-lm(data=daf7, formula=cell.norm~temp)
+#check for outliers
+daf7 &lt;- dauergut::flag_outliers(linmod, daf7, threshold = 4, noplot = TRUE) %&gt;% filter(outlier.status == FALSE)
+
+
+contrast &lt;- daf7 %$% t.test(cell.norm ~ temp)
+contrast &lt;- data.frame(p.value = contrast$p.value) %&gt;% dauergut::prange()
+plot.contrasts &lt;- c(&quot;&quot;,contrast$prange)
+
+#linmod&lt;-lm(data=daf7[daf7$outlier.status == FALSE,], formula=cell.norm~temp)
+#Fstat not sig#
+fit &lt;- BayesianFirstAid::bayes.t.test(daf7[daf7$temp == &quot;25&quot;, &quot;cell.norm&quot;], 
+                               daf7[daf7$temp == &quot;27&quot;, &quot;cell.norm&quot;])
+fit_sum &lt;- fit$stats %&gt;% 
+  data.frame() %&gt;% 
+  select(mean,q2.5.,q97.5.,q25.,q75.) %&gt;%
+  tibble::rownames_to_column(&#39;parameter&#39;) %&gt;%
+  dplyr::filter(., grepl(&quot;mu&quot;,parameter)) %&gt;%
+  dplyr::filter(., !grepl(&quot;diff&quot;,parameter)) %&gt;%
+  rename(lower.CL = q2.5., 
+         upper.CL = q97.5.,
+         lower.25 = q25.,
+         upper.75 = q75.) %&gt;%
+  mutate(temp = as.factor(c(25,27)),
+         x.pos = c(1.3,2.3))
+
+p &lt;- ggplot(daf7, aes(x=temp)) + #x-layer
+    theme_my +
+    geom_errorbar(data=fit_sum, aes(x=x.pos,y=mean, ymin=lower.CL, ymax=upper.CL),
+                  width=0,colour =&quot;grey&quot;, lwd=0.15) + #90% cred int for 95% one-sided H0
+    geom_errorbar(data=fit_sum, aes(x=x.pos,y=mean, ymin = lower.25, ymax = upper.75),
+                  width=0,colour = &quot;darkgrey&quot;, lwd = 0.15+0.7) + #75% cred interval
+    geom_segment(data = fit_sum, aes(x = x.pos-0.005*nrow(fit_sum),
+                                   y = mean, xend = x.pos+0.005*nrow(fit_sum), 
+                                   yend = mean), colour = &quot;darkgrey&quot;) + 
+    scale_x_discrete(labels=function(x) sub(&quot; &quot;,&quot;\n&quot;,x,fixed=TRUE)) +
+    stat_summary(aes(x=temp, y=800), geom=&quot;text&quot;, label=plot.contrasts, show.legend = TRUE, size=4) + # pvalues
+    theme(axis.text.x = element_text(size = 12),
+          axis.text.y = element_text(size = 12),
+          axis.line = element_line(size=0.2),
+          axis.title = element_text(size=16)) +
+  geom_quasirandom(aes(y=cell.norm),colour = &quot;#990000&quot;, cex=1,
+                           width = 0.02,size=0.3,
+                           method = &#39;smiley&#39;) +
+          stat_summary(aes(y=cell.norm),fun.y = median, 
+                       fun.ymin = function(z) {quantile(z,0.25)}, 
+                       fun.ymax = function(z) {quantile(z,0.75)},
+                       geom = &quot;errorbar&quot;, width = 0.15, lwd = 0.15) +
+          stat_summary(aes(y=cell.norm),fun.y = median, 
+                       fun.ymin = median, 
+                       fun.ymax = median,
+                       geom = &quot;crossbar&quot;, width = 0.25, lwd = 0.35) +
+          labs(y = &quot;normalized expression&quot;,x = &quot;temperature&quot;)</code></pre>
+<pre class="r"><code>p</code></pre>
+<p><img src="Figure_3_files/figure-html/daf7FISH%20plot-1.png" width="672" /></p>
+</div>
+<div id="d" class="section level2">
+<h2>3D</h2>
+<pre class="r"><code>daf28 &lt;- filter(df, probe == &quot;daf28Cy5&quot;)
+
+#simple lm
+linmod&lt;-lm(data=daf28, formula=cell.norm~temp)
+#check for outliers
+daf28 &lt;- dauergut::flag_outliers(linmod, daf28, threshold = 4, noplot = TRUE) %&gt;%
+  filter(outlier.status == FALSE)
+
+contrast &lt;- daf28 %$% t.test(cell.norm ~ temp)
+contrast &lt;- data.frame(p.value = contrast$p.value) %&gt;% dauergut::prange()
+plot.contrasts &lt;- c(&quot;&quot;,contrast$prange)
+
+#linmod&lt;-lm(data=daf28[daf28$outlier.status == FALSE,], formula=cell.norm~temp)
+#Fstat not sig#
+fit &lt;- BayesianFirstAid::bayes.t.test(daf28[daf28$temp == &quot;25&quot;, &quot;cell.norm&quot;], 
+                               daf28[daf28$temp == &quot;27&quot;, &quot;cell.norm&quot;])
+fit_sum &lt;- fit$stats %&gt;% 
+  data.frame() %&gt;% 
+  select(mean,q2.5.,q97.5.,q25.,q75.) %&gt;%
+  tibble::rownames_to_column(&#39;parameter&#39;) %&gt;%
+  dplyr::filter(., grepl(&quot;mu&quot;,parameter)) %&gt;%
+  dplyr::filter(., !grepl(&quot;diff&quot;,parameter)) %&gt;%
+  rename(lower.CL = q2.5., 
+         upper.CL = q97.5.,
+         lower.25 = q25.,
+         upper.75 = q75.) %&gt;%
+  mutate(temp = as.factor(c(25,27)),
+         x.pos = c(1.3,2.3))
+
+p &lt;- ggplot(daf28, aes(x = temp)) + # x-layer
+  theme_my +
+  geom_errorbar(
+    data = fit_sum, aes(x = x.pos, y = mean, ymin = lower.CL, ymax = upper.CL),
+    width = 0, colour = &quot;grey&quot;, lwd = 0.15
+  ) + # 90% cred int for 95% one-sided H0
+  geom_errorbar(
+    data = fit_sum, aes(x = x.pos, y = mean, ymin = lower.25, ymax = upper.75),
+    width = 0, colour = &quot;darkgrey&quot;, lwd = 0.15 + 0.7
+  ) + # 75% cred interval
+  geom_segment(data = fit_sum, aes(
+    x = x.pos - 0.005 * nrow(fit_sum),
+    y = mean, xend = x.pos + 0.005 * nrow(fit_sum),
+    yend = mean
+  ), colour = &quot;darkgrey&quot;) +
+  scale_x_discrete(labels = function(x) sub(&quot; &quot;, &quot;\n&quot;, x, fixed = TRUE)) +
+  coord_cartesian(ylim = c(0,320)) +
+  stat_summary(aes(x = temp, y = 300), geom = &quot;text&quot;, label = plot.contrasts, show.legend = TRUE, size = 4) + # pvalues
+  theme(
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.line = element_line(size = 0.2),
+    axis.title = element_text(size = 16)
+  ) +
+  geom_quasirandom(
+    aes(y = cell.norm), colour = &quot;#990000&quot;, cex = 1,
+    width = 0.02, size = 0.3,
+    method = &quot;smiley&quot;
+  ) +
+  stat_summary(
+    aes(y = cell.norm), fun.y = median,
+    fun.ymin = function(z) {
+      quantile(z, 0.25)
+    },
+    fun.ymax = function(z) {
+      quantile(z, 0.75)
+    },
+    geom = &quot;errorbar&quot;, width = 0.15, lwd = 0.15
+  ) +
+  stat_summary(
+    aes(y = cell.norm), fun.y = median,
+    fun.ymin = median,
+    fun.ymax = median,
+    geom = &quot;crossbar&quot;, width = 0.25, lwd = 0.35
+  ) +
+  labs(y = &quot;normalized expression&quot;, x = &quot;temperature&quot;)</code></pre>
+<pre class="r"><code>p</code></pre>
+<p><img src="Figure_3_files/figure-html/plot%20daf28FISH-1.png" width="672" /></p>
+</div>
+<div id="e-f" class="section level2">
+<h2>3E-F</h2>
 <pre class="r"><code>days = as.factor(8:10) # days containing N2 and ft7 27º data
 temps = c(&quot;25&quot;,&quot;27&quot;)
 strains = c(&quot;N2&quot;, &quot;ft7&quot;)
 foods = &quot;OP50&quot;
-d28&lt;-read.csv(&#39;extdata/2D_3B_4B_daf-28_GFP_rict-1.csv&#39;) %&gt;%
+d28&lt;-read.csv(file.path(pathname,&#39;extdata&#39;, &#39;2D_3B_4B_daf-28_GFP_rict-1.csv&#39;)) %&gt;%
 separate(ID, c(&quot;ID.A&quot;, &quot;ID.B&quot;), sep = &quot;:&quot;, extra = &quot;drop&quot;) %&gt;%
   subset(mean!=4095 &amp; food == foods &amp;
            temp %in% temps &amp;

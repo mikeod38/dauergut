@@ -11,7 +11,7 @@
 
 
 
-<title>Figure 4</title>
+<title>Figure 5</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -249,70 +249,909 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Figure 4</h1>
+<h1 class="title toc-ignore">Figure 5</h1>
 
 </div>
 
 
-<div id="rict-1-rictor-mutants-are-insensitive-to-food-quality-and-feeding-state." class="section level1 tabset">
-<h1><strong><em>rict-1</em> Rictor mutants are insensitive to food quality and feeding state. </strong></h1>
-<div id="a" class="section level2">
-<h2>4A</h2>
-<pre class="r"><code>strains&lt;-c(&quot;N2&quot;, &quot;rict-1(mg360)&quot;, &quot;rict-1(ft7)&quot;)
-#dates&lt;-c(&quot;12_5_14&quot;, &quot;12_19_14&quot;, &quot;1_19_15&quot;,&quot;3_22_14&quot;, &quot;2_25_14&quot;, &quot;4_11_14&quot;)
-dates&lt;-c(&quot;12_5_14&quot;, &quot;12_19_14&quot;,&quot;3_22_14&quot;, &quot;2_25_14&quot;, &quot;4_11_14&quot;)
-foods &lt;- c(&quot;OP50&quot;, &quot;HB101&quot;)
-rict1.food&lt;-read.csv(file.path(pathname, &quot;extdata&quot;, &quot;1B_4A_rict-1_TORC2.csv&quot;), header=TRUE) %&gt;% format_dauer(p.dauer = &quot;exclude&quot;) %&gt;%
-  dplyr::filter(day %in% dates) %&gt;% mutate(logit.p = car::logit(pct, adjust=0.01), 
-                                           plate.ID = interaction(food, plateID))
-
-# rict1.food %&gt;% ggplot(aes(x=food, y=pct)) + geom_boxplot() + stat_summary(aes(y=pct, group=day, colour = day), fun.y = mean, geom = &quot;line&quot;) + facet_grid(.~genotype)
-
-#lm
-lm.add &lt;- lm(pct ~ genotype + food, data = rict1.food)
-lm.int &lt;- update(lm.add,.~. + genotype*food)
-#stan
-rict.food.groups &lt;- rict1.food %&gt;% mutate(group.id = interaction(genotype, food))
-stan.glmm &lt;- run_dauer_stan(df = rict.food.groups, type=&quot;dauer-grouped&quot;, group = &quot;food&quot;, intercept = FALSE)</code></pre>
-<pre class="r"><code>contrasts&lt;-dauergut::dunnett_contrasts(lm.int, ref.index = 1, factor = &quot;genotype&quot;, interaction = &quot;food&quot;)
-mixed&lt;-dauergut::getStan_CIs(stan.glmm, type=&quot;dauer&quot;, group = &quot;food&quot;, intercept = FALSE)
-
-plot.contrasts &lt;- c(&quot;&quot;,contrasts$interaction$prange[1], &quot;&quot;, contrasts$interaction$prange[2], &quot;&quot;, contrasts$interaction$prange[3])
-plot.contrasts.interaction &lt;- summary(lm.int)$coefficients[,4][5:6] %&gt;% data.frame() %&gt;% mutate(p.value = c(.[[1]],.[[2]]), genotype = strains[2:3]) %&gt;% dauergut::prange()
-
-index&lt;-rep(seq_len(length(strains)), each = 2)
-
-plot.contrasts.H0 &lt;- data.frame(cbind(food = foods, genotype = strains[index])) %&gt;%
-  mutate(prange = plot.contrasts)
-
-(p&lt;-ggplot(rict1.food, aes(x=food)) +
-  stat_summary(aes(y=pct, group=day), colour = &quot;black&quot;, fun.y = mean, geom = &quot;line&quot;, alpha = 0.2, linetype = 2) +
-  add.median.dauer() +
-  add.Bayes.CI() +
-  geom_dotplot(aes(y=pct, colour = food, fill=food),binwidth=.015, binaxis=&quot;y&quot;, position=&quot;dodge&quot;, stackdir=&quot;center&quot;, size =.3) +
-    #geom_point(aes(y=pct,colour = food), size = 0.7, alpha = 0.75) +
-  labs(title = &quot;rict-1 mutants are deficient in food suppression&quot;,
-           y = &quot;proportion dauer&quot;,
-           x = &quot;food&quot;) +
-  facet_grid(.~genotype, switch=&quot;both&quot;) +
-  scale_colour_manual(values = c(&quot;black&quot;, &quot;#FF9933&quot;)) +
-    scale_fill_manual(values = c(&quot;black&quot;, &quot;#FF9933&quot;)) +
-      scale_y_continuous(breaks=c(0,0.25,0.5,0.75, 1.0)) +
-      scale_x_discrete(labels=function(x) sub(&quot; &quot;,&quot;\n&quot;,x,fixed=TRUE)) +
-  geom_text(data = plot.contrasts.H0, aes(x=2, label = prange, y = 1.075, group = NULL), size = 4) +
-    stat_summary(aes(x=as.numeric(as.factor(food)) + 0.3, y=-0.05),
-                   fun.data = fun_length, geom = &quot;text&quot;, size = 3) +
-  theme_classic() + 
-    theme(strip.text.x = element_text(size = 12, face=&quot;italic&quot;),
-      axis.text.x = element_blank(),
-          axis.text.y = element_text(size = 12),
-          axis.line = element_line(size=0.2),
-          axis.title = element_text(size=16)))</code></pre>
-<p><img src="Figure_4_files/figure-html/rict-1%20food%20plot-1.png" width="672" /></p>
+<div id="intestinal-mtorc2-alters-foraging-behaviors" class="section level1 tabset">
+<h1><strong>Intestinal mTORC2 alters foraging behaviors</strong></h1>
+<div id="a-b" class="section level2">
+<h2>4A-B</h2>
+<pre class="r"><code>img.path &lt;- file.path(pathname, &quot;figures/5A_cartoon.png&quot;)</code></pre>
+<div style="float: left; width: 50%;">
+<pre class="r"><code>include_graphics(img.path)                                   </code></pre>
+<p><img src="figures/5A_cartoon.png" width="430" /></p>
+</div>
+<p><br> <br> </br></p>
 <p><strong>Figure 4A</strong><br />
-<em>rict-1</em> mutants are deficient in food suppression of dauer formation. Dauers formed by wild-type and rict-1 mutants on OP50 or HB101 at 27°C. Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 19 animals scored in each. Dashed lines indicate mean change in dauer formation per experimental day. P-values are with respect to growth on OP50; <code>***</code> - different from growth on OP50 at P&lt;0.001 [two-factor ANOVA with F(5.21) with 2 Df, P=0.0092 for genotype*food interaction, Tukey-type multivariate-t post-hoc adjustment].</p>
+Cartoon depicting foraging assay. Each plate contains a L4 hermaphrodite which is allowed to forage overnight on a uniform lawn of E. coli for ~ 16hrs. Lines show tracks on the bacterial lawn.</p>
+<pre class="r"><code>roam&lt;-read.csv(file.path(pathname, &quot;extdata/5B_5E_gridentry.csv&quot;)) %&gt;% 
+  mutate(strain = interaction(genotype, line, drop=TRUE),
+         strainDate = interaction(strain, date, drop=TRUE),
+         plateID = interaction(strainDate,plate, drop=TRUE),
+         total.boxes = 186)
+
+library(lme4)
+#simple ANOVA:
+lms&lt;-list(lm = lm(n_entries ~ genotype, data = roam),
+          lm.log = lm(log(n_entries) ~ genotype, data = roam),
+          lm.nboxes = lm(n_boxes ~ genotype, data = roam))
+
+#glmms
+glmms&lt;-list(glmm.date = glmer(data=roam, n_entries ~ genotype + (1|date), family=&quot;poisson&quot;),
+            glmm.strainDate = glmer(data=roam, n_entries ~ genotype + (1|strainDate), family=&quot;poisson&quot;),
+            glmm.obs = glmer(data=roam, n_entries ~ genotype + (1|date) + (1|plateID), family=&quot;poisson&quot;),
+            glmm.obsOnly = glmer(data=roam, n_entries ~ genotype + (1|plateID), family=&quot;poisson&quot;),
+            glmm.fixDate = glmer(data=roam, n_entries ~ date + genotype + (1|plateID), family=&quot;poisson&quot;),
+            glmm.fixDate.ranStrain = glmer(data=roam, n_entries ~ date + genotype + (1|plateID) + (1|strain), family=&quot;poisson&quot;),
+            glmm.nest = glmer(data=roam, n_entries ~ genotype + (1|date/plateID), family=&quot;poisson&quot;), #nested individual random effect
+            glmm.binom = glmer(data=roam,
+                               formula = cbind(roam$n_boxes, roam$total.boxes - roam$n_boxes) ~ genotype + (1|date/plateID),
+                               family=&quot;binomial&quot;))
+
+#non mixed glms
+glms &lt;- list(glm = glm(data=roam, n_entries ~ date + genotype, family=&quot;poisson&quot;),
+             glm.nb = glm.nb(data=roam, n_entries ~ date + genotype, init.theta = 1, link=&quot;log&quot;),
+             glm.binom = glm(data=roam, cbind(roam$n_boxes, roam$total.boxes - roam$n_boxes) ~ date + genotype, family=&quot;binomial&quot;))
+
+mods&lt;-c(lms, glms, glmms)
+
+# Not run #
+###checking distributional assumptions:
+# library(DHARMa)
+
+# sim.resids&lt;-lapply(mods[1:length(mods)], function(x) {
+#   simulationOutput &lt;- simulateResiduals(fittedModel = x, n=250, refit = T)
+#   #par(mfrow = c(2,2))
+#   #plotResiduals(roam$genotype, simulationOutput$scaledResiduals)
+#   #plotResiduals(roam$date, simulationOutput$scaledResiduals)
+#   #plotResiduals(roam$strain, simulationOutput$scaledResiduals)
+#   return(simulationOutput)
+#   })
+# 
+# lapply(sim.resids, function(x) {
+#   plotSimulatedResiduals(simulationOutput = x)
+# })
+
+
+# using DHARMa package check distribution of residuals by predictors (takes a while using refit = T):
+# (mods.dispersion &lt;-
+#   lapply(glmms, function(x) {
+#   simulationOutput &lt;- simulateResiduals(fittedModel = x, n=250, refit = T)
+#   testOverdispersion(simulationOutput = simulationOutput)
+# }))
+
+# nested glmm looks rougly the best for both count date (n_entries) and binary data (n_boxes/total) 
+# although there is still some small effect of 
+# predicted value on residual quantiles
+# end not run #</code></pre>
+<pre class="r"><code>strains &lt;- c(&quot;N2&quot;, &quot;ft7&quot;, &quot;ft7;ex[ges-1p]&quot;, &quot;ft7;ex[rict-1p]&quot;)
+days &lt;- c(&quot;10_1_16&quot;, &quot;10_5_16&quot;, &quot;10_9_16&quot;)
+## remove outliers:
+
+roam %&lt;&gt;% dauergut::flag_outliers(df = ., lin.mod = mods$lm, threshold = 4, noplot = TRUE)
+
+roam.resc &lt;- roam %&gt;% subset(genotype %in% strains &amp; date %in% days) %&gt;% 
+  mutate(genotype = factor(genotype, levels = strains))
+
+glmm.nest &lt;- update(mods$glmm.nest, data = roam.resc[roam.resc$outlier.status == FALSE,] )
+stan.glmm &lt;- stan_glmer(data = roam.resc[roam.resc$outlier.status == FALSE,], 
+                        formula = n_entries ~ genotype + (1|date/plateID), family = &quot;poisson&quot;,
+                        iter = 4000)
+  
+contrasts&lt;-dauergut::tukey_contrasts(glmm.nest, &quot;genotype&quot;)
+mixed&lt;-stan.glmm %&gt;% getStan_CIs(type = &quot;roam&quot;)
+plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1],&quot;&quot;,&quot;&quot;)
+plot.contrasts.2&lt;-c(&quot;&quot;,&quot;&quot;,contrasts$prange[4:5])
+
+labels &lt;- c(&quot;WT&quot;, &quot;rict-1(ft7)&quot;, &quot;rict-1(ft7); +ges-1p::rict-1&quot;, &quot;rict-1(ft7); +rict-1p::rict-1&quot;) %&gt;% stringr::str_wrap(width = 10)
+
+p&lt;-dauergut::plot_CIs(roam.resc, title=&#39;Intestinal TORC2 regulates adult foraging&#39;, 
+                       plot.contrasts=plot.contrasts, plot.contrasts.2 = plot.contrasts.2,ypos = 800, offset = 0, type = &quot;grid&quot;, labels = labels)</code></pre>
+<div style="float: left; width: 50%;">
+<pre class="r"><code>p</code></pre>
+<p><img src="Figure_4_files/figure-html/rict%20roam%20resuce%20plot-1.png" width="480" /></p>
+</div>
+<p><br> <br> </br> <strong>Figure 4B</strong><br />
+<em>rict-1</em> acts in the intestine to regulate foraging behavior. Foraging is increased in <em>rict-1</em> mutants, which is rescued using the intestine-specific <em>ges-1</em> promoter. Plot shows exploratory behavior of indicated strains. Each purple dot represents data from a single worm. Median is indicated by a horizontal purple line; error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the total number of animals examined during 3 independent days of assays. P-values shown are between indicated values; <span style="color:black"><code>***</code></span> and <span style="color:red"><code>***</code></span> - different from WT and rict-1 at P&lt;0.001, respectively (GLMM with Tukey-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
 <pre class="r"><code>library(sjPlot)
-sjt.lm(lm.int, depvar.labels = &quot;proportion of dauers&quot;, show.fstat = TRUE)</code></pre>
+sjt.glmer(glmm.nest, depvar.labels = &quot;number of entries&quot;, show.se = TRUE)</code></pre>
+<table style="border-collapse:collapse; border:none;border-bottom:double;">
+<tr>
+<td style="padding:0.2cm; border-top:double;">
+ 
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="4">
+number of entries
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; font-style:italic;">
+ 
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+IRR
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+std. Error
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
+</tr>
+<tr>
+<td colspan="6" style="padding:0.2cm; text-align:left; border-top:1px solid; font-weight:bold; text-align:left;">
+Fixed Parts
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+(Intercept)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+206.43
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+144.40 – 295.12
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+37.64
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (ft7)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+2.21
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.67 – 2.93
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.32
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (ft7;ex[ges-1p])
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.10
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.88 – 1.37
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.13
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.425
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (ft7;ex[rict-1p])
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.68
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.51 – 0.90
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.10
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.008
+</td>
+</tr>
+<tr>
+<td colspan="6" style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; font-weight:bold; text-align:left; padding-top:0.5em;">
+Random Parts
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+τ<sub>00, plateID:date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.154
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+τ<sub>00, date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.070
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+N<sub>plateID:date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+96
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+N<sub>date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+3
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+ICC<sub>plateID:date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.126
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+ICC<sub>date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.057
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
+Observations
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="4">
+96
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+Deviance
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+3.877
+</td>
+</tr>
+</table>
+<pre class="r"><code>knitr::kable(drop1(glmm.nest, test = &quot;Chisq&quot;))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Df</th>
+<th align="right">AIC</th>
+<th align="right">LRT</th>
+<th align="right">Pr(Chi)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><none></td>
+<td align="right">NA</td>
+<td align="right">1160.628</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td>genotype</td>
+<td align="right">3</td>
+<td align="right">1206.062</td>
+<td align="right">51.4344</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="c-d" class="section level2">
+<h2>4C-D</h2>
+<pre class="r"><code>#### see extdata/roaming and speed_curvature function for data and analysis, respectively - highly memory intensive</code></pre>
+<div style="float: left; width: 50;">
+<pre class="r"><code>img.path &lt;- file.path(pathname, &quot;figures/5C_roam_dwell_density.png&quot;)
+include_graphics(img.path)</code></pre>
+<p><img src="figures/5C_roam_dwell_density.png" width="890" /></p>
+</div>
+<p><strong>Figure 4C</strong><br />
+Live tracking of foraging behavior. Shown is a representative assay. n &gt; 20 animals per assay. Density plot shows mean speed and angular velocity from tracks binned over 10 sec intervals imaged at 3 frames/sec. Red line indicates delineation of roaming (upper region) and dwelling (lower region) behavior.</p>
+<pre class="r"><code>strains &lt;- c(&quot;N2&quot;,&quot;ft7&quot;)
+roam_beh &lt;- read.csv(file.path(pathname, &quot;extdata/5D_roam_dwell_all.csv&quot;)) %&gt;% 
+  mutate(genotype = factor(genotype, levels = strains), pct = pct.roam, plateID = interaction(date,genotype,plate))
+
+roam.t &lt;- t.test(roam_beh[roam_beh$genotype == strains[1],]$pct, roam_beh[roam_beh$genotype == strains[2],]$pct)
+
+glmm &lt;- lme4::glmer(data = roam_beh, cbind(roam, dwell) ~ genotype + (1|plateID), family = binomial)
+
+stan.glmm &lt;- stan_glmer(data = roam_beh, 
+                        formula = cbind(roam, dwell) ~ genotype + (1|plateID), 
+                        family = binomial,
+                        iter = 4000)
+
+mixed &lt;- stan.glmm %&gt;% getStan_CIs(type = &quot;dauer&quot;)
+contrasts &lt;- data.frame(p.value = roam.t$p.value) %&gt;% dauergut::prange()
+plot.contrasts &lt;- c(&quot;&quot;,contrasts$prange)
+
+labels = c(&quot;WT&quot;, &quot;rict-1(ft7)&quot;)
+
+p&lt;-dauergut::plot_CIs(roam_beh, plot.contrasts = plot.contrasts, type = &quot;dauer&quot;, title = &quot;&quot;, ypos = 1.05, offset = 0, labels = labels) + labs(subtitle = &quot;&quot;, y = &quot;proportion roaming&quot;)
+
+odds.ratio &lt;- summary(stan.glmm)[2,1] %&gt;% exp()</code></pre>
+<div style="float: left; width: 40%;">
+<pre class="r"><code>p</code></pre>
+<p><img src="Figure_4_files/figure-html/roam%20beh%20plot-1.png" width="288" /></p>
+</div>
+<p><br> <br> </br></p>
+<p><strong>Figure 4D</strong><br />
+Quantification of roaming and dwelling states. <em>rict-1</em> mutants show increased roaming, corresponding to an odds ratio of 3.487. Dots show proportion of track time bins in which animals were roaming, with each dot reflecting one assay. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. P-value shown is with respect to wild-type (Welch’s t-test).</p>
+</div>
+<div id="e" class="section level2">
+<h2>4E</h2>
+<p>pdfr-1 is epistatic to rict-1 in foraging behavior.</p>
+<pre class="r"><code>  roam&lt;-read.csv(file.path(pathname, &quot;extdata/5B_5E_gridentry.csv&quot;)) %&gt;% 
+  mutate(strain = interaction(genotype, line, drop=TRUE),
+         strainDate = interaction(strain, date, drop=TRUE),
+         plateID = interaction(strainDate,plate, drop=TRUE),
+         total.boxes = 186)</code></pre>
+<pre class="r"><code>strains &lt;- c(&quot;N2&quot;, &quot;ft7&quot;, &quot;pdf-1&quot;, &quot;pdfr-1&quot;, &quot;pdfr-1;ft7&quot;)
+days &lt;- c(&quot;12_20_16&quot;, &quot;1_5_17&quot;, &quot;1_8_17&quot;)
+## remove outliers (based on analysis, below):
+lm &lt;- lm(n_entries ~ genotype, data = roam)
+roam %&lt;&gt;% dauergut::flag_outliers(df = ., lin.mod = lm, threshold = 4, noplot = TRUE)
+
+
+roam.pdfr1 &lt;- roam %&gt;% subset(genotype %in% strains &amp; date %in% days) %&gt;%
+  mutate(genotype = factor(genotype, levels = strains))
+
+glmm.nest &lt;-glmer(data = roam.pdfr1[roam.pdfr1$outlier.status == FALSE,], formula = n_entries ~ genotype + (1|date/plateID), family = &quot;poisson&quot;)
+stan.glmm &lt;- stan_glmer(data = roam.pdfr1[roam.pdfr1$outlier.status == FALSE,], 
+                        formula = n_entries ~ genotype + (1|date/plateID), family = &quot;poisson&quot;,
+                        iter = 4000, adapt_delta = 0.99)
+
+contrasts&lt;-dauergut::tukey_contrasts(glmm.nest, &quot;genotype&quot;)
+mixed&lt;-stan.glmm %&gt;% getStan_CIs(type = &quot;roam&quot;)
+plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:4])
+plot.contrasts.2&lt;-c(&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,contrasts$prange[10])
+
+labels &lt;- c(&quot;WT&quot;, &quot;rict-1(ft7)&quot;, &quot;pdf-1(tm1996)&quot;, &quot;pdfr-1(ok3425)&quot;, &quot;rict-1(ft7); pdfr-1(ok3425)&quot;) %&gt;%
+  stringr::str_wrap(width=10)
+
+(p&lt;-dauergut::plot_CIs(roam.pdfr1, title=&#39;rict-1 effects on roaming behavior depends on pdfr-1 signaling&#39;, plot.contrasts=plot.contrasts, plot.contrasts.2 = plot.contrasts.2,ypos = 800, offset = 50, type = &quot;grid&quot;, labels = labels))</code></pre>
+<p><img src="Figure_4_files/figure-html/pdfr-1%20roam%20suppression%20plot-1.png" width="672" /></p>
+<p><strong>Figure 4E</strong><br />
+TORC2 requires PDFR-1 neuropeptide signaling to modulate foraging behavior. Exploratory behavior of indicated strains. Each purple dot represents data from a single worm. Median is indicated by a horizontal purple line; error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the total number of animals examined during 3 independent days of assays. P-values shown are between indicated values; <span style="color:black"><code>***</code></span> and <span style="color:red"><code>***</code></span> - different from WT and rict-1 at P&lt;0.001, respectively (GLMM with Tukey-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
+<pre class="r"><code>library(sjPlot)
+sjt.glmer(glmm.nest, depvar.labels = &quot;number of entries&quot;, show.se = TRUE)</code></pre>
+<table style="border-collapse:collapse; border:none;border-bottom:double;">
+<tr>
+<td style="padding:0.2cm; border-top:double;">
+ 
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="4">
+number of entries
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; font-style:italic;">
+ 
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+IRR
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+std. Error
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
+</tr>
+<tr>
+<td colspan="6" style="padding:0.2cm; text-align:left; border-top:1px solid; font-weight:bold; text-align:left;">
+Fixed Parts
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+(Intercept)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+216.91
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+169.40 – 277.74
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+27.36
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (ft7)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.87
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.33 – 2.62
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.32
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (pdf-1)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.20
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.14 – 0.29
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.04
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (pdfr-1)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.23
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.17 – 0.32
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.04
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (pdfr-1;ft7)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.27
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.19 – 0.38
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.05
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td colspan="6" style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; font-weight:bold; text-align:left; padding-top:0.5em;">
+Random Parts
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+τ<sub>00, plateID:date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.231
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+τ<sub>00, date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.006
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+N<sub>plateID:date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+80
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+N<sub>date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+3
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+ICC<sub>plateID:date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.187
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+ICC<sub>date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.005
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
+Observations
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="4">
+80
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+Deviance
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+4.914
+</td>
+</tr>
+</table>
+<pre class="r"><code>knitr::kable(drop1(glmm.nest, test = &quot;Chisq&quot;))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Df</th>
+<th align="right">AIC</th>
+<th align="right">LRT</th>
+<th align="right">Pr(Chi)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><none></td>
+<td align="right">NA</td>
+<td align="right">871.3411</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td>genotype</td>
+<td align="right">4</td>
+<td align="right">976.1329</td>
+<td align="right">112.7918</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>knitr::kable(contrasts, caption = &quot;pairwise comparisons (GLMM)&quot;)</code></pre>
+<table>
+<caption>pairwise comparisons (GLMM)</caption>
+<thead>
+<tr class="header">
+<th align="left">contrast</th>
+<th align="right">rate.ratio</th>
+<th align="right">SE</th>
+<th align="right">df</th>
+<th align="right">z.ratio</th>
+<th align="right">p.value</th>
+<th align="left">prange</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">N2 - ft7</td>
+<td align="right">0.5352987</td>
+<td align="right">0.0922775</td>
+<td align="right">NA</td>
+<td align="right">-3.6251984</td>
+<td align="right">0.0026570</td>
+<td align="left">**</td>
+</tr>
+<tr class="even">
+<td align="left">N2 - pdf-1</td>
+<td align="right">5.0715519</td>
+<td align="right">0.9750831</td>
+<td align="right">NA</td>
+<td align="right">8.4448284</td>
+<td align="right">0.0000000</td>
+<td align="left">***</td>
+</tr>
+<tr class="odd">
+<td align="left">N2 - pdfr-1</td>
+<td align="right">4.3260837</td>
+<td align="right">0.7244682</td>
+<td align="right">NA</td>
+<td align="right">8.7460751</td>
+<td align="right">0.0000000</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">N2 - pdfr-1;ft7</td>
+<td align="right">3.6987388</td>
+<td align="right">0.6178786</td>
+<td align="right">NA</td>
+<td align="right">7.8298886</td>
+<td align="right">0.0000000</td>
+<td align="left">***</td>
+</tr>
+<tr class="odd">
+<td align="left">ft7 - pdf-1</td>
+<td align="right">9.4742466</td>
+<td align="right">1.8960916</td>
+<td align="right">NA</td>
+<td align="right">11.2355198</td>
+<td align="right">0.0000000</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">ft7 - pdfr-1</td>
+<td align="right">8.0816257</td>
+<td align="right">1.3934233</td>
+<td align="right">NA</td>
+<td align="right">12.1192955</td>
+<td align="right">0.0000000</td>
+<td align="left">***</td>
+</tr>
+<tr class="odd">
+<td align="left">ft7 - pdfr-1;ft7</td>
+<td align="right">6.9096728</td>
+<td align="right">1.1891220</td>
+<td align="right">NA</td>
+<td align="right">11.2316990</td>
+<td align="right">0.0000000</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">pdf-1 - pdfr-1</td>
+<td align="right">0.8530099</td>
+<td align="right">0.1658743</td>
+<td align="right">NA</td>
+<td align="right">-0.8175773</td>
+<td align="right">0.9248595</td>
+<td align="left">p~0.92</td>
+</tr>
+<tr class="odd">
+<td align="left">pdf-1 - pdfr-1;ft7</td>
+<td align="right">0.7293111</td>
+<td align="right">0.1413884</td>
+<td align="right">NA</td>
+<td align="right">-1.6282147</td>
+<td align="right">0.4775363</td>
+<td align="left">p~0.48</td>
+</tr>
+<tr class="even">
+<td align="left">pdfr-1 - pdfr-1;ft7</td>
+<td align="right">0.8549855</td>
+<td align="right">0.1430890</td>
+<td align="right">NA</td>
+<td align="right">-0.9361392</td>
+<td align="right">0.8821772</td>
+<td align="left">p~0.88</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="f" class="section level2">
+<h2>4F</h2>
+<pre class="r"><code>  roam&lt;-read.csv(file.path(pathname, &quot;extdata&quot;, &quot;4F_pdf2_roam.csv&quot;)) %&gt;% 
+  mutate(strainDate = interaction(genotype, date, drop=TRUE),
+         plateID = interaction(strainDate,plate, drop=TRUE),
+         total.boxes = 186)</code></pre>
+<pre class="r"><code>strains &lt;- c(&quot;N2&quot;, &quot;ft7&quot;, &quot;pdf-2&quot;, &quot;pdf-2;ft7&quot;, &quot;ft7;ex(pdf2p_pdf)&quot;, &quot;WT;ex(pdf2p_pdf2)&quot;)
+## remove outliers (based on analysis, below):
+linmod &lt;- lm(n_entries ~ genotype, data = roam)
+roam %&lt;&gt;% dauergut::flag_outliers(df = ., lin.mod = linmod, threshold = 4, noplot = TRUE)
+
+
+roam.pdf2 &lt;- roam %&gt;% subset(genotype %in% strains) %&gt;%
+  mutate(genotype = factor(genotype, levels = strains))
+
+glmm.nest &lt;-glmer(data = roam.pdf2[roam.pdf2$outlier.status == FALSE,], formula = n_entries ~ genotype + (1|date/plateID), family = &quot;poisson&quot;)
+stan.glmm &lt;- stan_glmer(data = roam.pdf2[roam.pdf2$outlier.status == FALSE,], 
+                        formula = n_entries ~ genotype + (1|date/plateID), 
+                        family = &quot;poisson&quot;,
+                        iter = 4000, 
+                        adapt_delta = 0.99)
+
+contrasts&lt;-dauergut::tukey_contrasts(glmm.nest, &quot;genotype&quot;)
+mixed&lt;-stan.glmm %&gt;% getStan_CIs(type = &quot;roam&quot;)
+plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:5])
+plot.contrasts.2&lt;-c(&quot;&quot;,&quot;&quot;,contrasts$prange[6:9])
+
+labels &lt;- c(&quot;WT&quot;, 
+            &quot;rict-1(ft7)&quot;, 
+            &quot;pdf-2(tm4393)&quot;, 
+            &quot;pdf-2(tm4393); rict-1(ft7)&quot;, 
+            &quot;rict-1(ft7); Ex[pdf2p::pdf2]&quot;,
+            &quot;Ex[pdf2p::pdf2]&quot;) %&gt;%
+  stringr::str_wrap(width=10)
+
+(p&lt;-dauergut::plot_CIs(roam.pdf2[roam.pdf2$outlier.status == FALSE,], title=&#39;rict-1 effects on roaming behavior depends on pdf-2 signaling&#39;, plot.contrasts=plot.contrasts, plot.contrasts.2 = plot.contrasts.2,ypos = 800, offset = 100, type = &quot;grid&quot;, labels = labels))</code></pre>
+<p><img src="Figure_4_files/figure-html/pdf2%20roam%20suppression%20plot-1.png" width="672" /></p>
+<p><strong>Figure 4F</strong><br />
+PDF-2 signaling acts downstream of TORC2 in the regulation of foraging. Overexpression of <em>pdf-2</em> specifically suppresses the <em>rict-1</em> foraging defect. Exploratory behavior of indicated strains is shown. Each purple dot represents data from a single worm. Median is indicated by a horizontal purple line; error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the total number of animals examined during 3 independent days of assays. A single <em>pdf-1p::pdf-2</em> transgene was examined. P-values shown are between indicated values; <span style="color:black"><code>***</code></span> and <span style="color:red"><code>^^^</code></span> - different from WT and rict-1 at P&lt;0.001, respectively (GLMM with Tukey-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
+</div>
+<div id="s2a-b" class="section level2">
+<h2>S2A-B</h2>
+<pre class="r"><code>devtools::install_github(&quot;rasmusab/bayesian_first_aid&quot;)
+strains &lt;- c(&quot;N2&quot;,&quot;rict-1(ft7)&quot;)
+roam_beh &lt;- read.csv(file.path(pathname, &quot;extdata/S2B_starved_roam_dwell_all.csv&quot;)) %&gt;% 
+  mutate(genotype = factor(genotype, levels = strains), pct = pct.roam, plateID = interaction(date,genotype,plate))
+
+
+roam.t &lt;- t.test(roam_beh[roam_beh$genotype == strains[1],]$pct, roam_beh[roam_beh$genotype == strains[2],]$pct)
+
+glmm &lt;- lme4::glmer(data = roam_beh, cbind(roam, dwell) ~ genotype + (1|plateID), family = binomial)
+
+stan.glmm &lt;- stan_glmer(data = roam_beh, 
+                        formula = cbind(roam, dwell) ~ genotype + (1|plateID), 
+                        family = binomial,
+                        iter = 4000)
+
+mixed &lt;- stan.glmm %&gt;% getStan_CIs(type = &quot;dauer&quot;)
+contrasts &lt;- data.frame(p.value = roam.t$p.value) %&gt;% dauergut::prange()
+plot.contrasts &lt;- c(&quot;&quot;,contrasts$prange)
+
+labels &lt;- c(&quot;WT&quot;, &quot;rict-1(ft7)&quot;)
+
+p&lt;-dauergut::plot_CIs(roam_beh, plot.contrasts = plot.contrasts, type = &quot;dauer&quot;, title = &quot;&quot;, ypos = 1.05, offset = 0, labels = labels) + labs(subtitle = &quot;&quot;, y = &quot;proportion roaming&quot;) + 
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        axis.line = element_line(size=0.2),
+        axis.title = element_text(size=16))</code></pre>
+<div <div="" style="float: left; width: 50%;">
+<pre class="r"><code>#run speed_curvature_4x_parallel to reproduce these data from raw position, speed data located in /extdata/
+img.path &lt;- file.path(pathname, &quot;figures/S2A_starve_roam_density.png&quot;)
+include_graphics(img.path)</code></pre>
+<p><img src="figures/S2A_starve_roam_density.png" width="500" /></p>
+</div>
+<div style="float: left; width: 50%;">
+<pre class="r"><code>p</code></pre>
+<p><img src="Figure_4_files/figure-html/plot%20starved%20roam%20quantified-1.png" width="288" /></p>
+</div>
+<p><strong>Figure S2A-B</strong><br />
+(left) Live tracking of foraging behavior in starved worms. Shown is a representative assay. n &gt; 20 animals per assay. Density plot shows mean speed and angular velocity from tracks binned over 10 sec intervals imaged at 3 frames/sec. Red line indicates delineation of roaming and dwelling behavior. (right) Quantification of roaming and dwelling states. Dots show proportion of track time bins in which animals were roaming, with each dot reflecting one assay. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. P-value shown is with respect to wild-type (Welch’s t-test).</p>
+</div>
+<div id="s2c" class="section level2">
+<h2>S2C</h2>
+<pre class="r"><code>strains&lt;-c(&quot;N2&quot;,&quot;rict-1(ft7)&quot;,&quot;rict-1(ft7);pdfr-1&quot;)
+foods = &quot;OP50&quot;
+
+pdfr_dauer&lt;-read.csv(file.path(pathname, &quot;extdata/S2C_pdfr_dauer.csv&quot;)) %&gt;% format_dauer(p.dauer = &quot;non&quot;)
+
+pdfr_dauer %&lt;&gt;% mutate(adj.pct = case_when(.$pct == 0 ~ 0.01, .$pct == 1 ~ 0.99, TRUE ~ .$pct))
+
+lm &lt;- pdfr_dauer %&gt;% dauer_ANOVA()
+
+stan.glmm &lt;- pdfr_dauer %&gt;% run_dauer_stan
+
+contrasts&lt;-dauergut::tukey_contrasts(lm,&quot;genotype&quot;)
+mixed&lt;-stan.glmm %&gt;% getStan_CIs(type=&quot;dauer&quot;)
+plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:2])
+plot.contrasts.2&lt;-c(&quot;&quot;,&quot;&quot;,contrasts$prange[3])
+
+labels = c(&quot;WT&quot;, &quot;rict-1(ft7)&quot;, &quot; rict-1(ft7); pdfr-1(ok3425)&quot;) %&gt;% stringr::str_wrap(width = 10)
+
+p&lt;-dauergut::plot_CIs(pdfr_dauer, title=&#39;&#39;, plot.contrasts, plot.contrasts.2, ypos = 1.1, offset = 0.050, type = &quot;dauer&quot;, labels = labels)</code></pre>
+<div style="float: left; width: 50%;">
+<pre class="r"><code>p</code></pre>
+<p><img src="Figure_4_files/figure-html/pdfr-1%20duaer%20plot-1.png" width="384" /></p>
+</div>
+<p><br> <br> </br></p>
+<p><strong>Figure S2C</strong><br />
+pdfr-1 mutations do not suppress rict-1 dauer formation phenotypes. Each dot indicates the average number of dauers formed in a single assay. Horizontal bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent assays with at least 27 animals each. P-value shown in comparison to rict-1 mutants.</p>
+<pre class="r"><code>library(sjPlot)
+sjt.lm(lm, depvar.labels = &quot;number of entries&quot;, show.se = TRUE, show.fstat = TRUE)</code></pre>
 <table style="border-collapse:collapse; border:none;border-bottom:double;">
 <td style="padding:0.2cm; border-top:double;">
  
@@ -320,8 +1159,8 @@ sjt.lm(lm.int, depvar.labels = &quot;proportion of dauers&quot;, show.fstat = TR
 <td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
  
 </td>
-<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="3">
-proportion of dauers
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="4">
+number of entries
 </td>
 </tr>
 <tr>
@@ -338,6 +1177,9 @@ B
 CI
 </td>
 <td style="padding:0.2cm; text-align:center; font-style:italic; ">
+std. Error
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
 p
 </td>
 </tr>
@@ -349,32 +1191,38 @@ p
  
 </td>
 <td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
-0.39
+0.15
 </td>
 <td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
-0.31 – 0.46
+0.01 – 0.28
 </td>
 <td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
-&lt;.001
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
+.041
 </td>
 </tr>
 <tr>
-<td style="padding:0.2cm;" colspan="5">
+<td style="padding:0.2cm;" colspan="6">
 genotype
 </td>
 </tr>
 <tr>
 <td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
-genotyperict-1(mg360)
+rict-1(ft7)
 </td>
 <td style="padding-left:0.5em; padding-right:0.5em;">
  
 </td>
 <td style="padding:0.2cm; text-align:center; ">
-0.61
+0.74
 </td>
 <td style="padding:0.2cm; text-align:center; ">
-0.51 – 0.72
+0.53 – 0.95
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.10
 </td>
 <td style="padding:0.2cm; text-align:center; ">
 &lt;.001
@@ -382,70 +1230,22 @@ genotyperict-1(mg360)
 </tr>
 <tr>
 <td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
-genotyperict-1(ft7)
+rict-1(ft7);pdfr-1
 </td>
 <td style="padding-left:0.5em; padding-right:0.5em;">
  
 </td>
 <td style="padding:0.2cm; text-align:center; ">
-0.61
+0.84
 </td>
 <td style="padding:0.2cm; text-align:center; ">
-0.49 – 0.73
+0.66 – 1.03
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.08
 </td>
 <td style="padding:0.2cm; text-align:center; ">
 &lt;.001
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left;">
-foodHB101
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; ">
--0.22
-</td>
-<td style="padding:0.2cm; text-align:center; ">
--0.32 – -0.11
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-&lt;.001
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left;">
-genotyperict-1(mg360):foodHB101
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.22
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.07 – 0.37
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-.005
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left;">
-genotyperict-1(ft7):foodHB101
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.21
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.04 – 0.38
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-.017
 </td>
 </tr>
 <tr>
@@ -455,8 +1255,8 @@ Observations
 <td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
  
 </td>
-<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="3">
-52
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="4">
+16
 </td>
 </tr>
 <tr>
@@ -466,8 +1266,8 @@ R<sup>2</sup> / adj. R<sup>2</sup>
 <td style="padding-left:0.5em; padding-right:0.5em;">
  
 </td>
-<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="3">
-.913 / .904
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+.894 / .877
 </td>
 </tr>
 <tr>
@@ -477,20 +1277,14 @@ F-statistics
 <td style="padding-left:0.5em; padding-right:0.5em;">
  
 </td>
-<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="3">
-97.027***
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+54.659***
 </td>
 </tr>
 </table>
-<pre class="r"><code>knitr::kable(contrasts[1], caption = &quot;pairwise comparisons by genotype (ANOVA)&quot;)</code></pre>
-<table class="kable_wrapper">
-<caption>
-pairwise comparisons by genotype (ANOVA)
-</caption>
-<tbody>
-<tr>
-<td>
+<pre class="r"><code>knitr::kable(contrasts, caption = &quot;pairwise comparisons (ANOVA)&quot;)</code></pre>
 <table>
+<caption>pairwise comparisons (ANOVA)</caption>
 <thead>
 <tr class="header">
 <th align="left">contrast</th>
@@ -504,368 +1298,31 @@ pairwise comparisons by genotype (ANOVA)
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">rict-1(mg360) - N2</td>
-<td align="right">0.7222366</td>
-<td align="right">0.0369869</td>
-<td align="right">46</td>
-<td align="right">19.52681</td>
-<td align="right">0</td>
+<td align="left">N2 - rict-1(ft7)</td>
+<td align="right">-0.7407588</td>
+<td align="right">0.0965166</td>
+<td align="right">13</td>
+<td align="right">-7.674941</td>
+<td align="right">0.0000070</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
-<td align="left">rict-1(ft7) - N2</td>
-<td align="right">0.7187193</td>
-<td align="right">0.0427088</td>
-<td align="right">46</td>
-<td align="right">16.82836</td>
-<td align="right">0</td>
+<td align="left">N2 - rict-1(ft7);pdfr-1</td>
+<td align="right">-0.8440491</td>
+<td align="right">0.0842466</td>
+<td align="right">13</td>
+<td align="right">-10.018797</td>
+<td align="right">0.0000000</td>
 <td align="left">***</td>
 </tr>
-</tbody>
-</table>
-</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>knitr::kable(contrasts[2], caption = &quot;pairwise comparisons by food (ANOVA)&quot;)</code></pre>
-<table class="kable_wrapper">
-<caption>
-pairwise comparisons by food (ANOVA)
-</caption>
-<tbody>
-<tr>
-<td>
-<table>
-<thead>
-<tr class="header">
-<th align="left">contrast</th>
-<th align="left">genotype</th>
-<th align="right">estimate</th>
-<th align="right">SE</th>
-<th align="right">df</th>
-<th align="right">t.ratio</th>
-<th align="right">p.value</th>
-<th align="left">prange</th>
-</tr>
-</thead>
-<tbody>
 <tr class="odd">
-<td align="left">OP50 - HB101</td>
-<td align="left">N2</td>
-<td align="right">0.2190433</td>
-<td align="right">0.0523074</td>
-<td align="right">46</td>
-<td align="right">4.1876156</td>
-<td align="right">0.0003877</td>
-<td align="left">***</td>
-</tr>
-<tr class="even">
-<td align="left">OP50 - HB101</td>
-<td align="left">rict-1(mg360)</td>
-<td align="right">0.0012987</td>
-<td align="right">0.0523074</td>
-<td align="right">46</td>
-<td align="right">0.0248282</td>
-<td align="right">0.9999921</td>
-<td align="left">p~1</td>
-</tr>
-<tr class="odd">
-<td align="left">OP50 - HB101</td>
-<td align="left">rict-1(ft7)</td>
-<td align="right">0.0083333</td>
-<td align="right">0.0675286</td>
-<td align="right">46</td>
-<td align="right">0.1234045</td>
-<td align="right">0.9990375</td>
-<td align="left">p~1</td>
-</tr>
-</tbody>
-</table>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="b" class="section level2">
-<h2>4B</h2>
-<pre class="r"><code>#days = as.factor(8:10)
-strains = c(&quot;N2&quot;,&quot;mg360&quot;)
-foods = c(&quot;OP50&quot;,&quot;HB101&quot;)
-days = &quot;1_20_15&quot;
-
-d28 &lt;- read.csv(&#39;extdata/2D_3B_4B_daf-28_GFP_rict-1.csv&#39;) %&gt;%
-separate(ID, c(&quot;ID.A&quot;, &quot;ID.B&quot;), sep = &quot;:&quot;, extra = &quot;drop&quot;) %&gt;%
-  subset(food %in% foods &amp; date %in% days &amp; temp == &quot;27&quot; &amp; genotype %in% strains &amp; pheromone == 0 &amp; neuron == &quot;ASJ&quot;) %&gt;% 
-  mutate(day = as.factor(day), genotype = factor(genotype, levels = strains),
-         genoID = interaction(date,genotype, ID.A), food = factor(food, levels = foods), 
-         neuron = factor(neuron, levels = &quot;ASJ&quot;), cell.norm = mean)
-
-# lin mod to flag outliers
-lm.add &lt;- lm(cell.norm ~ genotype + food, data = d28)
-lm.int &lt;- lm(cell.norm ~ genotype * food, data = d28)
-
-d28 %&lt;&gt;% flag_outliers(lin.mod=lm.int, threshold = 4, df = ., noplot=TRUE)
-
-d28 %&lt;&gt;% mutate(group.id = interaction(genotype, food))
-
-lm.int &lt;- lm(cell.norm ~ genotype * food, data = d28[d28$outlier.status == FALSE,])
-lm.add &lt;- lm(cell.norm ~ genotype + food, data = d28[d28$outlier.status == FALSE,])
-
-stan.lm &lt;- stan_glm(formula = cell.norm ~ group.id,
-                       data=d28[d28$outlier.status == FALSE,],
-                       family = gaussian(),
-                       prior = cauchy(),
-                       prior_intercept = cauchy(),
-                       chains = 3, cores =4, seed = 2000,iter=6000,
-                       control = list(adapt_delta=0.99))
-
-contrasts &lt;- dauergut::dunnett_contrasts(lm.int, ref.index = 1, factor = &quot;genotype&quot;, interaction = &quot;food&quot;)
-mixed &lt;- getStan_CIs(stan.lm, group = &quot;food&quot;) %&gt;% 
-  mutate(food = factor(food, levels = foods), genotype = factor(genotype, levels = strains))
-
-#make contrasts with ID for facetting
-plot.contrasts &lt;- c(&quot;&quot;,contrasts$interaction$prange[1],&quot;&quot;,contrasts$interaction$prange[2])
-
-index&lt;-rep(seq_len(length(strains)), each = length(foods))
-plot.contrasts.H0 &lt;- data.frame(cbind(food = rep(foods, length(strains)), genotype = strains[index])) %&gt;%
-  mutate(prange = plot.contrasts)
-
-(p&lt;-ggplot(d28, aes(x=food)) +
-  list(add.median(),add.quartiles()) +
-    add.Bayes.CI() +
-       geom_quasirandom(aes(y=cell.norm, ),colour = &quot;#339900&quot;, cex=1,
-                           width = 0.075,size=0.3,
-                           method = &#39;smiley&#39;) +
-  labs(y = &quot;mean GFP expression (AU)&quot;,
-           x = &quot;food&quot;) +
-  geom_text(data = plot.contrasts.H0, aes(x=food, label = prange, y = 4200, group = NULL), size = 4) + 
-  facet_grid(.~genotype, switch=&quot;both&quot;) +
-  scale_colour_manual(values = c(&quot;black&quot;, &quot;#FF9933&quot;)) +
-  theme_classic() +
-    theme(strip.text.x = element_text(size = 12, face = &quot;italic&quot;),
-      axis.text.x = element_text(size = 12),
-          axis.text.y = element_text(size = 12),
-          axis.line = element_line(size=0.2),
-          axis.title = element_text(size=16),
-      axis.title.x = element_blank()) +
-    stat_summary(aes(x=as.numeric(as.factor(food)) + 0.3, y=100),
-                   fun.data = fun_length, geom = &quot;text&quot;, size = 3))</code></pre>
-<p><img src="Figure_4_files/figure-html/daf-28%20increased%20by%20HB101-1.png" width="672" /></p>
-<p><strong>Figure 4B</strong></p>
-<p>Quantification of <em>daf-28p::gfp</em> fluorescence in ASJ neurons of wild-type and rict-1 mutant L2 larvae grown on OP50 and HB101 at 27°C. Each data point is the average GFP fluorescence of a single animal (two neurons per animal); numbers in parentheses below indicate the total number of neurons examined. Horizontal lines are the median; error bars are the quartiles. P-values are with respect to growth on OP50; <code>***</code> - different from growth on OP50 at P&lt;0.01 [two-factor ANOVA with F(9.02) with 1 Df, P=1 for genotype*food interaction, Tukey-type multivariate-t post-hoc adjustment]. Outliers were identified using both Cook’s Distance and standardized residuals. 2 outliers were removed from analysis.</p>
-<pre class="r"><code>library(sjPlot)
-sjt.lm(lm.int, depvar.labels = &quot;log(GFP intensity) (AU)&quot;, show.fstat = TRUE)</code></pre>
-<table style="border-collapse:collapse; border:none;border-bottom:double;">
-<td style="padding:0.2cm; border-top:double;">
- 
-</td>
-<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="3">
-log(GFP intensity) (AU)
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; font-style:italic;">
- 
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; font-style:italic; ">
-B
-</td>
-<td style="padding:0.2cm; text-align:center; font-style:italic; ">
-CI
-</td>
-<td style="padding:0.2cm; text-align:center; font-style:italic; ">
-p
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; border-top:1px solid; text-align:left;">
-(Intercept)
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid; ">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
-2679.65
-</td>
-<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
-2246.03 – 3113.27
-</td>
-<td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
-&lt;.001
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left;">
-genotypemg360
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; ">
--645.10
-</td>
-<td style="padding:0.2cm; text-align:center; ">
--1272.12 – -18.09
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-.044
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left;">
-foodHB101
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-1158.58
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-557.25 – 1759.90
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-&lt;.001
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left;">
-genotypemg360:foodHB101
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; ">
--1294.75
-</td>
-<td style="padding:0.2cm; text-align:center; ">
--2163.51 – -426.00
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-.004
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
-Observations
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
- 
-</td>
-<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="3">
-48
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
-R<sup>2</sup> / adj. R<sup>2</sup>
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="3">
-.545 / .514
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
-F-statistics
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="3">
-17.588***
-</td>
-</tr>
-</table>
-<pre class="r"><code>knitr::kable(contrasts[1], caption = &quot;pairwise comparisons by genotype (ANOVA)&quot;)</code></pre>
-<table class="kable_wrapper">
-<caption>
-pairwise comparisons by genotype (ANOVA)
-</caption>
-<tbody>
-<tr>
-<td>
-<table>
-<thead>
-<tr class="header">
-<th align="left">contrast</th>
-<th align="right">estimate</th>
-<th align="right">SE</th>
-<th align="right">df</th>
-<th align="right">t.ratio</th>
-<th align="right">p.value</th>
-<th align="left">prange</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">mg360 - N2</td>
-<td align="right">-1292.479</td>
-<td align="right">215.5337</td>
-<td align="right">44</td>
-<td align="right">-5.996645</td>
-<td align="right">0.0000003</td>
-<td align="left">***</td>
-</tr>
-</tbody>
-</table>
-</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>knitr::kable(contrasts[2], caption = &quot;pairwise comparisons by food (ANOVA)&quot;)</code></pre>
-<table class="kable_wrapper">
-<caption>
-pairwise comparisons by food (ANOVA)
-</caption>
-<tbody>
-<tr>
-<td>
-<table>
-<thead>
-<tr class="header">
-<th align="left">contrast</th>
-<th align="left">genotype</th>
-<th align="right">estimate</th>
-<th align="right">SE</th>
-<th align="right">df</th>
-<th align="right">t.ratio</th>
-<th align="right">p.value</th>
-<th align="left">prange</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">OP50 - HB101</td>
-<td align="left">N2</td>
-<td align="right">-1158.5753</td>
-<td align="right">298.3703</td>
-<td align="right">44</td>
-<td align="right">-3.8830108</td>
-<td align="right">0.0006844</td>
-<td align="left">***</td>
-</tr>
-<tr class="even">
-<td align="left">OP50 - HB101</td>
-<td align="left">mg360</td>
-<td align="right">136.1794</td>
-<td align="right">311.1178</td>
-<td align="right">44</td>
-<td align="right">0.4377099</td>
-<td align="right">0.8857917</td>
-<td align="left">p~0.89</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td align="left">rict-1(ft7) - rict-1(ft7);pdfr-1</td>
+<td align="right">-0.1032903</td>
+<td align="right">0.0901806</td>
+<td align="right">13</td>
+<td align="right">-1.145372</td>
+<td align="right">0.5036897</td>
+<td align="left">p~0.5</td>
 </tr>
 </tbody>
 </table>
