@@ -224,9 +224,6 @@ $(document).ready(function () {
     <li>
       <a href="Figure_7.html">Figure 7</a>
     </li>
-    <li>
-      <a href="Figure_8.html">Figure 8</a>
-    </li>
   </ul>
 </li>
       </ul>
@@ -260,7 +257,7 @@ $(document).ready(function () {
 <h2>2A</h2>
 <pre class="r"><code>strains&lt;-c(&quot;N2&quot;,&quot;mg360&quot;,&quot;ft7&quot;,&quot;ft7_ges1resc&quot;, &quot;ft7_ifb2resc&quot;, &quot;ft7_gpa4resc&quot;)
 dates&lt;-c(&quot;10_22_16&quot;, &quot;11_9_16&quot;, &quot;11_23_16&quot;, &quot;12_16_17&quot;, &quot;12_20_17&quot;) #dropped &quot;12_6_16&quot; due to missingness
-d7GFP&lt;-read.csv(file.path(pathname,&quot;extdata/2A_3A_daf7GFP.csv&quot;)) %&gt;%
+d7GFP&lt;-read.csv(file.path(pathname,&quot;extdata&quot;,&quot;2A_3A_daf7GFP.csv&quot;)) %&gt;%
   filter(mean!=4095 &amp; genotype %in% strains &amp; date %in% dates &amp; temp == &quot;27&quot; &amp; food == &quot;OP50&quot;) %&gt;%
   mutate(genotype = factor(genotype, levels=strains), 
          ID = as.character(ID),
@@ -299,13 +296,34 @@ df &lt;- flag_outliers(linmod, df = df, threshold = 4, noplot = TRUE)
 linmod &lt;- with(log.tran, lm(linkfun(cell.norm) ~ genotype, data = df[df$outlier.status == FALSE,]))
 
 
-stanlmer &lt;- with(log.tran, rstanarm::stan_lmer(linkfun(cell.norm) ~ genotype + (1|date) + (1:genotype:date), 
+stanlmer &lt;- with(log.tran, rstanarm::stan_lmer(linkfun(cell.norm) ~ genotype + (1|date) + (1|genotype:date), 
                                                data = df[df$outlier.status == FALSE,], 
                                                chains = 3, 
                                                cores =4, 
                                                seed = 2000,
                                                iter=6000,
                                                control = list(adapt_delta=0.99)))
+
+#refit stanlmer using ft7 as reference to get credible interval for ifb-2 rescue:
+df2 &lt;- df %&gt;% mutate(genotype = factor(genotype, levels = c(strains[3],strains[1:2],strains[4:6])))
+stanlmer2 &lt;- with(log.tran, rstanarm::stan_lmer(linkfun(cell.norm) ~ genotype + (1|date) + (1|genotype:date),
+                                               data = df2[df2$outlier.status == FALSE,],
+                                               chains = 3,
+                                               cores =4,
+                                               seed = 2000,
+                                               iter=6000,
+                                               control = list(adapt_delta=0.99)))
+# 
+stanlmer3 &lt;- with(log.tran, rstanarm::stan_lmer(linkfun(cell.norm) ~ genotype + (1 + genotype|date),
+                                               data = df2[df2$outlier.status == FALSE,],
+                                               chains = 3,
+                                               cores =4,
+                                               seed = 2000,
+                                               iter=6000,
+                                               control = list(adapt_delta=0.99)))
+
+PI_ifb2 &lt;- rstanarm::posterior_interval(stanlmer2, pars = &quot;(Intercept)&quot;, regex_pars = &quot;ifb&quot;, prob = 0.90)
+p2 &lt;- plot(stanlmer3, pars = &quot;beta&quot;) #, regex_pars = &quot;genotype&quot;)
 
 contrasts &lt;- tukey_contrasts(linmod, factor = &quot;genotype&quot;)
 plot.contrasts &lt;- c(&quot;&quot;,contrasts$prange[1:5])
@@ -329,7 +347,7 @@ p &lt;- df[df$outlier.status == FALSE,] %&gt;%
                      ypos = 6000,
                      offset = 500)
 
-img.path &lt;- file.path(pathname,&quot;figures/2A_daf7GFP.png&quot;)</code></pre>
+img.path &lt;- file.path(pathname,&quot;figures&quot;,&quot;2A_daf7GFP.png&quot;)</code></pre>
 <div style="float: left; width: 425;">
 <pre class="r"><code>include_graphics(img.path)                                   </code></pre>
 <p><img src="figures/2A_daf7GFP.png" width="200" /></p>
@@ -582,7 +600,7 @@ F-statistics
 <td align="right">0.0343846</td>
 <td align="right">256</td>
 <td align="right">2.4129517</td>
-<td align="right">0.1499391</td>
+<td align="right">0.1502563</td>
 <td align="left">p~0.15</td>
 </tr>
 <tr class="odd">
@@ -591,7 +609,7 @@ F-statistics
 <td align="right">0.0358656</td>
 <td align="right">256</td>
 <td align="right">4.5804970</td>
-<td align="right">0.0001007</td>
+<td align="right">0.0000990</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -600,7 +618,7 @@ F-statistics
 <td align="right">0.0336587</td>
 <td align="right">256</td>
 <td align="right">-5.1423072</td>
-<td align="right">0.0000060</td>
+<td align="right">0.0000072</td>
 <td align="left">***</td>
 </tr>
 <tr class="odd">
@@ -627,7 +645,7 @@ F-statistics
 <td align="right">0.0421934</td>
 <td align="right">256</td>
 <td align="right">-4.2691946</td>
-<td align="right">0.0003474</td>
+<td align="right">0.0003914</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -636,7 +654,7 @@ F-statistics
 <td align="right">0.0349688</td>
 <td align="right">256</td>
 <td align="right">-4.8573587</td>
-<td align="right">0.0000241</td>
+<td align="right">0.0000314</td>
 <td align="left">***</td>
 </tr>
 <tr class="odd">
@@ -645,7 +663,7 @@ F-statistics
 <td align="right">0.0345066</td>
 <td align="right">256</td>
 <td align="right">-2.5607400</td>
-<td align="right">0.1066950</td>
+<td align="right">0.1068342</td>
 <td align="left">p~0.107</td>
 </tr>
 <tr class="even">
@@ -663,7 +681,7 @@ F-statistics
 <td align="right">0.0420256</td>
 <td align="right">256</td>
 <td align="right">1.9391429</td>
-<td align="right">0.3713625</td>
+<td align="right">0.3713964</td>
 <td align="left">p~0.37</td>
 </tr>
 <tr class="even">
@@ -672,7 +690,7 @@ F-statistics
 <td align="right">0.0432458</td>
 <td align="right">256</td>
 <td align="right">3.7647094</td>
-<td align="right">0.0027101</td>
+<td align="right">0.0026548</td>
 <td align="left">**</td>
 </tr>
 <tr class="odd">
@@ -681,7 +699,7 @@ F-statistics
 <td align="right">0.0428729</td>
 <td align="right">256</td>
 <td align="right">1.8966308</td>
-<td align="right">0.3971391</td>
+<td align="right">0.3971483</td>
 <td align="left">p~0.4</td>
 </tr>
 </tbody>
@@ -701,64 +719,69 @@ F-statistics
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">2729.675</td>
-<td align="right">2439.534</td>
-<td align="right">3033.991</td>
-<td align="right">2569.258</td>
-<td align="right">2895.363</td>
+<td align="right">2712.912</td>
+<td align="right">2361.302</td>
+<td align="right">3080.057</td>
+<td align="right">2602.961</td>
+<td align="right">2830.930</td>
 <td align="left">N2</td>
 </tr>
 <tr class="even">
-<td align="right">1266.015</td>
-<td align="right">1082.554</td>
-<td align="right">1481.624</td>
-<td align="right">1155.396</td>
-<td align="right">1388.124</td>
+<td align="right">1266.259</td>
+<td align="right">1050.407</td>
+<td align="right">1538.683</td>
+<td align="right">1187.433</td>
+<td align="right">1347.060</td>
 <td align="left">mg360</td>
 </tr>
 <tr class="odd">
-<td align="right">1838.915</td>
-<td align="right">1647.223</td>
-<td align="right">2054.513</td>
-<td align="right">1723.318</td>
-<td align="right">1963.283</td>
+<td align="right">1843.822</td>
+<td align="right">1585.181</td>
+<td align="right">2165.127</td>
+<td align="right">1752.443</td>
+<td align="right">1937.272</td>
 <td align="left">ft7</td>
 </tr>
 <tr class="even">
-<td align="right">2778.127</td>
-<td align="right">2380.108</td>
-<td align="right">3270.805</td>
-<td align="right">2536.192</td>
-<td align="right">3047.374</td>
+<td align="right">2768.835</td>
+<td align="right">2271.144</td>
+<td align="right">3387.495</td>
+<td align="right">2596.101</td>
+<td align="right">2955.832</td>
 <td align="left">ft7_ges1resc</td>
 </tr>
 <tr class="odd">
-<td align="right">2243.781</td>
-<td align="right">1927.171</td>
-<td align="right">2616.168</td>
-<td align="right">2048.518</td>
-<td align="right">2453.462</td>
+<td align="right">2252.374</td>
+<td align="right">1833.448</td>
+<td align="right">2795.261</td>
+<td align="right">2108.516</td>
+<td align="right">2401.470</td>
 <td align="left">ft7_ifb2resc</td>
 </tr>
 <tr class="even">
-<td align="right">1857.772</td>
-<td align="right">1568.741</td>
-<td align="right">2192.512</td>
-<td align="right">1685.727</td>
-<td align="right">2046.611</td>
+<td align="right">1866.109</td>
+<td align="right">1526.721</td>
+<td align="right">2311.558</td>
+<td align="right">1741.499</td>
+<td align="right">1994.483</td>
 <td align="left">ft7_gpa4resc</td>
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>p2</code></pre>
+<p><img src="Figure_2_files/figure-html/2A%20daf-7%20stats-1.png" width="672" /></p>
 </div>
 <div id="b" class="section level2">
 <h2>2B</h2>
 <pre class="r"><code>daf7FISH&lt;-read.csv(&quot;extdata/2B_daf7FISH_4frames.csv&quot;) %&gt;%
   separate(Label, c(&quot;method&quot;,&quot;group&quot;,&quot;sample&quot;),sep = c(&quot;-&quot;), extra = &quot;drop&quot;) %&gt;%
   separate(sample, c(&quot;sample&quot;, &quot;type&quot;),sep =&quot;:&quot;, extra = &quot;drop&quot;) %&gt;%
-  mutate(genotype = data.frame(do.call(rbind, strsplit(as.vector(group), split = &quot;daf7_mRNA_L1_27d_&quot;)))[,2]) %&gt;%
-  mutate(ID = interaction(genotype, sample)) %&gt;%
-  mutate(genotype = factor(genotype, levels = c(&quot;N2&quot;, &quot;ft7&quot;, &quot;mg360&quot;, &quot;mg360resc&quot;)))
+  mutate(genotype = data.frame(do.call(rbind, strsplit(as.vector(group), split = &quot;daf7_mRNA_L1_27d_&quot;)))[,2],
+         ID = interaction(genotype, sample),
+         genotype = factor(genotype, levels = c(&quot;N2&quot;, &quot;ft7&quot;, &quot;mg360&quot;, &quot;mg360resc&quot;)),
+         group.id = dplyr::case_when(
+           genotype %in% c(&quot;ft7&quot;,&quot;mg360&quot;) ~ as.character(&quot;mutant&quot;),
+           TRUE ~ as.character(genotype)))
 
 #measured background fluorescence of each of 4 frames to normalize the sum projection of the neuron
 #merge to add mean background value to each row:
@@ -766,8 +789,8 @@ background &lt;- filter(daf7FISH, type == &quot;background&quot;) %&gt;%
   dplyr::select(ID, mean)
 colnames(background) &lt;- c(&quot;ID&quot;, &quot;background&quot;)
 
-cells&lt;-dplyr::filter(daf7FISH, type == &quot;cell&quot;) %&gt;% dplyr::select(ID, sample, mean, genotype)
-colnames(cells) &lt;- c(&quot;ID&quot;, &quot;sample&quot;, &quot;cell.mean&quot;, &quot;genotype&quot;)
+cells&lt;-dplyr::filter(daf7FISH, type == &quot;cell&quot;) %&gt;% dplyr::select(ID, sample, mean, genotype, group.id)
+colnames(cells) &lt;- c(&quot;ID&quot;, &quot;sample&quot;, &quot;cell.mean&quot;, &quot;genotype&quot;,&quot;group.id&quot;)
 
 daf7FISH &lt;- merge(cells, background,by=&quot;ID&quot;) %&gt;%
   mutate(cell.norm = cell.mean - mean(background),
@@ -785,6 +808,9 @@ lm.1&lt;-lm(data=daf7FISH[daf7FISH$outlier.status == FALSE,], formula=cell.norm~
 
 
 stanlm &lt;- stan_glm(cell.norm ~ genotype, data = daf7FISH[daf7FISH$outlier.status == FALSE,])
+
+
+
 
 #plot daf7 FISH
 strains &lt;- levels(daf7FISH$genotype)
@@ -974,7 +1000,7 @@ F-statistics
 <td align="right">7.293687</td>
 <td align="right">73</td>
 <td align="right">-2.5137625</td>
-<td align="right">0.0400817</td>
+<td align="right">0.0400212</td>
 <td align="left">p~0.04</td>
 </tr>
 <tr class="even">
@@ -983,7 +1009,7 @@ F-statistics
 <td align="right">7.674908</td>
 <td align="right">73</td>
 <td align="right">-2.5989094</td>
-<td align="right">0.0322736</td>
+<td align="right">0.0322919</td>
 <td align="left">p~0.032</td>
 </tr>
 <tr class="odd">
@@ -992,7 +1018,7 @@ F-statistics
 <td align="right">9.629102</td>
 <td align="right">73</td>
 <td align="right">0.2302064</td>
-<td align="right">0.9930284</td>
+<td align="right">0.9930289</td>
 <td align="left">p~1</td>
 </tr>
 </tbody>
@@ -1013,35 +1039,35 @@ F-statistics
 <tbody>
 <tr class="odd">
 <td align="left">N2</td>
-<td align="right">66.24025</td>
-<td align="right">57.44365</td>
-<td align="right">75.24567</td>
-<td align="right">61.20921</td>
-<td align="right">71.43419</td>
+<td align="right">66.18412</td>
+<td align="right">56.79098</td>
+<td align="right">75.74542</td>
+<td align="right">63.04160</td>
+<td align="right">69.23995</td>
 </tr>
 <tr class="even">
 <td align="left">ft7</td>
-<td align="right">48.14157</td>
-<td align="right">33.32620</td>
-<td align="right">62.49622</td>
-<td align="right">39.93442</td>
-<td align="right">56.58006</td>
+<td align="right">48.13728</td>
+<td align="right">33.32008</td>
+<td align="right">62.50245</td>
+<td align="right">43.28515</td>
+<td align="right">52.95501</td>
 </tr>
 <tr class="odd">
 <td align="left">mg360</td>
-<td align="right">46.72586</td>
-<td align="right">31.48452</td>
-<td align="right">61.87346</td>
-<td align="right">37.96765</td>
-<td align="right">55.38265</td>
+<td align="right">46.58080</td>
+<td align="right">31.83688</td>
+<td align="right">61.77643</td>
+<td align="right">41.42211</td>
+<td align="right">51.54383</td>
 </tr>
 <tr class="even">
 <td align="left">mg360resc</td>
-<td align="right">68.69806</td>
-<td align="right">50.79371</td>
-<td align="right">86.91569</td>
-<td align="right">57.68211</td>
-<td align="right">79.36948</td>
+<td align="right">68.51699</td>
+<td align="right">48.63158</td>
+<td align="right">88.26579</td>
+<td align="right">61.93467</td>
+<td align="right">75.20053</td>
 </tr>
 </tbody>
 </table>
@@ -1067,7 +1093,7 @@ df &lt;- d28 %&gt;% group_by(neuron,date,genotype,genoID) %&gt;%
            date %in% c(&quot;12_1_16&quot;,&quot;12_6_16&quot;,&quot;9_21_16&quot;) ~ &quot;3C_3D&quot;,
            date %in% c(&quot;12_20_17&quot;, &quot;12_21_17&quot;) ~ &quot;_new&quot;
          )) # take mean of each worm</code></pre>
-<pre class="r"><code>day.means &lt;- df %&gt;% 
+<pre class="r"><code>day.means &lt;- df %&gt;%
   filter(genotype == &quot;ft7&quot;) %&gt;% 
   group_by(date,neuron) %&gt;%
   summarise(mean_ft7 = mean(cell.norm)) %&gt;% data.frame()
@@ -1147,7 +1173,7 @@ p &lt;- df %&gt;%
         panel.spacing.x=unit(2,&quot;lines&quot;))
 
 #image of daf-28 GFP
-img.path &lt;- file.path(pathname,&quot;figures/2D_daf-28GFP.png&quot;)</code></pre>
+img.path &lt;- file.path(pathname,&quot;figures&quot;,&quot;2D_daf-28GFP.png&quot;)</code></pre>
 <div style="float: left; width: 425;">
 <pre class="r"><code>include_graphics(img.path)                            </code></pre>
 <p><img src="figures/2D_daf-28GFP.png" width="195" /></p>
@@ -1407,67 +1433,67 @@ F-statistics
 <tbody>
 <tr class="odd">
 <td align="left">N2</td>
-<td align="right">1300.0657</td>
-<td align="right">1139.2766</td>
-<td align="right">1485.2352</td>
-<td align="right">1213.0843</td>
-<td align="right">1391.0664</td>
+<td align="right">1299.9996</td>
+<td align="right">1145.1797</td>
+<td align="right">1476.4038</td>
+<td align="right">1250.1317</td>
+<td align="right">1351.6646</td>
 </tr>
 <tr class="even">
 <td align="left">ft7</td>
-<td align="right">858.7757</td>
-<td align="right">769.7244</td>
-<td align="right">961.1909</td>
-<td align="right">804.5549</td>
-<td align="right">913.8147</td>
+<td align="right">859.6033</td>
+<td align="right">771.1694</td>
+<td align="right">960.9788</td>
+<td align="right">828.8505</td>
+<td align="right">890.9147</td>
 </tr>
 <tr class="odd">
 <td align="left">ft7exifb2</td>
-<td align="right">1264.1975</td>
-<td align="right">1105.7374</td>
-<td align="right">1442.9993</td>
-<td align="right">1170.2541</td>
-<td align="right">1364.6102</td>
+<td align="right">1261.4649</td>
+<td align="right">1107.9557</td>
+<td align="right">1440.1995</td>
+<td align="right">1203.4325</td>
+<td align="right">1321.1010</td>
 </tr>
 <tr class="even">
 <td align="left">ft7exgpa4</td>
-<td align="right">784.1874</td>
-<td align="right">692.4622</td>
-<td align="right">880.0949</td>
-<td align="right">729.7354</td>
-<td align="right">841.0402</td>
+<td align="right">783.6498</td>
+<td align="right">694.9744</td>
+<td align="right">882.2992</td>
+<td align="right">753.2274</td>
+<td align="right">815.7616</td>
 </tr>
 <tr class="odd">
 <td align="left">N2</td>
-<td align="right">814.5682</td>
-<td align="right">738.4445</td>
-<td align="right">897.5871</td>
-<td align="right">767.8443</td>
-<td align="right">862.9498</td>
+<td align="right">815.4582</td>
+<td align="right">739.2843</td>
+<td align="right">898.4758</td>
+<td align="right">788.3573</td>
+<td align="right">842.9461</td>
 </tr>
 <tr class="even">
 <td align="left">ft7</td>
-<td align="right">628.9904</td>
-<td align="right">566.5905</td>
-<td align="right">700.4577</td>
-<td align="right">592.2207</td>
-<td align="right">668.1658</td>
+<td align="right">629.5631</td>
+<td align="right">566.2970</td>
+<td align="right">699.1982</td>
+<td align="right">607.4122</td>
+<td align="right">651.7286</td>
 </tr>
 <tr class="odd">
 <td align="left">ft7exifb2</td>
-<td align="right">823.6092</td>
-<td align="right">719.9826</td>
-<td align="right">947.8131</td>
-<td align="right">761.4847</td>
-<td align="right">888.6536</td>
+<td align="right">823.3521</td>
+<td align="right">722.0930</td>
+<td align="right">941.9255</td>
+<td align="right">786.8196</td>
+<td align="right">861.3586</td>
 </tr>
 <tr class="even">
 <td align="left">ft7exgpa4</td>
-<td align="right">645.6057</td>
-<td align="right">575.6400</td>
-<td align="right">723.2008</td>
-<td align="right">603.8360</td>
-<td align="right">690.8866</td>
+<td align="right">645.7176</td>
+<td align="right">577.1610</td>
+<td align="right">722.8234</td>
+<td align="right">620.9294</td>
+<td align="right">672.1539</td>
 </tr>
 </tbody>
 </table>
@@ -1910,7 +1936,7 @@ pairwise comparisons by food (ANOVA)
 <td align="right">0.0523074</td>
 <td align="right">46</td>
 <td align="right">4.1876156</td>
-<td align="right">0.0003688</td>
+<td align="right">0.0003681</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -1930,7 +1956,7 @@ pairwise comparisons by food (ANOVA)
 <td align="right">0.0675286</td>
 <td align="right">46</td>
 <td align="right">0.1234045</td>
-<td align="right">0.9990379</td>
+<td align="right">0.9990378</td>
 <td align="left">p~1</td>
 </tr>
 </tbody>
@@ -1942,7 +1968,7 @@ pairwise comparisons by food (ANOVA)
 </div>
 <div id="s1a" class="section level2">
 <h2>S1A</h2>
-<pre class="r"><code>include_graphics(file.path(pathname, &quot;figures/S1A_daf7FISH.png&quot;))</code></pre>
+<pre class="r"><code>include_graphics(file.path(pathname, &quot;figures&quot;,&quot;S1A_daf7FISH.png&quot;))</code></pre>
 <p><img src="figures/S1A_daf7FISH.png" width="202" /></p>
 </div>
 <div id="s1b" class="section level2">
@@ -1950,7 +1976,7 @@ pairwise comparisons by food (ANOVA)
 <pre class="r"><code>strains&lt;-c(&quot;N2&quot;,&quot;mg360&quot;)
 conc.adjust &lt;-15
 dates&lt;-c(&quot;8_10_16&quot;)
-d7GFP&lt;-read.csv(file.path(pathname,&quot;extdata/2A_3A_daf7GFP.csv&quot;)) %&gt;% filter(mean!=4095 &amp; genotype %in% strains &amp; date %in% dates &amp; temp == &quot;25&quot; &amp; food == &quot;OP50&quot;) %&gt;% mutate(genotype = factor(genotype, levels=strains), ID = as.character(ID)) %&gt;%
+d7GFP&lt;-read.csv(file.path(pathname,&quot;extdata&quot;,&quot;2A_3A_daf7GFP.csv&quot;)) %&gt;% filter(mean!=4095 &amp; genotype %in% strains &amp; date %in% dates &amp; temp == &quot;25&quot; &amp; food == &quot;OP50&quot;) %&gt;% mutate(genotype = factor(genotype, levels=strains), ID = as.character(ID)) %&gt;%
   separate(ID, c(&quot;ID.A&quot;, &quot;ID.B&quot;), sep = &quot;:&quot;, extra = &quot;drop&quot;) %&gt;% 
   mutate(genoID = paste(date, genotype, ID.A, sep = &quot;:&quot;), cell.norm = mean, adj.pheromone = pheromone + conc.adjust, 
          inv.pher = 1/adj.pheromone) #genoID is animal, 2 cells per animal measured.
@@ -1983,11 +2009,11 @@ newdata1 &lt;- cbind(newdata, predictions.2)
 newdata1 %&lt;&gt;% mutate(lower = (fit - se.fit), upper = (fit + se.fit), AU = fit, genotype = factor(genotype, levels = strains))
 
 
-(p&lt;-df %&gt;% ggplot(aes(x= adj.pheromone,y = AU)) +
-    geom_ribbon(data = newdata1,aes(ymin=lower, ymax=upper,fill=genotype), alpha=0.3) +
+(p&lt;-df %&gt;% ungroup %&gt;% ggplot(aes(x= adj.pheromone)) +
+    geom_ribbon(data = newdata1,aes(ymin=lower, ymax=upper, fill=genotype), alpha=0.3) +
     geom_line(data = newdata1,aes(x =  adj.pheromone, y = AU, colour = genotype)) +
     add.median(width = 150) +
-    add.quartiles(width = 60) + 
+    add.quartiles(width = 60) +
     geom_quasirandom(aes(y=cell.norm),colour = &quot;#339900&quot;, cex=1,
                            width = 40,size=0.3,
                            method = &#39;smiley&#39;) +
@@ -2201,7 +2227,7 @@ F-statistics
 <h2>S1C</h2>
 <pre class="r"><code>strains &lt;- c(&quot;N2&quot;, &quot;rict-1(ft7)&quot;)
 foods &lt;- &quot;OP50&quot;
-rictC3 &lt;- read.csv(file.path(pathname, &#39;extdata/S3C_rict1Pheromone.csv&#39;)) %&gt;% format_dauer(p.dauer = &quot;exclude&quot;) %&gt;% mutate(plateID = interaction(plateID,concentration.uM.)) 
+rictC3 &lt;- read.csv(file.path(pathname, &#39;extdata&#39;,&#39;S3C_rict1Pheromone.csv&#39;)) %&gt;% format_dauer(p.dauer = &quot;exclude&quot;) %&gt;% mutate(plateID = interaction(plateID,concentration.uM.)) 
 
 # for glm fit
 glm &lt;- glm(data = rictC3, cbind(dauer, non) ~ concentration.uM. + genotype + concentration.uM. * genotype, family = binomial)
@@ -2240,7 +2266,7 @@ newdata1 %&lt;&gt;% mutate(lower = (fit - se.fit), upper = (fit + se.fit), pct =
                       fun.data = fun_length, geom = &quot;text&quot;, size = 4)
 )</code></pre>
 <p><img src="Figure_2_files/figure-html/rict-1%20pheromone%20response-1.png" width="672" /></p>
-<p><strong>Figure S1C</strong> <em>rict-1</em> mutants show enhanced response to pheromone ascr#5. Dauers formed by wild-type (black) and rict-1(ft7) (blue) animals at 25°C in the presence of the indicated concentrations of ascr#5. Each dot indicates the proportion of dauers formed in a single assay. Horizontal bar indicates median. Numbers in parentheses below indicate the number of independent experiments with at least 27 animals each. Lines indicate predictions from GLM fit, corresponding to an odds ratio of ~21.3 for rict-1 across this range of ascr#5 concentrations.</p>
+<p><strong>Figure S1C</strong> <em>rict-1</em> mutants show enhanced response to pheromone ascr#5. Dauers formed by wild-type (black) and rict-1(ft7) (blue) animals at 25°C in the presence of the indicated concentrations of ascr#5. Each dot indicates the proportion of dauers formed in a single assay. Horizontal bar indicates median. Numbers in parentheses below indicate the number of independent experiments with at least 27 animals each. Lines indicate predictions from GLM fit, corresponding to an odds ratio of <code>as.numeric(round(exp(coef(glm))[3],1))</code> for rict-1 across this range of ascr#5 concentrations.</p>
 <pre class="r"><code>library(sjPlot)
 sjt.glm(glm, depvar.labels = &quot;proportion of dauers&quot;, show.se = TRUE, show.chi2 = TRUE)</code></pre>
 <table style="border-collapse:collapse; border:none;border-bottom:double;">
@@ -2383,7 +2409,7 @@ p=.000
 <h2>S1D</h2>
 <pre class="r"><code>foods &lt;- &quot;OP50&quot;
 strains&lt;-c(&quot;N2&quot;,&quot;rict-1(ft7)&quot;,&quot;rict-1(ft7); ex[ASI::daf7]&quot;,&quot;rict-1(ft7); ex[ASI::daf28]&quot;,&quot;rict-1(ft7); ex[ASJ::daf28]&quot;)
-daf7supp&lt;-read.csv(file.path(pathname, &quot;extdata/2C_daf7_daf28_suppression.csv&quot;)) %&gt;% format_dauer(p.dauer = &quot;non&quot;)
+daf7supp&lt;-read.csv(file.path(pathname, &quot;extdata&quot;,&quot;2C_daf7_daf28_suppression.csv&quot;)) %&gt;% format_dauer(p.dauer = &quot;non&quot;)
 
 # daf7supp$genotype&lt;- factor(daf7supp$genotype, levels = strains)
 # daf7supp$pct&lt;-as.numeric(paste(daf7supp$dauer/(daf7supp$dauer+daf7supp$pd + daf7supp$non))) #omitted arrest
@@ -2406,7 +2432,7 @@ p&lt;-dauergut::plot_CIs(daf7supp, title=&#39;daf-7 expression in ASI suppresses
 <pre class="r"><code>p</code></pre>
 <p><img src="Figure_2_files/figure-html/unnamed-chunk-5-1.png" width="384" /></p>
 </div>
-<p><br> <br> </br> <strong>Figure 2C</strong> Expression of <em>daf-7</em> in ASI or <em>daf-28</em> in ASI or ASJ suppressed aberrent dauer formation in <em>rict-1</em> mutants. Dauers formed by animals of the indicated genotypes at 27°C. Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 36 and 9 animals each scored for non-transgenic and transgenic animals, respectively. Promoters driving expression in ASI and ASJ were srg-47p and trx-1p, respectively. One transgenic line was tested for each condition. <span style="color:black"><code>***</code></span> - different from wild-type at P&lt;0.001; <span style="color:red"><code>**</code></span> and <span style="color:red"><code>***</code></span> - different from <em>rict-1(ft7)</em> at P&lt;0.01 and P&lt;0.001, respectively (ANOVA with Tukey-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
+<p><br> <br> </br> <strong>Figure 2C</strong> Expression of <em>daf-7</em> in ASI or <em>daf-28</em> in ASI or ASJ suppressed aberrent dauer formation in <em>rict-1</em> mutants. Dauers formed by animals of the indicated genotypes at 27°C. Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 36 and 9 animals each scored for non-transgenic and transgenic animals, respectively. Promoters driving expression in ASI and ASJ were <em>srg-47p</em> and <em>trx-1p</em>, respectively. One transgenic line was tested for each condition. <span style="color:black"><code>***</code></span> - different from wild-type at P&lt;0.001; <span style="color:red"><code>**</code></span> and <span style="color:red"><code>***</code></span> - different from <em>rict-1(ft7)</em> at P&lt;0.01 and P&lt;0.001, respectively (ANOVA with Tukey-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
 <pre class="r"><code>library(sjPlot)
 sjt.lm(lm, depvar.labels = &quot;proportion of dauers&quot;, show.se = TRUE, show.fstat = TRUE)</code></pre>
 <table style="border-collapse:collapse; border:none;border-bottom:double;">
@@ -2600,7 +2626,7 @@ F-statistics
 <td align="right">0.1343472</td>
 <td align="right">23</td>
 <td align="right">-6.6117898</td>
-<td align="right">0.0000094</td>
+<td align="right">0.0000093</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -2609,7 +2635,7 @@ F-statistics
 <td align="right">0.1343472</td>
 <td align="right">23</td>
 <td align="right">-1.7470673</td>
-<td align="right">0.4257357</td>
+<td align="right">0.4257293</td>
 <td align="left">p~0.43</td>
 </tr>
 <tr class="odd">
@@ -2627,7 +2653,7 @@ F-statistics
 <td align="right">0.1343472</td>
 <td align="right">23</td>
 <td align="right">-2.7450829</td>
-<td align="right">0.0771845</td>
+<td align="right">0.0773094</td>
 <td align="left">p~0.077</td>
 </tr>
 <tr class="odd">
@@ -2636,7 +2662,7 @@ F-statistics
 <td align="right">0.1343472</td>
 <td align="right">23</td>
 <td align="right">4.8647225</td>
-<td align="right">0.0005828</td>
+<td align="right">0.0006081</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -2645,7 +2671,7 @@ F-statistics
 <td align="right">0.1502047</td>
 <td align="right">23</td>
 <td align="right">5.9506630</td>
-<td align="right">0.0000384</td>
+<td align="right">0.0000342</td>
 <td align="left">***</td>
 </tr>
 <tr class="odd">
@@ -2654,7 +2680,7 @@ F-statistics
 <td align="right">0.1343472</td>
 <td align="right">23</td>
 <td align="right">3.8667069</td>
-<td align="right">0.0062872</td>
+<td align="right">0.0063190</td>
 <td align="left">**</td>
 </tr>
 <tr class="even">
@@ -2663,7 +2689,7 @@ F-statistics
 <td align="right">0.1502047</td>
 <td align="right">23</td>
 <td align="right">1.5995230</td>
-<td align="right">0.5115131</td>
+<td align="right">0.5114602</td>
 <td align="left">p~0.51</td>
 </tr>
 <tr class="odd">
@@ -2672,7 +2698,7 @@ F-statistics
 <td align="right">0.1343472</td>
 <td align="right">23</td>
 <td align="right">-0.9980156</td>
-<td align="right">0.8530479</td>
+<td align="right">0.8530360</td>
 <td align="left">p~0.85</td>
 </tr>
 <tr class="even">
@@ -2681,7 +2707,7 @@ F-statistics
 <td align="right">0.1502047</td>
 <td align="right">23</td>
 <td align="right">-2.4921752</td>
-<td align="right">0.1266954</td>
+<td align="right">0.1267610</td>
 <td align="left">p~0.127</td>
 </tr>
 </tbody>
@@ -2705,40 +2731,40 @@ F-statistics
 <td align="right">0.0555770</td>
 <td align="right">0.0033152</td>
 <td align="right">0.4805341</td>
-<td align="right">0.0129297</td>
-<td align="right">0.1989057</td>
+<td align="right">0.0243011</td>
+<td align="right">0.1180252</td>
 </tr>
 <tr class="even">
 <td align="left">rict-1(ft7)</td>
 <td align="right">0.9039164</td>
 <td align="right">0.2329556</td>
 <td align="right">0.9928633</td>
-<td align="right">0.6072850</td>
-<td align="right">0.9805981</td>
+<td align="right">0.7897794</td>
+<td align="right">0.9654116</td>
 </tr>
 <tr class="odd">
 <td align="left">rict-1(ft7); ex[ASI::daf7]</td>
 <td align="right">0.1713925</td>
 <td align="right">0.0118883</td>
 <td align="right">0.7096820</td>
-<td align="right">0.0421593</td>
-<td align="right">0.4791824</td>
+<td align="right">0.0797292</td>
+<td align="right">0.3378971</td>
 </tr>
 <tr class="even">
 <td align="left">rict-1(ft7); ex[ASI::daf28]</td>
 <td align="right">0.0551065</td>
 <td align="right">0.0027477</td>
 <td align="right">0.5148130</td>
-<td align="right">0.0102603</td>
-<td align="right">0.2348579</td>
+<td align="right">0.0218284</td>
+<td align="right">0.1371370</td>
 </tr>
 <tr class="odd">
 <td align="left">rict-1(ft7); ex[ASJ::daf28]</td>
 <td align="right">0.1811430</td>
 <td align="right">0.0092616</td>
 <td align="right">0.7501988</td>
-<td align="right">0.0410940</td>
-<td align="right">0.5105752</td>
+<td align="right">0.0838653</td>
+<td align="right">0.3739147</td>
 </tr>
 </tbody>
 </table>
@@ -2747,7 +2773,7 @@ F-statistics
 <h2>S1E</h2>
 <pre class="r"><code>strains&lt;-c(&quot;N2&quot;,&quot;rict-1(mg360)&quot;,&quot;rict-1;daf-16&quot;)
 foods &lt;- &quot;OP50&quot;
-daf16supp&lt;-read.csv(file.path(pathname, &quot;extdata/S1A_daf16_suppression.csv&quot;)) %&gt;% format_dauer(.,p.dauer = &quot;dauer&quot;)
+daf16supp&lt;-read.csv(file.path(pathname, &quot;extdata&quot;,&quot;S1A_daf16_suppression.csv&quot;)) %&gt;% format_dauer(.,p.dauer = &quot;dauer&quot;)
 
 # daf28supp$genotype&lt;- factor(daf28supp$genotype, levels = strains)
 # daf28supp$pct&lt;-as.numeric(paste(daf28supp$dauer/(daf28supp$dauer+daf28supp$pd + daf28supp$non))) #omitted arrest
@@ -2934,7 +2960,7 @@ F-statistics
 <td align="right">0.0585246</td>
 <td align="right">15</td>
 <td align="right">-7.450922</td>
-<td align="right">0.0000026</td>
+<td align="right">0.0000116</td>
 <td align="left">***</td>
 </tr>
 <tr class="odd">
@@ -2943,7 +2969,7 @@ F-statistics
 <td align="right">0.0585246</td>
 <td align="right">15</td>
 <td align="right">4.953954</td>
-<td align="right">0.0005542</td>
+<td align="right">0.0004648</td>
 <td align="left">***</td>
 </tr>
 </tbody>
@@ -2967,24 +2993,24 @@ F-statistics
 <td align="right">0.3009765</td>
 <td align="right">0.1261611</td>
 <td align="right">0.6307367</td>
-<td align="right">0.1986833</td>
-<td align="right">0.4293501</td>
+<td align="right">0.2378515</td>
+<td align="right">0.3625799</td>
 </tr>
 <tr class="even">
 <td align="left">rict-1(mg360)</td>
 <td align="right">0.9979362</td>
 <td align="right">0.9835708</td>
 <td align="right">0.9998078</td>
-<td align="right">0.9930543</td>
-<td align="right">0.9994136</td>
+<td align="right">0.9956347</td>
+<td align="right">0.9989622</td>
 </tr>
 <tr class="odd">
 <td align="left">rict-1;daf-16</td>
 <td align="right">0.7126570</td>
 <td align="right">0.3850782</td>
 <td align="right">0.8685749</td>
-<td align="right">0.5803534</td>
-<td align="right">0.8170461</td>
+<td align="right">0.6525277</td>
+<td align="right">0.7801805</td>
 </tr>
 </tbody>
 </table>

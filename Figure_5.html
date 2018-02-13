@@ -224,9 +224,6 @@ $(document).ready(function () {
     <li>
       <a href="Figure_7.html">Figure 7</a>
     </li>
-    <li>
-      <a href="Figure_8.html">Figure 8</a>
-    </li>
   </ul>
 </li>
       </ul>
@@ -254,862 +251,40 @@ $(document).ready(function () {
 </div>
 
 
-<div id="intestinal-mtorc2-alters-foraging-behaviors" class="section level1 tabset">
-<h1><strong>Intestinal mTORC2 alters foraging behaviors</strong></h1>
-<div id="a-b" class="section level2">
-<h2>5A-B</h2>
-<pre class="r"><code>img.path &lt;- file.path(pathname, &quot;figures/5A_cartoon.png&quot;)</code></pre>
-<div style="float: left; width: 50%;">
-<pre class="r"><code>include_graphics(img.path)                                   </code></pre>
-<p><img src="figures/5A_cartoon.png" width="430" /></p>
-</div>
+<div id="high-temperature-induced-dauer-formation-and-adult-exploratory-behaviors-do-not-covary" class="section level2 tabset">
+<h2><strong>High temperature-induced dauer formation and adult exploratory behaviors do not covary</strong></h2>
+<div id="a" class="section level3">
+<h3>5A</h3>
+<pre class="r"><code>#knitr::opts_chunk$set(cache=TRUE)
+filepath&lt;-file.path(pathname, &quot;extdata&quot;,&quot;5A_wildHTdata_allbinary.csv&quot;)
+foods = &quot;OP50&quot;
+strains &lt;- c(&quot;N2&quot;,&quot;CB4856&quot;,&quot;JU561&quot;, &quot;MY14&quot;,&quot;DL238&quot;,&quot;CB4852&quot;,&quot;QX1211&quot;,&quot;JU322&quot;,&quot;JU775&quot;,&quot;JU1400&quot;,&quot;ED3072&quot;,&quot;AB1&quot;,&quot;AB3&quot;,&quot;JU362&quot;,&quot;ED3040&quot;, &quot;JU345&quot;,&quot;PX178&quot;,&quot;CB3198&quot;)
+
+##&quot;TR403&quot;,&quot;KR314&quot;,CB4507,DR1350 left off due to low n
+HT.wildall&lt;-read.csv(filepath, header=TRUE) %&gt;% format_dauer(p.dauer = &quot;exclude&quot;)
+
+lm &lt;- HT.wildall %&gt;% dauer_ANOVA()
+contrasts&lt;-dunnett_contrasts(lm, ref.index = 1, &quot;genotype&quot;)
+stan.glmm &lt;- HT.wildall %&gt;% run_dauer_stan
+mixed&lt;-stan.glmm %&gt;% getStan_CIs(type = &quot;dauer&quot;)
+
+plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:17])
+
+(p&lt;-plot_CIs(HT.wildall, title=&#39;C. elegans wild isolates vary in temp dependent dauer formation&#39;, plot.contrasts, ypos = 1.075, type = &quot;dauer&quot;, labels = strains)) + theme(
+  axis.text.x = element_text(colour =
+                               c(&quot;black&quot;,
+                                 rep(&#39;red&#39;,3),
+                                 rep(&#39;black&#39;,3),
+                                 &#39;red&#39;,
+                                 rep(&#39;black&#39;,5),
+                                 rep(&#39;green&#39;,5))
+                             )
+  )</code></pre>
+<p><img src="Figure_5_files/figure-html/wild%20screen%20dataload-1.png" width="960" /></p>
+<pre class="r"><code>#plot </code></pre>
 <p><br> <br> </br></p>
 <p><strong>Figure 5A</strong><br />
-Cartoon depicting foraging assay. Each plate contains a L4 hermaphrodite which is allowed to forage overnight on a uniform lawn of E. coli for ~ 16hrs. Lines show tracks on the bacterial lawn.</p>
-<pre class="r"><code>roam&lt;-read.csv(file.path(pathname, &quot;extdata/5B_5E_gridentry.csv&quot;)) %&gt;% 
-  mutate(strain = interaction(genotype, line, drop=TRUE),
-         strainDate = interaction(strain, date, drop=TRUE),
-         plateID = interaction(strainDate,plate, drop=TRUE),
-         total.boxes = 186)
-
-library(lme4)
-#simple ANOVA:
-lms&lt;-list(lm = lm(n_entries ~ genotype, data = roam),
-          lm.log = lm(log(n_entries) ~ genotype, data = roam),
-          lm.nboxes = lm(n_boxes ~ genotype, data = roam))
-
-#glmms
-glmms&lt;-list(glmm.date = glmer(data=roam, n_entries ~ genotype + (1|date), family=&quot;poisson&quot;),
-            glmm.strainDate = glmer(data=roam, n_entries ~ genotype + (1|strainDate), family=&quot;poisson&quot;),
-            glmm.obs = glmer(data=roam, n_entries ~ genotype + (1|date) + (1|plateID), family=&quot;poisson&quot;),
-            glmm.obsOnly = glmer(data=roam, n_entries ~ genotype + (1|plateID), family=&quot;poisson&quot;),
-            glmm.fixDate = glmer(data=roam, n_entries ~ date + genotype + (1|plateID), family=&quot;poisson&quot;),
-            glmm.fixDate.ranStrain = glmer(data=roam, n_entries ~ date + genotype + (1|plateID) + (1|strain), family=&quot;poisson&quot;),
-            glmm.nest = glmer(data=roam, n_entries ~ genotype + (1|date/plateID), family=&quot;poisson&quot;), #nested individual random effect
-            glmm.binom = glmer(data=roam,
-                               formula = cbind(roam$n_boxes, roam$total.boxes - roam$n_boxes) ~ genotype + (1|date/plateID),
-                               family=&quot;binomial&quot;))
-
-#non mixed glms
-glms &lt;- list(glm = glm(data=roam, n_entries ~ date + genotype, family=&quot;poisson&quot;),
-             glm.nb = glm.nb(data=roam, n_entries ~ date + genotype, init.theta = 1, link=&quot;log&quot;),
-             glm.binom = glm(data=roam, cbind(roam$n_boxes, roam$total.boxes - roam$n_boxes) ~ date + genotype, family=&quot;binomial&quot;))
-
-mods&lt;-c(lms, glms, glmms)
-
-# Not run #
-###checking distributional assumptions:
-# library(DHARMa)
-
-# sim.resids&lt;-lapply(mods[1:length(mods)], function(x) {
-#   simulationOutput &lt;- simulateResiduals(fittedModel = x, n=250, refit = T)
-#   #par(mfrow = c(2,2))
-#   #plotResiduals(roam$genotype, simulationOutput$scaledResiduals)
-#   #plotResiduals(roam$date, simulationOutput$scaledResiduals)
-#   #plotResiduals(roam$strain, simulationOutput$scaledResiduals)
-#   return(simulationOutput)
-#   })
-# 
-# lapply(sim.resids, function(x) {
-#   plotSimulatedResiduals(simulationOutput = x)
-# })
-
-
-# using DHARMa package check distribution of residuals by predictors (takes a while using refit = T):
-# (mods.dispersion &lt;-
-#   lapply(glmms, function(x) {
-#   simulationOutput &lt;- simulateResiduals(fittedModel = x, n=250, refit = T)
-#   testOverdispersion(simulationOutput = simulationOutput)
-# }))
-
-# nested glmm looks rougly the best for both count date (n_entries) and binary data (n_boxes/total) 
-# although there is still some small effect of 
-# predicted value on residual quantiles
-# end not run #</code></pre>
-<pre class="r"><code>strains &lt;- c(&quot;N2&quot;, &quot;ft7&quot;, &quot;ft7;ex[ges-1p]&quot;, &quot;ft7;ex[rict-1p]&quot;)
-days &lt;- c(&quot;10_1_16&quot;, &quot;10_5_16&quot;, &quot;10_9_16&quot;)
-## remove outliers:
-
-roam %&lt;&gt;% dauergut::flag_outliers(df = ., lin.mod = mods$lm, threshold = 4, noplot = TRUE)
-
-roam.resc &lt;- roam %&gt;% subset(genotype %in% strains &amp; date %in% days) %&gt;% 
-  mutate(genotype = factor(genotype, levels = strains))
-
-glmm.nest &lt;- update(mods$glmm.nest, data = roam.resc[roam.resc$outlier.status == FALSE,] )
-stan.glmm &lt;- stan_glmer(data = roam.resc[roam.resc$outlier.status == FALSE,], 
-                        formula = n_entries ~ genotype + (1|date/plateID), family = &quot;poisson&quot;,
-                        iter = 4000)
-  
-contrasts&lt;-dauergut::tukey_contrasts(glmm.nest, &quot;genotype&quot;)
-mixed&lt;-stan.glmm %&gt;% getStan_CIs(type = &quot;roam&quot;)
-plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1],&quot;&quot;,&quot;&quot;)
-plot.contrasts.2&lt;-c(&quot;&quot;,&quot;&quot;,contrasts$prange[4:5])
-
-labels &lt;- c(&quot;WT&quot;, &quot;rict-1(ft7)&quot;, &quot;rict-1(ft7); +ges-1p::rict-1&quot;, &quot;rict-1(ft7); +rict-1p::rict-1&quot;) %&gt;% stringr::str_wrap(width = 10)
-
-p&lt;-dauergut::plot_CIs(roam.resc, title=&#39;Intestinal TORC2 regulates adult foraging&#39;, 
-                       plot.contrasts=plot.contrasts, plot.contrasts.2 = plot.contrasts.2,ypos = 800, offset = 0, type = &quot;grid&quot;, labels = labels)</code></pre>
-<div style="float: left; width: 50%;">
-<pre class="r"><code>p</code></pre>
-<p><img src="Figure_5_files/figure-html/rict%20roam%20resuce%20plot-1.png" width="480" /></p>
-</div>
-<p><br> <br> </br> <strong>Figure 5B</strong><br />
-<em>rict-1</em> acts in the intestine to regulate foraging behavior. Foraging is increased in <em>rict-1</em> mutants, which is rescued using the intestine-specific <em>ges-1</em> promoter. Plot shows exploratory behavior of indicated strains. Each purple dot represents data from a single worm. Median is indicated by a horizontal purple line; error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the total number of animals examined during 3 independent days of assays. P-values shown are between indicated values; <span style="color:black"><code>***</code></span> and <span style="color:red"><code>***</code></span> - different from WT and rict-1 at P&lt;0.001, respectively (GLMM with Tukey-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
-<pre class="r"><code>library(sjPlot)
-sjt.glmer(glmm.nest, depvar.labels = &quot;number of entries&quot;, show.se = TRUE)</code></pre>
-<table style="border-collapse:collapse; border:none;border-bottom:double;">
-<tr>
-<td style="padding:0.2cm; border-top:double;">
- 
-</td>
-<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="4">
-number of entries
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; font-style:italic;">
- 
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; font-style:italic; ">
-IRR
-</td>
-<td style="padding:0.2cm; text-align:center; font-style:italic; ">
-CI
-</td>
-<td style="padding:0.2cm; text-align:center; font-style:italic; ">
-std. Error
-</td>
-<td style="padding:0.2cm; text-align:center; font-style:italic; ">
-p
-</td>
-</tr>
-<tr>
-<td colspan="6" style="padding:0.2cm; text-align:left; border-top:1px solid; font-weight:bold; text-align:left;">
-Fixed Parts
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left;">
-(Intercept)
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em; ">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-206.43
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-144.40 – 295.12
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-37.64
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-&lt;.001
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left;">
-genotype (ft7)
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-2.21
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-1.67 – 2.93
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.32
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-&lt;.001
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left;">
-genotype (ft7;ex[ges-1p])
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-1.10
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.88 – 1.37
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.13
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-.425
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left;">
-genotype (ft7;ex[rict-1p])
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.68
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.51 – 0.90
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.10
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-.008
-</td>
-</tr>
-<tr>
-<td colspan="6" style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; font-weight:bold; text-align:left; padding-top:0.5em;">
-Random Parts
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
-τ<sub>00, plateID:date</sub>
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
-0.154
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
-τ<sub>00, date</sub>
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
-0.070
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
-N<sub>plateID:date</sub>
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
-96
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
-N<sub>date</sub>
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
-3
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
-ICC<sub>plateID:date</sub>
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
-0.126
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
-ICC<sub>date</sub>
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
-0.057
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
-Observations
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
- 
-</td>
-<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="4">
-96
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
-Deviance
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
-3.877
-</td>
-</tr>
-</table>
-<pre class="r"><code>knitr::kable(drop1(glmm.nest, test = &quot;Chisq&quot;))</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">Df</th>
-<th align="right">AIC</th>
-<th align="right">LRT</th>
-<th align="right">Pr(Chi)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><none></td>
-<td align="right">NA</td>
-<td align="right">1160.628</td>
-<td align="right">NA</td>
-<td align="right">NA</td>
-</tr>
-<tr class="even">
-<td>genotype</td>
-<td align="right">3</td>
-<td align="right">1206.062</td>
-<td align="right">51.4344</td>
-<td align="right">0</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="c-d" class="section level2">
-<h2>5C-D</h2>
-<pre class="r"><code>#### see extdata/roaming and speed_curvature function for data and analysis, respectively - highly memory intensive</code></pre>
-<div style="float: left; width: 50;">
-<pre class="r"><code>img.path &lt;- file.path(pathname, &quot;figures/5C_roam_dwell_density.png&quot;)
-include_graphics(img.path)</code></pre>
-<p><img src="figures/5C_roam_dwell_density.png" width="890" /></p>
-</div>
-<p><strong>Figure 5C</strong><br />
-Live tracking of foraging behavior. Shown is a representative assay. n &gt; 20 animals per assay. Density plot shows mean speed and angular velocity from tracks binned over 10 sec intervals imaged at 3 frames/sec. Red line indicates delineation of roaming (upper region) and dwelling (lower region) behavior.</p>
-<pre class="r"><code>strains &lt;- c(&quot;N2&quot;,&quot;ft7&quot;)
-roam_beh &lt;- read.csv(file.path(pathname, &quot;extdata/5D_roam_dwell_all.csv&quot;)) %&gt;% 
-  mutate(genotype = factor(genotype, levels = strains), pct = pct.roam, plateID = interaction(date,genotype,plate))
-
-roam.t &lt;- t.test(roam_beh[roam_beh$genotype == strains[1],]$pct, roam_beh[roam_beh$genotype == strains[2],]$pct)
-
-glmm &lt;- lme4::glmer(data = roam_beh, cbind(roam, dwell) ~ genotype + (1|plateID), family = binomial)
-
-stan.glmm &lt;- stan_glmer(data = roam_beh, 
-                        formula = cbind(roam, dwell) ~ genotype + (1|plateID), 
-                        family = binomial,
-                        iter = 4000)
-
-mixed &lt;- stan.glmm %&gt;% getStan_CIs(type = &quot;dauer&quot;)
-contrasts &lt;- data.frame(p.value = roam.t$p.value) %&gt;% dauergut::prange()
-plot.contrasts &lt;- c(&quot;&quot;,contrasts$prange)
-
-labels = c(&quot;WT&quot;, &quot;rict-1(ft7)&quot;)
-
-p&lt;-dauergut::plot_CIs(roam_beh, plot.contrasts = plot.contrasts, type = &quot;dauer&quot;, title = &quot;&quot;, ypos = 1.05, offset = 0, labels = labels) + labs(subtitle = &quot;&quot;, y = &quot;proportion roaming&quot;)
-
-odds.ratio &lt;- summary(stan.glmm)[2,1] %&gt;% exp()</code></pre>
-<div style="float: left; width: 40%;">
-<pre class="r"><code>p</code></pre>
-<p><img src="Figure_5_files/figure-html/roam%20beh%20plot-1.png" width="288" /></p>
-</div>
-<p><br> <br> </br></p>
-<p><strong>Figure 5D</strong><br />
-Quantification of roaming and dwelling states. <em>rict-1</em> mutants show increased roaming, corresponding to an odds ratio of 3.465. Dots show proportion of track time bins in which animals were roaming, with each dot reflecting one assay. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. P-value shown is with respect to wild-type (Welch’s t-test).</p>
-</div>
-<div id="e" class="section level2">
-<h2>5E</h2>
-<p>pdfr-1 is epistatic to rict-1 in foraging behavior.</p>
-<pre class="r"><code>  roam&lt;-read.csv(file.path(pathname, &quot;extdata/5B_5E_gridentry.csv&quot;)) %&gt;% 
-  mutate(strain = interaction(genotype, line, drop=TRUE),
-         strainDate = interaction(strain, date, drop=TRUE),
-         plateID = interaction(strainDate,plate, drop=TRUE),
-         total.boxes = 186)</code></pre>
-<pre class="r"><code>strains &lt;- c(&quot;N2&quot;, &quot;ft7&quot;, &quot;pdf-1&quot;, &quot;pdfr-1&quot;, &quot;pdfr-1;ft7&quot;)
-days &lt;- c(&quot;12_20_16&quot;, &quot;1_5_17&quot;, &quot;1_8_17&quot;)
-## remove outliers (based on analysis, below):
-lm &lt;- lm(n_entries ~ genotype, data = roam)
-roam %&lt;&gt;% dauergut::flag_outliers(df = ., lin.mod = lm, threshold = 4, noplot = TRUE)
-
-
-roam.pdfr1 &lt;- roam %&gt;% subset(genotype %in% strains &amp; date %in% days) %&gt;%
-  mutate(genotype = factor(genotype, levels = strains))
-
-glmm.nest &lt;-glmer(data = roam.pdfr1[roam.pdfr1$outlier.status == FALSE,], formula = n_entries ~ genotype + (1|date/plateID), family = &quot;poisson&quot;)
-stan.glmm &lt;- stan_glmer(data = roam.pdfr1[roam.pdfr1$outlier.status == FALSE,], 
-                        formula = n_entries ~ genotype + (1|date/plateID), family = &quot;poisson&quot;,
-                        iter = 4000, adapt_delta = 0.99)
-
-contrasts&lt;-dauergut::tukey_contrasts(glmm.nest, &quot;genotype&quot;)
-mixed&lt;-stan.glmm %&gt;% getStan_CIs(type = &quot;roam&quot;)
-plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:4])
-plot.contrasts.2&lt;-c(&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;&quot;,contrasts$prange[10])
-
-labels &lt;- c(&quot;WT&quot;, &quot;rict-1(ft7)&quot;, &quot;pdf-1(tm1996)&quot;, &quot;pdfr-1(ok3425)&quot;, &quot;rict-1(ft7); pdfr-1(ok3425)&quot;) %&gt;%
-  stringr::str_wrap(width=10)
-
-(p&lt;-dauergut::plot_CIs(roam.pdfr1, title=&#39;rict-1 effects on roaming behavior depends on pdf-1/pdfr-1 signaling&#39;, plot.contrasts=plot.contrasts, plot.contrasts.2 = plot.contrasts.2,ypos = 800, offset = 50, type = &quot;grid&quot;, labels = labels))</code></pre>
-<p><img src="Figure_5_files/figure-html/pdfr-1%20roam%20suppression%20plot-1.png" width="672" /></p>
-<p><strong>Figure 5E</strong><br />
-TORC2 requires PDFR-1 neuropeptide signaling to modulate foraging behavior. Exploratory behavior of indicated strains. Each purple dot represents data from a single worm. Median is indicated by a horizontal purple line; error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the total number of animals examined during 3 independent days of assays. P-values shown are between indicated values; <span style="color:black"><code>***</code></span> and <span style="color:red"><code>***</code></span> - different from WT and rict-1 at P&lt;0.001, respectively (GLMM with Tukey-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.</p>
-<pre class="r"><code>library(sjPlot)
-sjt.glmer(glmm.nest, depvar.labels = &quot;number of entries&quot;, show.se = TRUE)</code></pre>
-<table style="border-collapse:collapse; border:none;border-bottom:double;">
-<tr>
-<td style="padding:0.2cm; border-top:double;">
- 
-</td>
-<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="4">
-number of entries
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; font-style:italic;">
- 
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; font-style:italic; ">
-IRR
-</td>
-<td style="padding:0.2cm; text-align:center; font-style:italic; ">
-CI
-</td>
-<td style="padding:0.2cm; text-align:center; font-style:italic; ">
-std. Error
-</td>
-<td style="padding:0.2cm; text-align:center; font-style:italic; ">
-p
-</td>
-</tr>
-<tr>
-<td colspan="6" style="padding:0.2cm; text-align:left; border-top:1px solid; font-weight:bold; text-align:left;">
-Fixed Parts
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left;">
-(Intercept)
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em; ">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-216.91
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-169.40 – 277.74
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-27.36
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-&lt;.001
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left;">
-genotype (ft7)
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-1.87
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-1.33 – 2.62
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.32
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-&lt;.001
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left;">
-genotype (pdf-1)
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.20
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.14 – 0.29
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.04
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-&lt;.001
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left;">
-genotype (pdfr-1)
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.23
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.17 – 0.32
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.04
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-&lt;.001
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left;">
-genotype (pdfr-1;ft7)
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.27
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.19 – 0.38
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-0.05
-</td>
-<td style="padding:0.2cm; text-align:center; ">
-&lt;.001
-</td>
-</tr>
-<tr>
-<td colspan="6" style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; font-weight:bold; text-align:left; padding-top:0.5em;">
-Random Parts
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
-τ<sub>00, plateID:date</sub>
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
-0.231
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
-τ<sub>00, date</sub>
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
-0.006
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
-N<sub>plateID:date</sub>
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
-80
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
-N<sub>date</sub>
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
-3
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
-ICC<sub>plateID:date</sub>
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
-0.187
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
-ICC<sub>date</sub>
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
-0.005
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
-Observations
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
- 
-</td>
-<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="4">
-80
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
-Deviance
-</td>
-<td style="padding-left:0.5em; padding-right:0.5em;">
- 
-</td>
-<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
-4.914
-</td>
-</tr>
-</table>
-<pre class="r"><code>knitr::kable(drop1(glmm.nest, test = &quot;Chisq&quot;))</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">Df</th>
-<th align="right">AIC</th>
-<th align="right">LRT</th>
-<th align="right">Pr(Chi)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><none></td>
-<td align="right">NA</td>
-<td align="right">871.3411</td>
-<td align="right">NA</td>
-<td align="right">NA</td>
-</tr>
-<tr class="even">
-<td>genotype</td>
-<td align="right">4</td>
-<td align="right">976.1329</td>
-<td align="right">112.7918</td>
-<td align="right">0</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>knitr::kable(contrasts, caption = &quot;pairwise comparisons (GLMM)&quot;)</code></pre>
-<table>
-<caption>pairwise comparisons (GLMM)</caption>
-<thead>
-<tr class="header">
-<th align="left">contrast</th>
-<th align="right">rate.ratio</th>
-<th align="right">SE</th>
-<th align="right">df</th>
-<th align="right">z.ratio</th>
-<th align="right">p.value</th>
-<th align="left">prange</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">N2 - ft7</td>
-<td align="right">0.5352987</td>
-<td align="right">0.0922775</td>
-<td align="right">NA</td>
-<td align="right">-3.6251984</td>
-<td align="right">0.0025889</td>
-<td align="left">**</td>
-</tr>
-<tr class="even">
-<td align="left">N2 - pdf-1</td>
-<td align="right">5.0715519</td>
-<td align="right">0.9750831</td>
-<td align="right">NA</td>
-<td align="right">8.4448284</td>
-<td align="right">0.0000000</td>
-<td align="left">***</td>
-</tr>
-<tr class="odd">
-<td align="left">N2 - pdfr-1</td>
-<td align="right">4.3260837</td>
-<td align="right">0.7244682</td>
-<td align="right">NA</td>
-<td align="right">8.7460751</td>
-<td align="right">0.0000000</td>
-<td align="left">***</td>
-</tr>
-<tr class="even">
-<td align="left">N2 - pdfr-1;ft7</td>
-<td align="right">3.6987388</td>
-<td align="right">0.6178786</td>
-<td align="right">NA</td>
-<td align="right">7.8298886</td>
-<td align="right">0.0000000</td>
-<td align="left">***</td>
-</tr>
-<tr class="odd">
-<td align="left">ft7 - pdf-1</td>
-<td align="right">9.4742466</td>
-<td align="right">1.8960916</td>
-<td align="right">NA</td>
-<td align="right">11.2355198</td>
-<td align="right">0.0000000</td>
-<td align="left">***</td>
-</tr>
-<tr class="even">
-<td align="left">ft7 - pdfr-1</td>
-<td align="right">8.0816257</td>
-<td align="right">1.3934233</td>
-<td align="right">NA</td>
-<td align="right">12.1192955</td>
-<td align="right">0.0000000</td>
-<td align="left">***</td>
-</tr>
-<tr class="odd">
-<td align="left">ft7 - pdfr-1;ft7</td>
-<td align="right">6.9096728</td>
-<td align="right">1.1891220</td>
-<td align="right">NA</td>
-<td align="right">11.2316990</td>
-<td align="right">0.0000000</td>
-<td align="left">***</td>
-</tr>
-<tr class="even">
-<td align="left">pdf-1 - pdfr-1</td>
-<td align="right">0.8530099</td>
-<td align="right">0.1658743</td>
-<td align="right">NA</td>
-<td align="right">-0.8175773</td>
-<td align="right">0.9248526</td>
-<td align="left">p~0.92</td>
-</tr>
-<tr class="odd">
-<td align="left">pdf-1 - pdfr-1;ft7</td>
-<td align="right">0.7293111</td>
-<td align="right">0.1413884</td>
-<td align="right">NA</td>
-<td align="right">-1.6282147</td>
-<td align="right">0.4775339</td>
-<td align="left">p~0.48</td>
-</tr>
-<tr class="even">
-<td align="left">pdfr-1 - pdfr-1;ft7</td>
-<td align="right">0.8549855</td>
-<td align="right">0.1430890</td>
-<td align="right">NA</td>
-<td align="right">-0.9361392</td>
-<td align="right">0.8821804</td>
-<td align="left">p~0.88</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="s2a-b" class="section level2">
-<h2>S2A-B</h2>
-<pre class="r"><code>devtools::install_github(&quot;rasmusab/bayesian_first_aid&quot;)
-strains &lt;- c(&quot;N2&quot;,&quot;rict-1(ft7)&quot;)
-roam_beh &lt;- read.csv(file.path(pathname, &quot;extdata/S2B_starved_roam_dwell_all.csv&quot;)) %&gt;% 
-  mutate(genotype = factor(genotype, levels = strains), pct = pct.roam, plateID = interaction(date,genotype,plate))
-
-
-roam.t &lt;- t.test(roam_beh[roam_beh$genotype == strains[1],]$pct, roam_beh[roam_beh$genotype == strains[2],]$pct)
-
-glmm &lt;- lme4::glmer(data = roam_beh, cbind(roam, dwell) ~ genotype + (1|plateID), family = binomial)
-
-stan.glmm &lt;- stan_glmer(data = roam_beh, 
-                        formula = cbind(roam, dwell) ~ genotype + (1|plateID), 
-                        family = binomial,
-                        iter = 4000)
-
-mixed &lt;- stan.glmm %&gt;% getStan_CIs(type = &quot;dauer&quot;)
-contrasts &lt;- data.frame(p.value = roam.t$p.value) %&gt;% dauergut::prange()
-plot.contrasts &lt;- c(&quot;&quot;,contrasts$prange)
-
-labels &lt;- c(&quot;WT&quot;, &quot;rict-1(ft7)&quot;)
-
-p&lt;-dauergut::plot_CIs(roam_beh, plot.contrasts = plot.contrasts, type = &quot;dauer&quot;, title = &quot;&quot;, ypos = 1.05, offset = 0, labels = labels) + labs(subtitle = &quot;&quot;, y = &quot;proportion roaming&quot;) + 
-  theme(axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        axis.line = element_line(size=0.2),
-        axis.title = element_text(size=16))</code></pre>
-<div <div="" style="float: left; width: 50%;">
-<pre class="r"><code>#run speed_curvature_4x_parallel to reproduce these data from raw position, speed data located in /extdata/
-img.path &lt;- file.path(pathname, &quot;figures/S2A_starve_roam_density.png&quot;)
-include_graphics(img.path)</code></pre>
-<p><img src="figures/S2A_starve_roam_density.png" width="500" /></p>
-</div>
-<div style="float: left; width: 50%;">
-<pre class="r"><code>p</code></pre>
-<p><img src="Figure_5_files/figure-html/plot%20starved%20roam%20quantified-1.png" width="288" /></p>
-</div>
-<p><strong>Figure S2A-B</strong><br />
-(left) Live tracking of foraging behavior in starved worms. Shown is a representative assay. n &gt; 20 animals per assay. Density plot shows mean speed and angular velocity from tracks binned over 10 sec intervals imaged at 3 frames/sec. Red line indicates delineation of roaming and dwelling behavior. (right) Quantification of roaming and dwelling states. Dots show proportion of track time bins in which animals were roaming, with each dot reflecting one assay. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. P-value shown is with respect to wild-type (Welch’s t-test).</p>
-</div>
-<div id="s2c" class="section level2">
-<h2>S2C</h2>
-<pre class="r"><code>strains&lt;-c(&quot;N2&quot;,&quot;rict-1(ft7)&quot;,&quot;rict-1(ft7);pdfr-1&quot;)
-foods = &quot;OP50&quot;
-
-pdfr_dauer&lt;-read.csv(file.path(pathname, &quot;extdata/S2C_pdfr_dauer.csv&quot;)) %&gt;% format_dauer(p.dauer = &quot;non&quot;)
-
-pdfr_dauer %&lt;&gt;% mutate(adj.pct = case_when(.$pct == 0 ~ 0.01, .$pct == 1 ~ 0.99, TRUE ~ .$pct))
-
-lm &lt;- pdfr_dauer %&gt;% dauer_ANOVA()
-
-stan.glmm &lt;- pdfr_dauer %&gt;% run_dauer_stan
-
-contrasts&lt;-dauergut::tukey_contrasts(lm,&quot;genotype&quot;)
-mixed&lt;-stan.glmm %&gt;% getStan_CIs(type=&quot;dauer&quot;)
-plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:2])
-plot.contrasts.2&lt;-c(&quot;&quot;,&quot;&quot;,contrasts$prange[3])
-
-labels = c(&quot;WT&quot;, &quot;rict-1(ft7)&quot;, &quot; rict-1(ft7); pdfr-1(ok3425)&quot;) %&gt;% stringr::str_wrap(width = 10)
-
-p&lt;-dauergut::plot_CIs(pdfr_dauer, title=&#39;&#39;, plot.contrasts, plot.contrasts.2, ypos = 1.1, offset = 0.050, type = &quot;dauer&quot;, labels = labels)</code></pre>
-<div style="float: left; width: 50%;">
-<pre class="r"><code>p</code></pre>
-<p><img src="Figure_5_files/figure-html/pdfr-1%20duaer%20plot-1.png" width="384" /></p>
-</div>
-<p><br> <br> </br></p>
-<p><strong>Figure S2C</strong><br />
-pdfr-1 mutations do not suppress rict-1 dauer formation phenotypes. Each dot indicates the average number of dauers formed in a single assay. Horizontal bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent assays with at least 27 animals each. P-value shown in comparison to rict-1 mutants.</p>
+Wild isolates vary in high temperature dauer formation. Dauers formed by the indicated C. elegans strains at 27°C. Strains also assayed for exploratory behavior in (B) are in red (weaker Hid phenotype than Bristol N2) and green (similar or stronger Hid phenotype than N2). Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 16 animals each. All shown P-values are with respect to the Bristol N2 strain; <code>**</code> and <code>***</code> - different from the Bristol N2 strain at P&lt;0.01 and P&lt;0.001, respectively (ANOVA with Dunnett-type multivariate-t post-hoc adjustment).</p>
 <pre class="r"><code>library(sjPlot)
 sjt.lm(lm, depvar.labels = &quot;number of entries&quot;, show.se = TRUE, show.fstat = TRUE)</code></pre>
 <table style="border-collapse:collapse; border:none;border-bottom:double;">
@@ -1151,16 +326,16 @@ p
  
 </td>
 <td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
-0.15
+0.44
 </td>
 <td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
-0.01 – 0.28
+0.37 – 0.52
 </td>
 <td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
-0.06
+0.04
 </td>
 <td style="padding:0.2cm; text-align:center; border-top:1px solid; ">
-.041
+&lt;.001
 </td>
 </tr>
 <tr>
@@ -1170,19 +345,19 @@ genotype
 </tr>
 <tr>
 <td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
-rict-1(ft7)
+CB4856
 </td>
 <td style="padding-left:0.5em; padding-right:0.5em;">
  
 </td>
 <td style="padding:0.2cm; text-align:center; ">
-0.74
+-0.44
 </td>
 <td style="padding:0.2cm; text-align:center; ">
-0.53 – 0.95
+-0.56 – -0.33
 </td>
 <td style="padding:0.2cm; text-align:center; ">
-0.10
+0.06
 </td>
 <td style="padding:0.2cm; text-align:center; ">
 &lt;.001
@@ -1190,19 +365,319 @@ rict-1(ft7)
 </tr>
 <tr>
 <td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
-rict-1(ft7);pdfr-1
+JU561
 </td>
 <td style="padding-left:0.5em; padding-right:0.5em;">
  
 </td>
 <td style="padding:0.2cm; text-align:center; ">
-0.84
+-0.44
 </td>
 <td style="padding:0.2cm; text-align:center; ">
-0.66 – 1.03
+-0.56 – -0.32
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+MY14
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.43
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.55 – -0.32
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+DL238
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.43
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.59 – -0.27
 </td>
 <td style="padding:0.2cm; text-align:center; ">
 0.08
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+CB4852
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.42
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.54 – -0.30
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+QX1211
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.41
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.54 – -0.27
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.07
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+JU322
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.41
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.53 – -0.29
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+JU775
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.35
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.48 – -0.23
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+JU1400
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.25
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.37 – -0.13
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+ED3072
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.21
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.33 – -0.09
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+AB1
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.03
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.15 – 0.09
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.640
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+AB3
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.02
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.15 – 0.10
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.730
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+JU362
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.18 – 0.05
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.299
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+ED3040
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.03
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.15 – 0.09
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.625
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+JU345
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+-0.06 – 0.18
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.301
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+PX178
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.24
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.12 – 0.35
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.06
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="font-style:italic; padding:0.2cm; padding-left:0.6cm; text-align:left;">
+CB3198
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.32
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.19 – 0.45
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.07
 </td>
 <td style="padding:0.2cm; text-align:center; ">
 &lt;.001
@@ -1216,7 +691,7 @@ Observations
  
 </td>
 <td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="4">
-16
+159
 </td>
 </tr>
 <tr>
@@ -1227,7 +702,7 @@ R<sup>2</sup> / adj. R<sup>2</sup>
  
 </td>
 <td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
-.894 / .877
+.769 / .741
 </td>
 </tr>
 <tr>
@@ -1238,7 +713,7 @@ F-statistics
  
 </td>
 <td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
-54.659***
+27.580***
 </td>
 </tr>
 </table>
@@ -1258,31 +733,986 @@ F-statistics
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">N2 - rict-1(ft7)</td>
-<td align="right">-0.7407588</td>
-<td align="right">0.0965166</td>
-<td align="right">13</td>
-<td align="right">-7.674941</td>
-<td align="right">0.0000017</td>
+<td align="left">CB4856 - N2</td>
+<td align="right">-0.4409536</td>
+<td align="right">0.0585877</td>
+<td align="right">141</td>
+<td align="right">-7.5263826</td>
+<td align="right">0.0000000</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
-<td align="left">N2 - rict-1(ft7);pdfr-1</td>
-<td align="right">-0.8440491</td>
-<td align="right">0.0842466</td>
-<td align="right">13</td>
-<td align="right">-10.018797</td>
-<td align="right">0.0000001</td>
+<td align="left">JU561 - N2</td>
+<td align="right">-0.4406758</td>
+<td align="right">0.0585877</td>
+<td align="right">141</td>
+<td align="right">-7.5216414</td>
+<td align="right">0.0000000</td>
 <td align="left">***</td>
 </tr>
 <tr class="odd">
-<td align="left">rict-1(ft7) - rict-1(ft7);pdfr-1</td>
-<td align="right">-0.1032903</td>
-<td align="right">0.0901806</td>
-<td align="right">13</td>
-<td align="right">-1.145372</td>
-<td align="right">0.5037702</td>
-<td align="left">p~0.5</td>
+<td align="left">MY14 - N2</td>
+<td align="right">-0.4334073</td>
+<td align="right">0.0585877</td>
+<td align="right">141</td>
+<td align="right">-7.3975793</td>
+<td align="right">0.0000000</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">DL238 - N2</td>
+<td align="right">-0.4296227</td>
+<td align="right">0.0796411</td>
+<td align="right">141</td>
+<td align="right">-5.3944862</td>
+<td align="right">0.0000045</td>
+<td align="left">***</td>
+</tr>
+<tr class="odd">
+<td align="left">CB4852 - N2</td>
+<td align="right">-0.4198412</td>
+<td align="right">0.0585877</td>
+<td align="right">141</td>
+<td align="right">-7.1660268</td>
+<td align="right">0.0000000</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">QX1211 - N2</td>
+<td align="right">-0.4074181</td>
+<td align="right">0.0687454</td>
+<td align="right">141</td>
+<td align="right">-5.9264755</td>
+<td align="right">0.0000003</td>
+<td align="left">***</td>
+</tr>
+<tr class="odd">
+<td align="left">JU322 - N2</td>
+<td align="right">-0.4127995</td>
+<td align="right">0.0603994</td>
+<td align="right">141</td>
+<td align="right">-6.8344955</td>
+<td align="right">0.0000000</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">JU775 - N2</td>
+<td align="right">-0.3513550</td>
+<td align="right">0.0625903</td>
+<td align="right">141</td>
+<td align="right">-5.6135662</td>
+<td align="right">0.0000017</td>
+<td align="left">***</td>
+</tr>
+<tr class="odd">
+<td align="left">JU1400 - N2</td>
+<td align="right">-0.2507300</td>
+<td align="right">0.0603994</td>
+<td align="right">141</td>
+<td align="right">-4.1511991</td>
+<td align="right">0.0009154</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">ED3072 - N2</td>
+<td align="right">-0.2122871</td>
+<td align="right">0.0603994</td>
+<td align="right">141</td>
+<td align="right">-3.5147202</td>
+<td align="right">0.0089789</td>
+<td align="left">**</td>
+</tr>
+<tr class="odd">
+<td align="left">AB1 - N2</td>
+<td align="right">-0.0293200</td>
+<td align="right">0.0625903</td>
+<td align="right">141</td>
+<td align="right">-0.4684431</td>
+<td align="right">0.9999994</td>
+<td align="left">p~1</td>
+</tr>
+<tr class="even">
+<td align="left">AB3 - N2</td>
+<td align="right">-0.0216323</td>
+<td align="right">0.0625903</td>
+<td align="right">141</td>
+<td align="right">-0.3456173</td>
+<td align="right">1.0000000</td>
+<td align="left">p~1</td>
+</tr>
+<tr class="odd">
+<td align="left">JU362 - N2</td>
+<td align="right">-0.0610929</td>
+<td align="right">0.0585877</td>
+<td align="right">141</td>
+<td align="right">-1.0427596</td>
+<td align="right">0.9856454</td>
+<td align="left">p~0.99</td>
+</tr>
+<tr class="even">
+<td align="left">ED3040 - N2</td>
+<td align="right">-0.0296249</td>
+<td align="right">0.0603994</td>
+<td align="right">141</td>
+<td align="right">-0.4904834</td>
+<td align="right">0.9999988</td>
+<td align="left">p~1</td>
+</tr>
+<tr class="odd">
+<td align="left">JU345 - N2</td>
+<td align="right">0.0626901</td>
+<td align="right">0.0603994</td>
+<td align="right">141</td>
+<td align="right">1.0379262</td>
+<td align="right">0.9862401</td>
+<td align="left">p~0.99</td>
+</tr>
+<tr class="even">
+<td align="left">PX178 - N2</td>
+<td align="right">0.2362373</td>
+<td align="right">0.0585877</td>
+<td align="right">141</td>
+<td align="right">4.0321992</td>
+<td align="right">0.0014529</td>
+<td align="left">**</td>
+</tr>
+<tr class="odd">
+<td align="left">CB3198 - N2</td>
+<td align="right">0.3230826</td>
+<td align="right">0.0652993</td>
+<td align="right">141</td>
+<td align="right">4.9477178</td>
+<td align="right">0.0000384</td>
+<td align="left">***</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="s3" class="section level3">
+<h3>S3</h3>
+<pre class="r"><code>filepath&lt;-file.path(pathname, &quot;extdata&quot;,&quot;S3A_C3_sumstats.csv&quot;)
+C327&lt;-read.csv(filepath, header=TRUE)
+
+(p&lt;-dauergut::plot_regression_se(C327, &quot;mean.C3&quot;, &quot;mean.HT&quot;,&quot;SEM.C3&quot;, &quot;SEM.HT&quot;))</code></pre>
+<p><img src="Figure_5_files/figure-html/C327%20corr%20plot-1.png" width="672" /></p>
+<p><strong>Figure S3</strong><br />
+Shown are the proportion of dauers formed at 27°C and in the presence of 6 μm ascr#5 pheromone by C. elegans strains isolated from different latitudes. Assays were performed on live OP50. For ascr#5 data (A-axis), each data point is the average of at least 3 independent assays of at least 23 animals each. 27ºC data is repeated from Figure 6A. Error bars are the SEM. Line and shaded region indicate linear regression fit using mean dauer formation values for each strain.</p>
+</div>
+<div id="b" class="section level3">
+<h3>5B</h3>
+<pre class="r"><code>strains &lt;- c(&quot;N2&quot;,&quot;CB4856&quot;, &quot;JU561&quot;, &quot;MY14&quot;, &quot;JU322&quot;, &quot;JU362&quot;,&quot;ED3040&quot;, &quot;JU345&quot;, &quot;PX178&quot;, &quot;CB3198&quot;)
+
+wild.roam&lt;-read.csv(file.path(pathname, &quot;extdata&quot;,&quot;5B_6F_roam_wild_isolates.csv&quot;)) %&gt;%
+  dplyr::filter(genotype %in% strains) %&gt;%
+  mutate(genotype = factor(genotype, levels = strains),
+         strainDate = interaction(genotype, date, drop=TRUE),
+         plateID = interaction(strainDate,plate, drop=TRUE),
+         total.boxes = 186)
+
+lm &lt;- lm(n_entries ~ genotype, data = wild.roam)
+
+wild.roam %&lt;&gt;% dauergut::flag_outliers(df = ., lin.mod = lm, threshold = 4, noplot=TRUE)
+
+stan.glmm &lt;- stan_glmer(data = wild.roam[wild.roam$outlier.status == FALSE,], 
+                        formula = n_entries ~ genotype + (1|date/plateID), family = &quot;poisson&quot;,
+                        iter = 4000, adapt_delta = 0.99)
+
+lm &lt;- update(lm, data = wild.roam[wild.roam$outlier.status == FALSE,])
+glmm.nest &lt;- glmer(data=wild.roam, n_entries ~ genotype + (1|date/plateID), family=&quot;poisson&quot;)
+
+contrasts&lt;-dauergut::tukey_contrasts(glmm.nest, &quot;genotype&quot;)
+mixed&lt;-stan.glmm %&gt;% getStan_CIs(type = &quot;roam&quot;)
+plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:9])
+
+
+
+(p&lt;-plot_CIs(wild.roam, title=&#39;Foraging behavior is not correlated with Hid phenotypes&#39;, plot.contrasts=plot.contrasts, ypos = 800, offset = 50, type = &quot;grid&quot;, labels = strains)) + theme(
+  axis.text.x = element_text(colour = c(&quot;black&quot;, rep(&#39;red&#39;,4), rep(&#39;green&#39;,5)))
+)</code></pre>
+<p><img src="Figure_5_files/figure-html/wild%20isolate%20roaming-1.png" width="672" /></p>
+<p><strong>Figure 5B</strong><br />
+Exploratory behavior of indicated strains. Strains in red and green exhibit weaker or similar/stronger Hid phenotypes than N2, respectively (A). Each purple dot is data from a single animal. Median is indicated by a black horizontal line; error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the total number of animals examined in at least 3 independent assay days. P-values shown are with respect to N2; <code>***</code> - different from N2 at P&lt;0.001 (ANOVA with Dunnett-type multivariate-t post-hoc adjustment).</p>
+<pre class="r"><code>library(sjPlot)
+sjt.glmer(glmm.nest, depvar.labels = &quot;number of entries&quot;, show.se = TRUE)</code></pre>
+<table style="border-collapse:collapse; border:none;border-bottom:double;">
+<tr>
+<td style="padding:0.2cm; border-top:double;">
+ 
+</td>
+<td style="border-bottom:1px solid; padding-left:0.5em; padding-right:0.5em; border-top:double;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; border-bottom:1px solid; border-top:double;" colspan="4">
+number of entries
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; font-style:italic;">
+ 
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; font-style:italic;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+IRR
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+CI
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+std. Error
+</td>
+<td style="padding:0.2cm; text-align:center; font-style:italic; ">
+p
+</td>
+</tr>
+<tr>
+<td colspan="6" style="padding:0.2cm; text-align:left; border-top:1px solid; font-weight:bold; text-align:left;">
+Fixed Parts
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+(Intercept)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; ">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+210.34
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+184.15 – 240.25
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+14.27
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (CB4856)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.97
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.63 – 2.38
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.19
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (JU561)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.18
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.94 – 1.50
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.14
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.160
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (MY14)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.24
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.95 – 1.63
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.17
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.109
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (JU322)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.95
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.73 – 1.23
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.13
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.677
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (JU362)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.00
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.75 – 1.33
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.15
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.997
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (ED3040)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.33
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.99 – 1.77
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.20
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.056
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (JU345)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.11
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.81 – 1.51
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.17
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.526
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (PX178)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.67
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.25 – 2.24
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.25
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+&lt;.001
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left;">
+genotype (CB3198)
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+1.08
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.81 – 1.44
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+0.16
+</td>
+<td style="padding:0.2cm; text-align:center; ">
+.596
+</td>
+</tr>
+<tr>
+<td colspan="6" style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; font-weight:bold; text-align:left; padding-top:0.5em;">
+Random Parts
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+τ<sub>00, plateID:date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.155
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+τ<sub>00, date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.013
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+N<sub>plateID:date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+169
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;">
+N<sub>date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+9
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+ICC<sub>plateID:date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.132
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+ICC<sub>date</sub>
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+0.011
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;">
+Observations
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em; border-top:1px solid;">
+ 
+</td>
+<td style="padding:0.2cm; padding-top:0.1cm; padding-bottom:0.1cm; text-align:center; border-top:1px solid;" colspan="4">
+169
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
+Deviance
+</td>
+<td style="padding-left:0.5em; padding-right:0.5em;">
+ 
+</td>
+<td style="padding:0.2cm; text-align:center; padding-top:0.1cm; padding-bottom:0.1cm;" colspan="4">
+6.846
+</td>
+</tr>
+</table>
+<pre class="r"><code>knitr::kable(drop1(glmm.nest, test = &quot;Chisq&quot;), caption = &quot;Wald chi square test&quot;)</code></pre>
+<table>
+<caption>Wald chi square test</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Df</th>
+<th align="right">AIC</th>
+<th align="right">LRT</th>
+<th align="right">Pr(Chi)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><none></td>
+<td align="right">NA</td>
+<td align="right">2087.414</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td>genotype</td>
+<td align="right">9</td>
+<td align="right">2124.091</td>
+<td align="right">54.67739</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>knitr::kable(contrasts, caption = &quot;pairwise comparisons (GLMM)&quot;)</code></pre>
+<table>
+<caption>pairwise comparisons (GLMM)</caption>
+<thead>
+<tr class="header">
+<th align="left">contrast</th>
+<th align="right">rate.ratio</th>
+<th align="right">SE</th>
+<th align="right">df</th>
+<th align="right">z.ratio</th>
+<th align="right">p.value</th>
+<th align="left">prange</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">N2 - CB4856</td>
+<td align="right">0.5083058</td>
+<td align="right">0.0495027</td>
+<td align="right">NA</td>
+<td align="right">-6.9482277</td>
+<td align="right">0.0000000</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">N2 - JU561</td>
+<td align="right">0.8442069</td>
+<td align="right">0.1017525</td>
+<td align="right">NA</td>
+<td align="right">-1.4051055</td>
+<td align="right">0.3272521</td>
+<td align="left">p~0.33</td>
+</tr>
+<tr class="odd">
+<td align="left">N2 - MY14</td>
+<td align="right">0.8036547</td>
+<td align="right">0.1095922</td>
+<td align="right">NA</td>
+<td align="right">-1.6029182</td>
+<td align="right">0.2550498</td>
+<td align="left">p~0.26</td>
+</tr>
+<tr class="even">
+<td align="left">N2 - JU322</td>
+<td align="right">1.0568465</td>
+<td align="right">0.1401219</td>
+<td align="right">NA</td>
+<td align="right">0.4170120</td>
+<td align="right">0.7807726</td>
+<td align="left">p~0.78</td>
+</tr>
+<tr class="odd">
+<td align="left">N2 - JU362</td>
+<td align="right">1.0005047</td>
+<td align="right">0.1453279</td>
+<td align="right">NA</td>
+<td align="right">0.0034738</td>
+<td align="right">0.9972283</td>
+<td align="left">p~1</td>
+</tr>
+<tr class="even">
+<td align="left">N2 - ED3040</td>
+<td align="right">0.7540483</td>
+<td align="right">0.1114761</td>
+<td align="right">NA</td>
+<td align="right">-1.9095308</td>
+<td align="right">0.1581648</td>
+<td align="left">p~0.158</td>
+</tr>
+<tr class="odd">
+<td align="left">N2 - JU345</td>
+<td align="right">0.9048790</td>
+<td align="right">0.1426752</td>
+<td align="right">NA</td>
+<td align="right">-0.6339315</td>
+<td align="right">0.7130674</td>
+<td align="left">p~0.71</td>
+</tr>
+<tr class="even">
+<td align="left">N2 - PX178</td>
+<td align="right">0.5978794</td>
+<td align="right">0.0892449</td>
+<td align="right">NA</td>
+<td align="right">-3.4458981</td>
+<td align="right">0.0042687</td>
+<td align="left">**</td>
+</tr>
+<tr class="odd">
+<td align="left">N2 - CB3198</td>
+<td align="right">0.9245871</td>
+<td align="right">0.1366262</td>
+<td align="right">NA</td>
+<td align="right">-0.5306087</td>
+<td align="right">0.7244878</td>
+<td align="left">p~0.72</td>
+</tr>
+<tr class="even">
+<td align="left">CB4856 - JU561</td>
+<td align="right">1.6608247</td>
+<td align="right">0.2189335</td>
+<td align="right">NA</td>
+<td align="right">3.8484756</td>
+<td align="right">0.0013371</td>
+<td align="left">**</td>
+</tr>
+<tr class="odd">
+<td align="left">CB4856 - MY14</td>
+<td align="right">1.5810456</td>
+<td align="right">0.2284924</td>
+<td align="right">NA</td>
+<td align="right">3.1697135</td>
+<td align="right">0.0076295</td>
+<td align="left">**</td>
+</tr>
+<tr class="even">
+<td align="left">CB4856 - JU322</td>
+<td align="right">2.0791549</td>
+<td align="right">0.2995088</td>
+<td align="right">NA</td>
+<td align="right">5.0811910</td>
+<td align="right">0.0000084</td>
+<td align="left">***</td>
+</tr>
+<tr class="odd">
+<td align="left">CB4856 - JU362</td>
+<td align="right">1.9683125</td>
+<td align="right">0.3112340</td>
+<td align="right">NA</td>
+<td align="right">4.2826142</td>
+<td align="right">0.0002771</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">CB4856 - ED3040</td>
+<td align="right">1.4834540</td>
+<td align="right">0.2390780</td>
+<td align="right">NA</td>
+<td align="right">2.4470438</td>
+<td align="right">0.0540125</td>
+<td align="left">p~0.054</td>
+</tr>
+<tr class="odd">
+<td align="left">CB4856 - JU345</td>
+<td align="right">1.7801862</td>
+<td align="right">0.3024871</td>
+<td align="right">NA</td>
+<td align="right">3.3940796</td>
+<td align="right">0.0044267</td>
+<td align="left">**</td>
+</tr>
+<tr class="even">
+<td align="left">CB4856 - PX178</td>
+<td align="right">1.1762199</td>
+<td align="right">0.1911839</td>
+<td align="right">NA</td>
+<td align="right">0.9985532</td>
+<td align="right">0.5110894</td>
+<td align="left">p~0.51</td>
+</tr>
+<tr class="odd">
+<td align="left">CB4856 - CB3198</td>
+<td align="right">1.8189583</td>
+<td align="right">0.2941548</td>
+<td align="right">NA</td>
+<td align="right">3.6994709</td>
+<td align="right">0.0019444</td>
+<td align="left">**</td>
+</tr>
+<tr class="even">
+<td align="left">JU561 - MY14</td>
+<td align="right">0.9519642</td>
+<td align="right">0.1520429</td>
+<td align="right">NA</td>
+<td align="right">-0.3082233</td>
+<td align="right">0.7931642</td>
+<td align="left">p~0.79</td>
+</tr>
+<tr class="odd">
+<td align="left">JU561 - JU322</td>
+<td align="right">1.2518810</td>
+<td align="right">0.1944984</td>
+<td align="right">NA</td>
+<td align="right">1.4459328</td>
+<td align="right">0.3175630</td>
+<td align="left">p~0.32</td>
+</tr>
+<tr class="even">
+<td align="left">JU561 - JU362</td>
+<td align="right">1.1851416</td>
+<td align="right">0.1988868</td>
+<td align="right">NA</td>
+<td align="right">1.0121881</td>
+<td align="right">0.5110894</td>
+<td align="left">p~0.51</td>
+</tr>
+<tr class="odd">
+<td align="left">JU561 - ED3040</td>
+<td align="right">0.8932032</td>
+<td align="right">0.1512789</td>
+<td align="right">NA</td>
+<td align="right">-0.6668437</td>
+<td align="right">0.7099762</td>
+<td align="left">p~0.71</td>
+</tr>
+<tr class="even">
+<td align="left">JU561 - JU345</td>
+<td align="right">1.0718688</td>
+<td align="right">0.1901897</td>
+<td align="right">NA</td>
+<td align="right">0.3911443</td>
+<td align="right">0.7826519</td>
+<td align="left">p~0.78</td>
+</tr>
+<tr class="odd">
+<td align="left">JU561 - PX178</td>
+<td align="right">0.7082143</td>
+<td align="right">0.1210507</td>
+<td align="right">NA</td>
+<td align="right">-2.0184930</td>
+<td align="right">0.1399498</td>
+<td align="left">p~0.14</td>
+</tr>
+<tr class="even">
+<td align="left">JU561 - CB3198</td>
+<td align="right">1.0952139</td>
+<td align="right">0.1859918</td>
+<td align="right">NA</td>
+<td align="right">0.5355577</td>
+<td align="right">0.7244878</td>
+<td align="left">p~0.72</td>
+</tr>
+<tr class="odd">
+<td align="left">MY14 - JU322</td>
+<td align="right">1.3150505</td>
+<td align="right">0.2231575</td>
+<td align="right">NA</td>
+<td align="right">1.6139257</td>
+<td align="right">0.2550498</td>
+<td align="left">p~0.26</td>
+</tr>
+<tr class="even">
+<td align="left">MY14 - JU362</td>
+<td align="right">1.2449435</td>
+<td align="right">0.2279188</td>
+<td align="right">NA</td>
+<td align="right">1.1967196</td>
+<td align="right">0.4186275</td>
+<td align="left">p~0.42</td>
+</tr>
+<tr class="odd">
+<td align="left">MY14 - ED3040</td>
+<td align="right">0.9382740</td>
+<td align="right">0.1741248</td>
+<td align="right">NA</td>
+<td align="right">-0.3433199</td>
+<td align="right">0.7931642</td>
+<td align="left">p~0.79</td>
+</tr>
+<tr class="even">
+<td align="left">MY14 - JU345</td>
+<td align="right">1.1259549</td>
+<td align="right">0.2173040</td>
+<td align="right">NA</td>
+<td align="right">0.6146861</td>
+<td align="right">0.7130674</td>
+<td align="left">p~0.71</td>
+</tr>
+<tr class="odd">
+<td align="left">MY14 - PX178</td>
+<td align="right">0.7439506</td>
+<td align="right">0.1389804</td>
+<td align="right">NA</td>
+<td align="right">-1.5832897</td>
+<td align="right">0.2550498</td>
+<td align="left">p~0.26</td>
+</tr>
+<tr class="even">
+<td align="left">MY14 - CB3198</td>
+<td align="right">1.1504780</td>
+<td align="right">0.2146873</td>
+<td align="right">NA</td>
+<td align="right">0.7511911</td>
+<td align="right">0.6569095</td>
+<td align="left">p~0.66</td>
+</tr>
+<tr class="odd">
+<td align="left">JU322 - JU362</td>
+<td align="right">0.9466887</td>
+<td align="right">0.1655377</td>
+<td align="right">NA</td>
+<td align="right">-0.3133080</td>
+<td align="right">0.7931642</td>
+<td align="left">p~0.79</td>
+</tr>
+<tr class="even">
+<td align="left">JU322 - ED3040</td>
+<td align="right">0.7134889</td>
+<td align="right">0.1261605</td>
+<td align="right">NA</td>
+<td align="right">-1.9091993</td>
+<td align="right">0.1581648</td>
+<td align="left">p~0.158</td>
+</tr>
+<tr class="odd">
+<td align="left">JU322 - JU345</td>
+<td align="right">0.8562066</td>
+<td align="right">0.1580227</td>
+<td align="right">NA</td>
+<td align="right">-0.8411485</td>
+<td align="right">0.6211004</td>
+<td align="left">p~0.62</td>
+</tr>
+<tr class="even">
+<td align="left">JU322 - PX178</td>
+<td align="right">0.5657202</td>
+<td align="right">0.1007625</td>
+<td align="right">NA</td>
+<td align="right">-3.1982696</td>
+<td align="right">0.0076295</td>
+<td align="left">**</td>
+</tr>
+<tr class="odd">
+<td align="left">JU322 - CB3198</td>
+<td align="right">0.8748546</td>
+<td align="right">0.1555674</td>
+<td align="right">NA</td>
+<td align="right">-0.7518664</td>
+<td align="right">0.6569095</td>
+<td align="left">p~0.66</td>
+</tr>
+<tr class="even">
+<td align="left">JU362 - ED3040</td>
+<td align="right">0.7536679</td>
+<td align="right">0.1342568</td>
+<td align="right">NA</td>
+<td align="right">-1.5875535</td>
+<td align="right">0.2550498</td>
+<td align="left">p~0.26</td>
+</tr>
+<tr class="odd">
+<td align="left">JU362 - JU345</td>
+<td align="right">0.9044225</td>
+<td align="right">0.1694381</td>
+<td align="right">NA</td>
+<td align="right">-0.5362255</td>
+<td align="right">0.7244878</td>
+<td align="left">p~0.72</td>
+</tr>
+<tr class="even">
+<td align="left">JU362 - PX178</td>
+<td align="right">0.5975778</td>
+<td align="right">0.1065366</td>
+<td align="right">NA</td>
+<td align="right">-2.8879775</td>
+<td align="right">0.0174477</td>
+<td align="left">p~0.017</td>
+</tr>
+<tr class="odd">
+<td align="left">JU362 - CB3198</td>
+<td align="right">0.9241207</td>
+<td align="right">0.1647885</td>
+<td align="right">NA</td>
+<td align="right">-0.4425357</td>
+<td align="right">0.7793309</td>
+<td align="left">p~0.78</td>
+</tr>
+<tr class="even">
+<td align="left">ED3040 - JU345</td>
+<td align="right">1.2000279</td>
+<td align="right">0.2151714</td>
+<td align="right">NA</td>
+<td align="right">1.0169515</td>
+<td align="right">0.5110894</td>
+<td align="left">p~0.51</td>
+</tr>
+<tr class="odd">
+<td align="left">ED3040 - PX178</td>
+<td align="right">0.7928927</td>
+<td align="right">0.1345797</td>
+<td align="right">NA</td>
+<td align="right">-1.3672532</td>
+<td align="right">0.3356334</td>
+<td align="left">p~0.34</td>
+</tr>
+<tr class="even">
+<td align="left">ED3040 - CB3198</td>
+<td align="right">1.2261643</td>
+<td align="right">0.2094249</td>
+<td align="right">NA</td>
+<td align="right">1.1937626</td>
+<td align="right">0.4186275</td>
+<td align="left">p~0.42</td>
+</tr>
+<tr class="odd">
+<td align="left">JU345 - PX178</td>
+<td align="right">0.6607286</td>
+<td align="right">0.1186767</td>
+<td align="right">NA</td>
+<td align="right">-2.3072252</td>
+<td align="right">0.0728386</td>
+<td align="left">p~0.073</td>
+</tr>
+<tr class="even">
+<td align="left">JU345 - CB3198</td>
+<td align="right">1.0217798</td>
+<td align="right">0.1842493</td>
+<td align="right">NA</td>
+<td align="right">0.1194865</td>
+<td align="right">0.9254556</td>
+<td align="left">p~0.93</td>
+</tr>
+<tr class="odd">
+<td align="left">PX178 - CB3198</td>
+<td align="right">1.5464441</td>
+<td align="right">0.2648507</td>
+<td align="right">NA</td>
+<td align="right">2.5455278</td>
+<td align="right">0.0446370</td>
+<td align="left">p~0.045</td>
 </tr>
 </tbody>
 </table>

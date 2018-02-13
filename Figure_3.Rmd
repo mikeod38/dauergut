@@ -48,7 +48,7 @@ strains = "N2"
 days<-c("11_23_16", "12_6_16")
 #days <- "11_23_16" # 12_6 was likely L2s based on the timing
 
-d7GFP<-read.csv(file.path(pathname, "extdata/2A_3A_daf7GFP.csv")) %>%
+d7GFP<-read.csv(file.path(pathname, "extdata","2A_3A_daf7GFP.csv")) %>%
   filter(mean!=4095 & genotype %in% strains & date %in% days & pheromone == 0 & food == "OP50") %>%
   mutate(genotype = factor(genotype, levels=strains), ID = as.character(ID)) %>%
   separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>% 
@@ -92,7 +92,7 @@ sjt.lm(lm.ASI.lin, depvar.labels = "log(GFP expression)", show.fstat = TRUE)
 tempdays<-c("1", "4", "6", "8", "10")
 foods <- "OP50"
 strains <- "N2"
-d28<-read.csv(file.path(pathname,'extdata/2D_3B_4B_daf-28_GFP_rict-1.csv')) %>%
+d28<-read.csv(file.path(pathname,'extdata','2D_3B_4B_daf-28_GFP_rict-1.csv')) %>%
 separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>%
   subset(pheromone == 0) %>% 
   mutate(day = as.factor(day), genotype = factor(genotype, levels = strains),
@@ -224,7 +224,8 @@ p <- ggplot(daf7, aes(x=temp)) + #x-layer
 p
 ```
 
-
+**Figure 3C**
+Quantification of _daf-7_ (3C) or daf-28 (3D) mRNA levels in ASI assessed via fluorescent in situ hybridization in animals grown to L1 molt stage at the indicated temperatures. Expression was normalized by subtracting mean background pixel values for each image. Each dot is the mean fluorescence intensity in a single ASI neuron (see Materials and Methods). Horizontal thick bar indicates median. Error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. *** P<0.001 relative to animals grown at 25ºC (Welch’s t-test). Representative image of _daf-28_ mRNA FISH in ASI neurons of animals grown at the indicated temperatures are shown on right in D. Scale bar: 5 μm.
 
 ##3D
 
@@ -311,6 +312,8 @@ p <- ggplot(daf28, aes(x = temp)) + # x-layer
 p
 ```
 
+**Figure 3D**
+Quantification of _daf-7_ (3C) or daf-28 (3D) mRNA levels in ASI assessed via fluorescent in situ hybridization in animals grown to L1 molt stage at the indicated temperatures. Expression was normalized by subtracting mean background pixel values for each image. Each dot is the mean fluorescence intensity in a single ASI neuron (see Materials and Methods). Horizontal thick bar indicates median. Error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. *** P<0.001 relative to animals grown at 25ºC (Welch’s t-test). Representative image of _daf-28_ mRNA FISH in ASI neurons of animals grown at the indicated temperatures are shown on right in D. Scale bar: 5 μm.
 
 ##3E-F
 ```{r daf-28GFP rict-1 25v27, results='hide', fig.keep='all'}
@@ -420,7 +423,7 @@ p2
 
 <div style="float: right; width: 100%;">
 
-**Figure 3C**  
+**Figure 3E-F**  
 _daf-28_ expression is reduced in _rict-1_ mutants at multiple temperatures. Quantification of _daf-28p::gfp_ fluorescence in the ASI (left) and ASJ (right) neurons in L1 larvae grown at the indicated temperatures. Each data point is the average GFP fluorescence of a single animal (2 neurons per animal); numbers in parentheses below indicate the total number of animals examined. Horizontal lines are the median; error bars are quartiles.  
 
 </div>

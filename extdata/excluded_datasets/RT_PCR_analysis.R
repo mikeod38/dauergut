@@ -68,4 +68,9 @@ ggplot(RT, aes(x = genotype, y = normalized.expression)) +
 ggplot(RT[RT$PCR_expt == 2,], aes(x = replicate, y = normalized.expression))  +
   geom_point(aes(colour = factor(sample))) + geom_line(aes(group = sample))
 
+normalize_RT %$% t.test(mean_expr ~ sample_group)
+
+lm(normalize_RT, formula = mean_expr ~ genotype * sample_group) %>% summary()
+anova(lm(normalize_RT, formula = mean_expr ~ sample_group),lm(normalize_RT, formula = mean_expr ~ genotype + sample_group))
+
              

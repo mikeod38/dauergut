@@ -224,9 +224,6 @@ $(document).ready(function () {
     <li>
       <a href="Figure_7.html">Figure 7</a>
     </li>
-    <li>
-      <a href="Figure_8.html">Figure 8</a>
-    </li>
   </ul>
 </li>
       </ul>
@@ -263,7 +260,7 @@ $(document).ready(function () {
 days&lt;-c(&quot;11_23_16&quot;, &quot;12_6_16&quot;)
 #days &lt;- &quot;11_23_16&quot; # 12_6 was likely L2s based on the timing
 
-d7GFP&lt;-read.csv(file.path(pathname, &quot;extdata/2A_3A_daf7GFP.csv&quot;)) %&gt;%
+d7GFP&lt;-read.csv(file.path(pathname, &quot;extdata&quot;,&quot;2A_3A_daf7GFP.csv&quot;)) %&gt;%
   filter(mean!=4095 &amp; genotype %in% strains &amp; date %in% days &amp; pheromone == 0 &amp; food == &quot;OP50&quot;) %&gt;%
   mutate(genotype = factor(genotype, levels=strains), ID = as.character(ID)) %&gt;%
   separate(ID, c(&quot;ID.A&quot;, &quot;ID.B&quot;), sep = &quot;:&quot;, extra = &quot;drop&quot;) %&gt;% 
@@ -395,7 +392,7 @@ F-statistics
 <pre class="r"><code>tempdays&lt;-c(&quot;1&quot;, &quot;4&quot;, &quot;6&quot;, &quot;8&quot;, &quot;10&quot;)
 foods &lt;- &quot;OP50&quot;
 strains &lt;- &quot;N2&quot;
-d28&lt;-read.csv(file.path(pathname,&#39;extdata/2D_3B_4B_daf-28_GFP_rict-1.csv&#39;)) %&gt;%
+d28&lt;-read.csv(file.path(pathname,&#39;extdata&#39;,&#39;2D_3B_4B_daf-28_GFP_rict-1.csv&#39;)) %&gt;%
 separate(ID, c(&quot;ID.A&quot;, &quot;ID.B&quot;), sep = &quot;:&quot;, extra = &quot;drop&quot;) %&gt;%
   subset(pheromone == 0) %&gt;% 
   mutate(day = as.factor(day), genotype = factor(genotype, levels = strains),
@@ -665,6 +662,7 @@ p &lt;- ggplot(daf7, aes(x=temp)) + #x-layer
           labs(y = &quot;normalized expression&quot;,x = &quot;temperature&quot;)</code></pre>
 <pre class="r"><code>p</code></pre>
 <p><img src="Figure_3_files/figure-html/daf7FISH%20plot-1.png" width="672" /></p>
+<p><strong>Figure 3C</strong> Quantification of <em>daf-7</em> (3C) or daf-28 (3D) mRNA levels in ASI assessed via fluorescent in situ hybridization in animals grown to L1 molt stage at the indicated temperatures. Expression was normalized by subtracting mean background pixel values for each image. Each dot is the mean fluorescence intensity in a single ASI neuron (see Materials and Methods). Horizontal thick bar indicates median. Error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. *** P&lt;0.001 relative to animals grown at 25ºC (Welch’s t-test). Representative image of <em>daf-28</em> mRNA FISH in ASI neurons of animals grown at the indicated temperatures are shown on right in D. Scale bar: 5 μm.</p>
 </div>
 <div id="d" class="section level2">
 <h2>3D</h2>
@@ -745,6 +743,7 @@ p &lt;- ggplot(daf28, aes(x = temp)) + # x-layer
   labs(y = &quot;normalized expression&quot;, x = &quot;temperature&quot;)</code></pre>
 <pre class="r"><code>p</code></pre>
 <p><img src="Figure_3_files/figure-html/plot%20daf28FISH-1.png" width="672" /></p>
+<p><strong>Figure 3D</strong> Quantification of <em>daf-7</em> (3C) or daf-28 (3D) mRNA levels in ASI assessed via fluorescent in situ hybridization in animals grown to L1 molt stage at the indicated temperatures. Expression was normalized by subtracting mean background pixel values for each image. Each dot is the mean fluorescence intensity in a single ASI neuron (see Materials and Methods). Horizontal thick bar indicates median. Error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. *** P&lt;0.001 relative to animals grown at 25ºC (Welch’s t-test). Representative image of <em>daf-28</em> mRNA FISH in ASI neurons of animals grown at the indicated temperatures are shown on right in D. Scale bar: 5 μm.</p>
 </div>
 <div id="e-f" class="section level2">
 <h2>3E-F</h2>
@@ -841,7 +840,7 @@ p2 &lt;- df %&gt;% dplyr::filter(neuron == &quot;ASJ&quot;) %&gt;% ggplot(aes(x 
 <p><img src="Figure_3_files/figure-html/unnamed-chunk-2-1.png" width="384" /></p>
 </div>
 <div style="float: right; width: 100%;">
-<p><strong>Figure 3C</strong><br />
+<p><strong>Figure 3E-F</strong><br />
 <em>daf-28</em> expression is reduced in <em>rict-1</em> mutants at multiple temperatures. Quantification of <em>daf-28p::gfp</em> fluorescence in the ASI (left) and ASJ (right) neurons in L1 larvae grown at the indicated temperatures. Each data point is the average GFP fluorescence of a single animal (2 neurons per animal); numbers in parentheses below indicate the total number of animals examined. Horizontal lines are the median; error bars are quartiles.</p>
 </div>
 <pre class="r"><code>library(sjPlot)

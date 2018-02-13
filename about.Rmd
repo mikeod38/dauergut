@@ -26,4 +26,4 @@ devtools::install_github("mikeod38/dauergut")
 All raw data is in the "extdata" folder
 
 
-**Figures from this website are for illustrative purposes only, please view the full manuscript on bioRXiv**
+**Figures from this website are for illustrative purposes only, please view the full manuscript at _PLOS Genetics_ http://dx.doi.org/10.1371/journal.pgen.1007213

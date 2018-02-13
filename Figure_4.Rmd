@@ -1,5 +1,5 @@
 ---
-title: "Figure 5"
+title: "Figure 4"
 output:
   html_document:
     code_folding: hide
@@ -43,7 +43,7 @@ dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
 ##4A-B
 
 ```{r foraging image}
-img.path <- file.path(pathname, "figures/5A_cartoon.png")
+img.path <- file.path(pathname, "figures","4A_cartoon.png")
 ```
 
 <div style="float: left; width: 50%;">
@@ -62,7 +62,7 @@ include_graphics(img.path)
 Cartoon depicting foraging assay. Each plate contains a L4 hermaphrodite which is allowed to forage overnight on a uniform lawn of E. coli for ~ 16hrs. Lines show tracks on the bacterial lawn.
 
 ```{r rict-1 roaming import and model analysis, fig.width=5}
-roam<-read.csv(file.path(pathname, "extdata/5B_5E_gridentry.csv")) %>% 
+roam<-read.csv(file.path(pathname, "extdata","4B_4E_gridentry.csv")) %>% 
   mutate(strain = interaction(genotype, line, drop=TRUE),
          strainDate = interaction(strain, date, drop=TRUE),
          plateID = interaction(strainDate,plate, drop=TRUE),
@@ -182,7 +182,7 @@ knitr::kable(drop1(glmm.nest, test = "Chisq"))
 <div style="float: left; width: 50;">
 
 ```{r roaming density plot, fig.width=5}
-img.path <- file.path(pathname, "figures/5C_roam_dwell_density.png")
+img.path <- file.path(pathname, "figures","4C_roam_dwell_density.png")
 include_graphics(img.path)
 ```
 
@@ -193,7 +193,7 @@ Live tracking of foraging behavior. Shown is a representative assay. n > 20 anim
 
 ```{r roaming mutliple assays,  results='hide', fig.keep='all', fig.width = 3}
 strains <- c("N2","ft7")
-roam_beh <- read.csv(file.path(pathname, "extdata/5D_roam_dwell_all.csv")) %>% 
+roam_beh <- read.csv(file.path(pathname, "extdata","4D_roam_dwell_all.csv")) %>% 
   mutate(genotype = factor(genotype, levels = strains), pct = pct.roam, plateID = interaction(date,genotype,plate))
 
 roam.t <- t.test(roam_beh[roam_beh$genotype == strains[1],]$pct, roam_beh[roam_beh$genotype == strains[2],]$pct)
@@ -239,7 +239,7 @@ Quantification of roaming and dwelling states. _rict-1_ mutants show increased r
 pdfr-1 is epistatic to rict-1 in foraging behavior.
 
 ```{r pdfr-1&ft7 dataload}
-  roam<-read.csv(file.path(pathname, "extdata/5B_5E_gridentry.csv")) %>% 
+  roam<-read.csv(file.path(pathname, "extdata","4B_4E_gridentry.csv")) %>% 
   mutate(strain = interaction(genotype, line, drop=TRUE),
          strainDate = interaction(strain, date, drop=TRUE),
          plateID = interaction(strainDate,plate, drop=TRUE),
@@ -334,7 +334,7 @@ PDF-2 signaling acts downstream of TORC2 in the regulation of foraging. Overexpr
 ```{r starved roam quantification, results='hide', fig.keep='all', fig.width = 3}
 devtools::install_github("rasmusab/bayesian_first_aid")
 strains <- c("N2","rict-1(ft7)")
-roam_beh <- read.csv(file.path(pathname, "extdata/S2B_starved_roam_dwell_all.csv")) %>% 
+roam_beh <- read.csv(file.path(pathname, "extdata","S2B_starved_roam_dwell_all.csv")) %>% 
   mutate(genotype = factor(genotype, levels = strains), pct = pct.roam, plateID = interaction(date,genotype,plate))
 
 
@@ -365,7 +365,7 @@ p<-dauergut::plot_CIs(roam_beh, plot.contrasts = plot.contrasts, type = "dauer",
 
 ```{r roaming in starved WT and rict-1, fig.width = 3}
 #run speed_curvature_4x_parallel to reproduce these data from raw position, speed data located in /extdata/
-img.path <- file.path(pathname, "figures/S2A_starve_roam_density.png")
+img.path <- file.path(pathname, "figures","S2A_starve_roam_density.png")
 include_graphics(img.path)
 ```
 
@@ -391,7 +391,7 @@ p
 strains<-c("N2","rict-1(ft7)","rict-1(ft7);pdfr-1")
 foods = "OP50"
 
-pdfr_dauer<-read.csv(file.path(pathname, "extdata/S2C_pdfr_dauer.csv")) %>% format_dauer(p.dauer = "non")
+pdfr_dauer<-read.csv(file.path(pathname, "extdata","S2C_pdfr_dauer.csv")) %>% format_dauer(p.dauer = "non")
 
 pdfr_dauer %<>% mutate(adj.pct = case_when(.$pct == 0 ~ 0.01, .$pct == 1 ~ 0.99, TRUE ~ .$pct))
 

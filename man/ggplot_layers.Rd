@@ -15,7 +15,7 @@
 \alias{theme_my_classic}
 \alias{theme_my}
 \title{ggplot_layers}
-\format{An object of class \code{theme} (inherits from \code{gg}) of length 57.}
+\format{An object of class \code{theme} (inherits from \code{gg}) of length 60.}
 \usage{
 add.scatter()
 
@@ -31,7 +31,7 @@ figure.axes()
 
 add.n.categorical()
 
-add.n(x_axis)
+add.n()
 
 add.Bayes.CI()
 

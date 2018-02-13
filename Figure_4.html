@@ -11,7 +11,7 @@
 
 
 
-<title>Figure 5</title>
+<title>Figure 4</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -224,9 +224,6 @@ $(document).ready(function () {
     <li>
       <a href="Figure_7.html">Figure 7</a>
     </li>
-    <li>
-      <a href="Figure_8.html">Figure 8</a>
-    </li>
   </ul>
 </li>
       </ul>
@@ -249,7 +246,7 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Figure 5</h1>
+<h1 class="title toc-ignore">Figure 4</h1>
 
 </div>
 
@@ -258,15 +255,15 @@ $(document).ready(function () {
 <h1><strong>Intestinal mTORC2 alters foraging behaviors</strong></h1>
 <div id="a-b" class="section level2">
 <h2>4A-B</h2>
-<pre class="r"><code>img.path &lt;- file.path(pathname, &quot;figures/5A_cartoon.png&quot;)</code></pre>
+<pre class="r"><code>img.path &lt;- file.path(pathname, &quot;figures&quot;,&quot;4A_cartoon.png&quot;)</code></pre>
 <div style="float: left; width: 50%;">
 <pre class="r"><code>include_graphics(img.path)                                   </code></pre>
-<p><img src="figures/5A_cartoon.png" width="430" /></p>
+<p><img src="figures/4A_cartoon.png" width="430" /></p>
 </div>
 <p><br> <br> </br></p>
 <p><strong>Figure 4A</strong><br />
 Cartoon depicting foraging assay. Each plate contains a L4 hermaphrodite which is allowed to forage overnight on a uniform lawn of E. coli for ~ 16hrs. Lines show tracks on the bacterial lawn.</p>
-<pre class="r"><code>roam&lt;-read.csv(file.path(pathname, &quot;extdata/5B_5E_gridentry.csv&quot;)) %&gt;% 
+<pre class="r"><code>roam&lt;-read.csv(file.path(pathname, &quot;extdata&quot;,&quot;4B_4E_gridentry.csv&quot;)) %&gt;% 
   mutate(strain = interaction(genotype, line, drop=TRUE),
          strainDate = interaction(strain, date, drop=TRUE),
          plateID = interaction(strainDate,plate, drop=TRUE),
@@ -601,14 +598,14 @@ Deviance
 <h2>4C-D</h2>
 <pre class="r"><code>#### see extdata/roaming and speed_curvature function for data and analysis, respectively - highly memory intensive</code></pre>
 <div style="float: left; width: 50;">
-<pre class="r"><code>img.path &lt;- file.path(pathname, &quot;figures/5C_roam_dwell_density.png&quot;)
+<pre class="r"><code>img.path &lt;- file.path(pathname, &quot;figures&quot;,&quot;4C_roam_dwell_density.png&quot;)
 include_graphics(img.path)</code></pre>
-<p><img src="figures/5C_roam_dwell_density.png" width="890" /></p>
+<p><img src="figures/4C_roam_dwell_density.png" width="890" /></p>
 </div>
 <p><strong>Figure 4C</strong><br />
 Live tracking of foraging behavior. Shown is a representative assay. n &gt; 20 animals per assay. Density plot shows mean speed and angular velocity from tracks binned over 10 sec intervals imaged at 3 frames/sec. Red line indicates delineation of roaming (upper region) and dwelling (lower region) behavior.</p>
 <pre class="r"><code>strains &lt;- c(&quot;N2&quot;,&quot;ft7&quot;)
-roam_beh &lt;- read.csv(file.path(pathname, &quot;extdata/5D_roam_dwell_all.csv&quot;)) %&gt;% 
+roam_beh &lt;- read.csv(file.path(pathname, &quot;extdata&quot;,&quot;4D_roam_dwell_all.csv&quot;)) %&gt;% 
   mutate(genotype = factor(genotype, levels = strains), pct = pct.roam, plateID = interaction(date,genotype,plate))
 
 roam.t &lt;- t.test(roam_beh[roam_beh$genotype == strains[1],]$pct, roam_beh[roam_beh$genotype == strains[2],]$pct)
@@ -635,12 +632,12 @@ odds.ratio &lt;- summary(stan.glmm)[2,1] %&gt;% exp()</code></pre>
 </div>
 <p><br> <br> </br></p>
 <p><strong>Figure 4D</strong><br />
-Quantification of roaming and dwelling states. <em>rict-1</em> mutants show increased roaming, corresponding to an odds ratio of 3.487. Dots show proportion of track time bins in which animals were roaming, with each dot reflecting one assay. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. P-value shown is with respect to wild-type (Welch’s t-test).</p>
+Quantification of roaming and dwelling states. <em>rict-1</em> mutants show increased roaming, corresponding to an odds ratio of 3.477. Dots show proportion of track time bins in which animals were roaming, with each dot reflecting one assay. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. P-value shown is with respect to wild-type (Welch’s t-test).</p>
 </div>
 <div id="e" class="section level2">
 <h2>4E</h2>
 <p>pdfr-1 is epistatic to rict-1 in foraging behavior.</p>
-<pre class="r"><code>  roam&lt;-read.csv(file.path(pathname, &quot;extdata/5B_5E_gridentry.csv&quot;)) %&gt;% 
+<pre class="r"><code>  roam&lt;-read.csv(file.path(pathname, &quot;extdata&quot;,&quot;4B_4E_gridentry.csv&quot;)) %&gt;% 
   mutate(strain = interaction(genotype, line, drop=TRUE),
          strainDate = interaction(strain, date, drop=TRUE),
          plateID = interaction(strainDate,plate, drop=TRUE),
@@ -954,7 +951,7 @@ Deviance
 <td align="right">0.0922775</td>
 <td align="right">NA</td>
 <td align="right">-3.6251984</td>
-<td align="right">0.0026570</td>
+<td align="right">0.0026596</td>
 <td align="left">**</td>
 </tr>
 <tr class="even">
@@ -1017,7 +1014,7 @@ Deviance
 <td align="right">0.1658743</td>
 <td align="right">NA</td>
 <td align="right">-0.8175773</td>
-<td align="right">0.9248595</td>
+<td align="right">0.9248565</td>
 <td align="left">p~0.92</td>
 </tr>
 <tr class="odd">
@@ -1026,7 +1023,7 @@ Deviance
 <td align="right">0.1413884</td>
 <td align="right">NA</td>
 <td align="right">-1.6282147</td>
-<td align="right">0.4775363</td>
+<td align="right">0.4775188</td>
 <td align="left">p~0.48</td>
 </tr>
 <tr class="even">
@@ -1035,7 +1032,7 @@ Deviance
 <td align="right">0.1430890</td>
 <td align="right">NA</td>
 <td align="right">-0.9361392</td>
-<td align="right">0.8821772</td>
+<td align="right">0.8821859</td>
 <td align="left">p~0.88</td>
 </tr>
 </tbody>
@@ -1085,7 +1082,7 @@ PDF-2 signaling acts downstream of TORC2 in the regulation of foraging. Overexpr
 <h2>S2A-B</h2>
 <pre class="r"><code>devtools::install_github(&quot;rasmusab/bayesian_first_aid&quot;)
 strains &lt;- c(&quot;N2&quot;,&quot;rict-1(ft7)&quot;)
-roam_beh &lt;- read.csv(file.path(pathname, &quot;extdata/S2B_starved_roam_dwell_all.csv&quot;)) %&gt;% 
+roam_beh &lt;- read.csv(file.path(pathname, &quot;extdata&quot;,&quot;S2B_starved_roam_dwell_all.csv&quot;)) %&gt;% 
   mutate(genotype = factor(genotype, levels = strains), pct = pct.roam, plateID = interaction(date,genotype,plate))
 
 
@@ -1111,7 +1108,7 @@ p&lt;-dauergut::plot_CIs(roam_beh, plot.contrasts = plot.contrasts, type = &quot
         axis.title = element_text(size=16))</code></pre>
 <div <div="" style="float: left; width: 50%;">
 <pre class="r"><code>#run speed_curvature_4x_parallel to reproduce these data from raw position, speed data located in /extdata/
-img.path &lt;- file.path(pathname, &quot;figures/S2A_starve_roam_density.png&quot;)
+img.path &lt;- file.path(pathname, &quot;figures&quot;,&quot;S2A_starve_roam_density.png&quot;)
 include_graphics(img.path)</code></pre>
 <p><img src="figures/S2A_starve_roam_density.png" width="500" /></p>
 </div>
@@ -1127,7 +1124,7 @@ include_graphics(img.path)</code></pre>
 <pre class="r"><code>strains&lt;-c(&quot;N2&quot;,&quot;rict-1(ft7)&quot;,&quot;rict-1(ft7);pdfr-1&quot;)
 foods = &quot;OP50&quot;
 
-pdfr_dauer&lt;-read.csv(file.path(pathname, &quot;extdata/S2C_pdfr_dauer.csv&quot;)) %&gt;% format_dauer(p.dauer = &quot;non&quot;)
+pdfr_dauer&lt;-read.csv(file.path(pathname, &quot;extdata&quot;,&quot;S2C_pdfr_dauer.csv&quot;)) %&gt;% format_dauer(p.dauer = &quot;non&quot;)
 
 pdfr_dauer %&lt;&gt;% mutate(adj.pct = case_when(.$pct == 0 ~ 0.01, .$pct == 1 ~ 0.99, TRUE ~ .$pct))
 
@@ -1303,7 +1300,7 @@ F-statistics
 <td align="right">0.0965166</td>
 <td align="right">13</td>
 <td align="right">-7.674941</td>
-<td align="right">0.0000070</td>
+<td align="right">0.0000032</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -1321,7 +1318,7 @@ F-statistics
 <td align="right">0.0901806</td>
 <td align="right">13</td>
 <td align="right">-1.145372</td>
-<td align="right">0.5036897</td>
+<td align="right">0.5037337</td>
 <td align="left">p~0.5</td>
 </tr>
 </tbody>

@@ -1,13 +1,14 @@
 #' getStan_CIs
 #'
-#' Function pulls confidence intervals from a StanGLMM model using genotype as a parameter/predictor
+#' Function pulls 50 and 95% confidence intervals from a StanGLMM model using genotype as a parameter/predictor
 #' @param x Stan glmm model
 #' @param type type of data, options are NA (linear model), "log" (Log10), "roam" (Poisson), "dauer" (logit)
 #' @param group optional argument for group-level effects, i.e. "food" or "temp". Must match column name for condition
 #' @param base optional argument for log models - base of log function
 #' @param compare_gt optional argument for group-level effect - if true, genotype is compared at each level of condition, if blank,
 #' then condition effects are returned.
-#' @param intercept optional parameter specifying whether an intercept was included in the model formula - see run_dauer_stan.R
+#' @param intercept optional parameter specifying whether an intercept was included in the model formula - see run_dauer_stan.R. 
+#' If blank, assumes there is an intercept in model.
 #' 
 #' @importFrom magrittr "%>%"
 #' @importFrom magrittr "%<>%"
@@ -17,25 +18,20 @@
 getStan_CIs <- function(x,type,group,base,compare_gt,intercept) {
   
   # get estimated parameters from the model:
-  if(missing(group)) { # for non-grouped data
-    data <- cbind(summary(x)[1:length(strains),1] + summary(x)[1,1],
-                  rstanarm::posterior_interval(x, pars = "(Intercept)", regex_pars = "genotype", prob = 0.95) + summary(x)[1,1],
-                  rstanarm::posterior_interval(x, pars = "(Intercept)", regex_pars = "genotype", prob = 0.75) + summary(x)[1,1])
+  if(missing(group)) {
+    strains = levels(x$data$genotype) # for non-grouped data
+    data <- summary(x)[1:length(strains),c(1,4,8,5,7)] + summary(x)[1,1]
     data[1,] <- data[1,] - summary(x)[1,1] #same for  all non-grouped data
   } else {
     if(missing(intercept)) {
     group.id <- levels(x$data$group.id) # same for all grouped data
     my_group <- x$data[,group]
-    data <- cbind(summary(x)[1:length(group.id),1] + summary(x)[1,1],
-                  rstanarm::posterior_interval(x, pars = "(Intercept)", regex_pars = "group.id", prob = 0.95) + summary(x)[1,1],
-                  rstanarm::posterior_interval(x, pars = "(Intercept)", regex_pars = "group.id", prob = 0.75) + summary(x)[1,1])
+    data <- summary(x)[1:length(group.id),c(1,4,8,5,7)] + summary(x)[1,1]
     data[1,] <- data[1,] - summary(x)[1,1]
     } else {
-      group.id <- levels(x$data$group.id) # same for all grouped data
+      group.id <- levels(x$data$group.id) # no intercept so direct estimates of cred intervals. 
       my_group <- x$data[,group]
-      data <- cbind(summary(x)[1:length(group.id),1],
-                    rstanarm::posterior_interval(x, regex_pars = "group.id", prob = 0.95),
-                    rstanarm::posterior_interval(x, regex_pars = "group.id", prob = 0.75))
+      data <- summary(x)[1:length(group.id),c(1,4,8,5,7)]
     }
   }
 

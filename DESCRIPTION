@@ -28,6 +28,7 @@ Imports:
     rstan,
     MASS,
     sjPlot,
-    png
+    png,
+    here
 RoxygenNote: 6.0.1
 Suggests: testthat

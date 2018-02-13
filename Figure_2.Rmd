@@ -47,7 +47,7 @@ dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
 ```{r daf7 data load} 
 strains<-c("N2","mg360","ft7","ft7_ges1resc", "ft7_ifb2resc", "ft7_gpa4resc")
 dates<-c("10_22_16", "11_9_16", "11_23_16", "12_16_17", "12_20_17") #dropped "12_6_16" due to missingness
-d7GFP<-read.csv(file.path(pathname,"extdata/2A_3A_daf7GFP.csv")) %>%
+d7GFP<-read.csv(file.path(pathname,"extdata","2A_3A_daf7GFP.csv")) %>%
   filter(mean!=4095 & genotype %in% strains & date %in% dates & temp == "27" & food == "OP50") %>%
   mutate(genotype = factor(genotype, levels=strains), 
          ID = as.character(ID),
@@ -86,7 +86,7 @@ df <- flag_outliers(linmod, df = df, threshold = 4, noplot = TRUE)
 linmod <- with(log.tran, lm(linkfun(cell.norm) ~ genotype, data = df[df$outlier.status == FALSE,]))
 
 
-stanlmer <- with(log.tran, rstanarm::stan_lmer(linkfun(cell.norm) ~ genotype + (1|date) + (1:genotype:date), 
+stanlmer <- with(log.tran, rstanarm::stan_lmer(linkfun(cell.norm) ~ genotype + (1|date) + (1|genotype:date), 
                                                data = df[df$outlier.status == FALSE,], 
                                                chains = 3, 
                                                cores =4, 
@@ -95,25 +95,25 @@ stanlmer <- with(log.tran, rstanarm::stan_lmer(linkfun(cell.norm) ~ genotype + (
                                                control = list(adapt_delta=0.99)))
 
 #refit stanlmer using ft7 as reference to get credible interval for ifb-2 rescue:
-# df2 <- df %>% mutate(genotype = factor(genotype, levels = c(strains[3],strains[1:2],strains[4:6])))
-# stanlmer2 <- with(log.tran, rstanarm::stan_lmer(linkfun(cell.norm) ~ genotype + (1|date) + (1:genotype:date),
-#                                                data = df2[df2$outlier.status == FALSE,],
-#                                                chains = 3,
-#                                                cores =4,
-#                                                seed = 2000,
-#                                                iter=6000,
-#                                                control = list(adapt_delta=0.99)))
+df2 <- df %>% mutate(genotype = factor(genotype, levels = c(strains[3],strains[1:2],strains[4:6])))
+stanlmer2 <- with(log.tran, rstanarm::stan_lmer(linkfun(cell.norm) ~ genotype + (1|date) + (1|genotype:date),
+                                               data = df2[df2$outlier.status == FALSE,],
+                                               chains = 3,
+                                               cores =4,
+                                               seed = 2000,
+                                               iter=6000,
+                                               control = list(adapt_delta=0.99)))
 # 
-# stanlmer3 <- with(log.tran, rstanarm::stan_lmer(linkfun(cell.norm) ~ genotype + (1 + genotype|date),
-#                                                data = df2[df2$outlier.status == FALSE,],
-#                                                chains = 3,
-#                                                cores =4,
-#                                                seed = 2000,
-#                                                iter=6000,
-#                                                control = list(adapt_delta=0.99)))
-# 
-# PI_ifb2 <- rstanarm::posterior_interval(stanlmer2, pars = "(Intercept)", regex_pars = "ifb", prob = 0.90)
-# plot(stanlmer2, regex_pars = "genotype")
+stanlmer3 <- with(log.tran, rstanarm::stan_lmer(linkfun(cell.norm) ~ genotype + (1 + genotype|date),
+                                               data = df2[df2$outlier.status == FALSE,],
+                                               chains = 3,
+                                               cores =4,
+                                               seed = 2000,
+                                               iter=6000,
+                                               control = list(adapt_delta=0.99)))
+
+PI_ifb2 <- rstanarm::posterior_interval(stanlmer2, pars = "(Intercept)", regex_pars = "ifb", prob = 0.90)
+p2 <- plot(stanlmer3, pars = "beta") #, regex_pars = "genotype")
 
 contrasts <- tukey_contrasts(linmod, factor = "genotype")
 plot.contrasts <- c("",contrasts$prange[1:5])
@@ -137,7 +137,7 @@ p <- df[df$outlier.status == FALSE,] %>%
                      ypos = 6000,
                      offset = 500)
 
-img.path <- file.path(pathname,"figures/2A_daf7GFP.png")
+img.path <- file.path(pathname,"figures","2A_daf7GFP.png")
 
 ```
 
@@ -170,18 +170,22 @@ library(sjPlot)
 sjt.lm(linmod, depvar.labels = "log(mean GFP intensity) (AU)", show.se = TRUE, show.fstat = TRUE)
 knitr::kable(contrasts, caption="Pairwise comparisons from ANOVA (Dunnett)")
 knitr::kable(mixed[,c(1:6)], caption = "Bayesian credible intervals")
+p2
 ```
 
 
 ##2B
 
 ```{r daf7 FISH, results='hide', fig.keep='all'}
-daf7FISH<-read.csv("extdata/2B_daf7FISH_4frames.csv") %>%
+daf7FISH<-read.csv("extdata","2B_daf7FISH_4frames.csv") %>%
   separate(Label, c("method","group","sample"),sep = c("-"), extra = "drop") %>%
   separate(sample, c("sample", "type"),sep =":", extra = "drop") %>%
-  mutate(genotype = data.frame(do.call(rbind, strsplit(as.vector(group), split = "daf7_mRNA_L1_27d_")))[,2]) %>%
-  mutate(ID = interaction(genotype, sample)) %>%
-  mutate(genotype = factor(genotype, levels = c("N2", "ft7", "mg360", "mg360resc")))
+  mutate(genotype = data.frame(do.call(rbind, strsplit(as.vector(group), split = "daf7_mRNA_L1_27d_")))[,2],
+         ID = interaction(genotype, sample),
+         genotype = factor(genotype, levels = c("N2", "ft7", "mg360", "mg360resc")),
+         group.id = dplyr::case_when(
+           genotype %in% c("ft7","mg360") ~ as.character("mutant"),
+           TRUE ~ as.character(genotype)))
 
 #measured background fluorescence of each of 4 frames to normalize the sum projection of the neuron
 #merge to add mean background value to each row:
@@ -189,8 +193,8 @@ background <- filter(daf7FISH, type == "background") %>%
   dplyr::select(ID, mean)
 colnames(background) <- c("ID", "background")
 
-cells<-dplyr::filter(daf7FISH, type == "cell") %>% dplyr::select(ID, sample, mean, genotype)
-colnames(cells) <- c("ID", "sample", "cell.mean", "genotype")
+cells<-dplyr::filter(daf7FISH, type == "cell") %>% dplyr::select(ID, sample, mean, genotype, group.id)
+colnames(cells) <- c("ID", "sample", "cell.mean", "genotype","group.id")
 
 daf7FISH <- merge(cells, background,by="ID") %>%
   mutate(cell.norm = cell.mean - mean(background),
@@ -208,6 +212,9 @@ lm.1<-lm(data=daf7FISH[daf7FISH$outlier.status == FALSE,], formula=cell.norm~gen
 
 
 stanlm <- stan_glm(cell.norm ~ genotype, data = daf7FISH[daf7FISH$outlier.status == FALSE,])
+
+
+
 
 #plot daf7 FISH
 strains <- levels(daf7FISH$genotype)
@@ -262,7 +269,7 @@ df <- d28 %>% group_by(neuron,date,genotype,genoID) %>%
 ```
 
 ```{r daf28 rict-1 plot, fig.width=8}
-day.means <- df %>% 
+day.means <- df %>%
   filter(genotype == "ft7") %>% 
   group_by(date,neuron) %>%
   summarise(mean_ft7 = mean(cell.norm)) %>% data.frame()
@@ -342,7 +349,7 @@ p <- df %>%
         panel.spacing.x=unit(2,"lines"))
 
 #image of daf-28 GFP
-img.path <- file.path(pathname,"figures/2D_daf-28GFP.png")
+img.path <- file.path(pathname,"figures","2D_daf-28GFP.png")
 ```
 
 
@@ -456,7 +463,7 @@ knitr::kable(contrasts[2], caption = "pairwise comparisons by food (ANOVA)")
 ##S1A
 
 ```{r daf7FISH image, eval = TRUE}
-include_graphics(file.path(pathname, "figures/S1A_daf7FISH.png"))
+include_graphics(file.path(pathname, "figures","S1A_daf7FISH.png"))
 ```
 
 ##S1B
@@ -464,7 +471,7 @@ include_graphics(file.path(pathname, "figures/S1A_daf7FISH.png"))
 strains<-c("N2","mg360")
 conc.adjust <-15
 dates<-c("8_10_16")
-d7GFP<-read.csv(file.path(pathname,"extdata/2A_3A_daf7GFP.csv")) %>% filter(mean!=4095 & genotype %in% strains & date %in% dates & temp == "25" & food == "OP50") %>% mutate(genotype = factor(genotype, levels=strains), ID = as.character(ID)) %>%
+d7GFP<-read.csv(file.path(pathname,"extdata","2A_3A_daf7GFP.csv")) %>% filter(mean!=4095 & genotype %in% strains & date %in% dates & temp == "25" & food == "OP50") %>% mutate(genotype = factor(genotype, levels=strains), ID = as.character(ID)) %>%
   separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>% 
   mutate(genoID = paste(date, genotype, ID.A, sep = ":"), cell.norm = mean, adj.pheromone = pheromone + conc.adjust, 
          inv.pher = 1/adj.pheromone) #genoID is animal, 2 cells per animal measured.
@@ -497,11 +504,11 @@ newdata1 <- cbind(newdata, predictions.2)
 newdata1 %<>% mutate(lower = (fit - se.fit), upper = (fit + se.fit), AU = fit, genotype = factor(genotype, levels = strains))
 
 
-(p<-df %>% ggplot(aes(x= adj.pheromone,y = AU)) +
-    geom_ribbon(data = newdata1,aes(ymin=lower, ymax=upper,fill=genotype), alpha=0.3) +
+(p<-df %>% ungroup %>% ggplot(aes(x= adj.pheromone)) +
+    geom_ribbon(data = newdata1,aes(ymin=lower, ymax=upper, fill=genotype), alpha=0.3) +
     geom_line(data = newdata1,aes(x =  adj.pheromone, y = AU, colour = genotype)) +
     add.median(width = 150) +
-    add.quartiles(width = 60) + 
+    add.quartiles(width = 60) +
     geom_quasirandom(aes(y=cell.norm),colour = "#339900", cex=1,
                            width = 40,size=0.3,
                            method = 'smiley') +
@@ -536,7 +543,7 @@ sjt.lm(lm2, depvar.labels = "proportion of dauers", show.se = TRUE, show.fstat =
 ```{r rict-1 pheromone response}
 strains <- c("N2", "rict-1(ft7)")
 foods <- "OP50"
-rictC3 <- read.csv(file.path(pathname, 'extdata/S3C_rict1Pheromone.csv')) %>% format_dauer(p.dauer = "exclude") %>% mutate(plateID = interaction(plateID,concentration.uM.)) 
+rictC3 <- read.csv(file.path(pathname, 'extdata','S3C_rict1Pheromone.csv')) %>% format_dauer(p.dauer = "exclude") %>% mutate(plateID = interaction(plateID,concentration.uM.)) 
 
 # for glm fit
 glm <- glm(data = rictC3, cbind(dauer, non) ~ concentration.uM. + genotype + concentration.uM. * genotype, family = binomial)
@@ -578,7 +585,7 @@ newdata1 %<>% mutate(lower = (fit - se.fit), upper = (fit + se.fit), pct = fit)
 ```
 
 **Figure S1C**
-_rict-1_ mutants show enhanced response to pheromone ascr#5. Dauers formed by wild-type (black) and rict-1(ft7) (blue) animals at 25°C in the presence of the indicated concentrations of ascr#5. Each dot indicates the proportion of dauers formed in a single assay. Horizontal bar indicates median. Numbers in parentheses below indicate the number of independent experiments with at least 27 animals each. Lines indicate predictions from GLM fit, corresponding to an odds ratio of ~21.3 for rict-1 across this range of ascr#5 concentrations.
+_rict-1_ mutants show enhanced response to pheromone ascr#5. Dauers formed by wild-type (black) and rict-1(ft7) (blue) animals at 25°C in the presence of the indicated concentrations of ascr#5. Each dot indicates the proportion of dauers formed in a single assay. Horizontal bar indicates median. Numbers in parentheses below indicate the number of independent experiments with at least 27 animals each. Lines indicate predictions from GLM fit, corresponding to an odds ratio of `as.numeric(round(exp(coef(glm))[3],1))` for rict-1 across this range of ascr#5 concentrations.
 
 ```{r S1B ascr#5 stats}
 library(sjPlot)
@@ -591,7 +598,7 @@ sjt.glm(glm, depvar.labels = "proportion of dauers", show.se = TRUE, show.chi2 =
 ```{r daf7/daf28 suppress rict-1}
 foods <- "OP50"
 strains<-c("N2","rict-1(ft7)","rict-1(ft7); ex[ASI::daf7]","rict-1(ft7); ex[ASI::daf28]","rict-1(ft7); ex[ASJ::daf28]")
-daf7supp<-read.csv(file.path(pathname, "extdata/2C_daf7_daf28_suppression.csv")) %>% format_dauer(p.dauer = "non")
+daf7supp<-read.csv(file.path(pathname, "extdata","2C_daf7_daf28_suppression.csv")) %>% format_dauer(p.dauer = "non")
 
 # daf7supp$genotype<- factor(daf7supp$genotype, levels = strains)
 # daf7supp$pct<-as.numeric(paste(daf7supp$dauer/(daf7supp$dauer+daf7supp$pd + daf7supp$non))) #omitted arrest
@@ -625,7 +632,7 @@ p
 <br>
 </br>
 **Figure 2C**
-Expression of _daf-7_ in ASI or _daf-28_ in ASI or ASJ suppressed aberrent dauer formation in _rict-1_ mutants. Dauers formed by animals of the indicated genotypes at 27°C. Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 36 and 9 animals each scored for non-transgenic and transgenic animals, respectively. Promoters driving expression in ASI and ASJ were srg-47p and trx-1p, respectively. One transgenic line was tested for each condition. <span style="color:black">`***`</span> - different from wild-type at P<0.001; <span style="color:red">`**`</span> and <span style="color:red">`***`</span> - different from _rict-1(ft7)_ at P<0.01 and P<0.001, respectively (ANOVA with Tukey-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.
+Expression of _daf-7_ in ASI or _daf-28_ in ASI or ASJ suppressed aberrent dauer formation in _rict-1_ mutants. Dauers formed by animals of the indicated genotypes at 27°C. Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 36 and 9 animals each scored for non-transgenic and transgenic animals, respectively. Promoters driving expression in ASI and ASJ were _srg-47p_ and _trx-1p_, respectively. One transgenic line was tested for each condition. <span style="color:black">`***`</span> - different from wild-type at P<0.001; <span style="color:red">`**`</span> and <span style="color:red">`***`</span> - different from _rict-1(ft7)_ at P<0.01 and P<0.001, respectively (ANOVA with Tukey-type multivariate-t post-hoc adjustment). P-values of differences in means relative to wild-type and corresponding mutant animals are indicated in black and red, respectively.
 
 
 ```{r 2C daf7/28 neuron suppression stats}
@@ -641,7 +648,7 @@ knitr::kable(mixed[,c(6,1:5)], caption = "Bayesian credible intervals")
 ```{r daf-16 suppression}
 strains<-c("N2","rict-1(mg360)","rict-1;daf-16")
 foods <- "OP50"
-daf16supp<-read.csv(file.path(pathname, "extdata/S1A_daf16_suppression.csv")) %>% format_dauer(.,p.dauer = "dauer")
+daf16supp<-read.csv(file.path(pathname, "extdata","S1A_daf16_suppression.csv")) %>% format_dauer(.,p.dauer = "dauer")
 
 # daf28supp$genotype<- factor(daf28supp$genotype, levels = strains)
 # daf28supp$pct<-as.numeric(paste(daf28supp$dauer/(daf28supp$dauer+daf28supp$pd + daf28supp$non))) #omitted arrest

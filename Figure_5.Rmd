@@ -1,5 +1,5 @@
 ---
-title: "Figure 6"
+title: "Figure 5"
 output:
   html_document:
     code_folding: hide
@@ -11,7 +11,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(message = FALSE)
 knitr::opts_chunk$set(warning = FALSE)
-pathname = getwd()
+pathname = here::here()
 library(magrittr)
 library(knitr)
 library(dplyr)
@@ -41,11 +41,11 @@ dauer_ANOVA <- . %>% lm(data = ., formula = pct ~ genotype)
 
 ##__High temperature-induced dauer formation and adult exploratory behaviors do not covary__{.tabset}
 
-###6A
+###5A
 
 ```{r wild screen dataload, warning=FALSE, fig.width=10}
 #knitr::opts_chunk$set(cache=TRUE)
-filepath<-file.path(pathname, "extdata/6A_wildHTdata_allbinary.csv")
+filepath<-file.path(pathname, "extdata","5A_wildHTdata_allbinary.csv")
 foods = "OP50"
 strains <- c("N2","CB4856","JU561", "MY14","DL238","CB4852","QX1211","JU322","JU775","JU1400","ED3072","AB1","AB3","JU362","ED3040", "JU345","PX178","CB3198")
 
@@ -77,11 +77,11 @@ plot.contrasts<-c("",contrasts$prange[1:17])
 <br>
 </br>
 
-**Figure 6A**  
+**Figure 5A**  
 Wild isolates vary in high temperature dauer formation. Dauers formed by the indicated C. elegans strains at 27°C. Strains also assayed for exploratory behavior in (B) are in red (weaker Hid phenotype than Bristol N2) and green (similar or stronger Hid phenotype than N2). Each black dot indicates the average number of dauers formed in a single assay. Horizontal black bar indicates median. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the number of independent experiments with at least 16 animals each. All shown P-values are with respect to the Bristol N2 strain; `**` and `***` - different from the Bristol N2 strain at P<0.01 and P<0.001, respectively (ANOVA with Dunnett-type multivariate-t post-hoc adjustment). 
 
 
-```{r 6B wild dauer model results}
+```{r 5B wild dauer model results}
 library(sjPlot)
 sjt.lm(lm, depvar.labels = "number of entries", show.se = TRUE, show.fstat = TRUE)
 knitr::kable(contrasts, caption = "pairwise comparisons (ANOVA)")
@@ -90,7 +90,7 @@ knitr::kable(contrasts, caption = "pairwise comparisons (ANOVA)")
 ###S3
 
 ```{r C327 corr plot, warning=FALSE}
-filepath<-file.path(pathname, "extdata/S3A_C3_sumstats.csv")
+filepath<-file.path(pathname, "extdata","S3A_C3_sumstats.csv")
 C327<-read.csv(filepath, header=TRUE)
 
 (p<-dauergut::plot_regression_se(C327, "mean.C3", "mean.HT","SEM.C3", "SEM.HT"))
@@ -101,12 +101,12 @@ C327<-read.csv(filepath, header=TRUE)
 Shown are the proportion of dauers formed at 27°C and in the presence of 6 μm ascr#5 pheromone by C. elegans strains isolated from different latitudes. Assays were performed on live OP50. For ascr#5 data (A-axis), each data point is the average of at least 3 independent assays of at least 23 animals each. 27ºC data is repeated from Figure 6A. Error bars are the SEM. Line and shaded region indicate linear regression fit using mean dauer formation values for each strain. 
 
 
-###6B
+###5B
 ```{r wild isolate roaming}
 
 strains <- c("N2","CB4856", "JU561", "MY14", "JU322", "JU362","ED3040", "JU345", "PX178", "CB3198")
 
-wild.roam<-read.csv(file.path(pathname, "extdata/6B_7F_roam_wild_isolates.csv")) %>%
+wild.roam<-read.csv(file.path(pathname, "extdata","5B_6F_roam_wild_isolates.csv")) %>%
   dplyr::filter(genotype %in% strains) %>%
   mutate(genotype = factor(genotype, levels = strains),
          strainDate = interaction(genotype, date, drop=TRUE),
@@ -137,11 +137,11 @@ plot.contrasts<-c("",contrasts$prange[1:9])
 
 ```
 
-**Figure 6B**  
+**Figure 5B**  
 Exploratory behavior of indicated strains. Strains in red and green exhibit weaker or similar/stronger Hid phenotypes than N2, respectively (A). Each purple dot is data from a single animal. Median is indicated by a black horizontal line; error bars are quartiles. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. Numbers in parentheses below indicate the total number of animals examined in at least 3 independent assay days. P-values shown are with respect to N2; `***` - different from N2 at P<0.001 (ANOVA with Dunnett-type multivariate-t post-hoc adjustment).
 
 
-```{r 6B wild roam model results}
+```{r 5B wild roam model results}
 library(sjPlot)
 sjt.glmer(glmm.nest, depvar.labels = "number of entries", show.se = TRUE)
 knitr::kable(drop1(glmm.nest, test = "Chisq"), caption = "Wald chi square test")

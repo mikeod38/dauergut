@@ -18,10 +18,11 @@ getStan_CIs(x, type, group, base, compare_gt, intercept)
 \item{compare_gt}{optional argument for group-level effect - if true, genotype is compared at each level of condition, if blank,
 then condition effects are returned.}
 
-\item{intercept}{optional parameter specifying whether an intercept was included in the model formula - see run_dauer_stan.R}
+\item{intercept}{optional parameter specifying whether an intercept was included in the model formula - see run_dauer_stan.R. 
+If blank, assumes there is an intercept in model.}
 }
 \description{
-Function pulls confidence intervals from a StanGLMM model using genotype as a parameter/predictor
+Function pulls 50 and 95% confidence intervals from a StanGLMM model using genotype as a parameter/predictor
 }
 \examples{
 getStan_CIs(stan.glmm, type = "log", group = "food", base = 10, compare_gt = TRUE)
