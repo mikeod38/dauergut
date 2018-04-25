@@ -21,8 +21,8 @@
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
-<link href="site_libs/highlightjs-1.1/textmate.css" rel="stylesheet" />
-<script src="site_libs/highlightjs-1.1/highlight.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -31,10 +31,12 @@
   }
 </style>
 <script type="text/javascript">
-if (window.hljs && document.readyState && document.readyState === "complete") {
-   window.setTimeout(function() {
-      hljs.initHighlighting();
-   }, 0);
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
 }
 </script>
 
@@ -268,7 +270,7 @@ $(document).ready(function () {
 <pre class="r"><code>strains&lt;-c(&quot;N2&quot;, &quot;rict-1(mg360)&quot;, &quot;rict-1(ft7)&quot;, &quot;sgk-1(ok538)&quot;, &quot;akt-1(mg306)&quot;, &quot;akt-2&quot;, &quot;pkc-2&quot;)
 foods &lt;- &quot;OP50&quot;
 
-TORC2&lt;-read.csv(file.path(pathname, &quot;extdata/1B_4A_rict-1_TORC2.csv&quot;), header=TRUE) %&gt;% dauergut::format_dauer(p.dauer = &quot;non&quot;) #including partial/pd as non-dauer due to excess zeros. 
+TORC2&lt;-read.csv(file.path(pathname, &quot;extdata/1B_2D_rict-1_TORC2.csv&quot;), header=TRUE) %&gt;% dauergut::format_dauer(p.dauer = &quot;non&quot;) #including partial/pd as non-dauer due to excess zeros. 
 
 lm &lt;- TORC2 %&gt;% dauer_ANOVA()
 #stan
@@ -549,7 +551,7 @@ R<sup>2</sup> / adj. R<sup>2</sup>
 <td align="right">0.0570696</td>
 <td align="right">62</td>
 <td align="right">-4.3229489</td>
-<td align="right">0.0003374</td>
+<td align="right">0.0003432</td>
 <td align="left">***</td>
 </tr>
 </tbody>

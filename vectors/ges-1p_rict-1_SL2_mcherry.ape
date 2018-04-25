@@ -1,11 +1,10 @@
-LOCUS       ges_1p_rict_1_SL       11247 bp ds-DNA     circular     13-FEB-2018
+LOCUS       ges_1p_rict_1_SL       11247 bp ds-DNA     circular     14-FEB-2018
 DEFINITION  .
 ACCESSION   
 VERSION     
 SOURCE      .
   ORGANISM  .
-COMMENT     
-COMMENT     
+COMMENT     PSAB807
 COMMENT     ApEinfo:methylated:1
 FEATURES             Location/Qualifiers
      CDS             2176..6918

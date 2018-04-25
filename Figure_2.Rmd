@@ -250,7 +250,7 @@ knitr::kable(mixed[,c(6,1:5)], caption = "Bayesian credible intervals")
 dates = c("12_1_16",  "12_20_17", "12_21_17", "12_6_16",  "9_21_16" )
 strains = c("N2", "ft7", "ft7exifb2", "ft7exgpa4")
 foods = "OP50"
-d28<-read.csv('extdata/2B_Daf28GFP_rescue.csv') %>%
+d28<-read.csv('extdata/2C_Daf28GFP_rescue.csv') %>%
 separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>%
   subset(mean!=4095 & food == foods & temp == "27" & genotype %in% strains & pheromone == 0) %>%
   mutate(genotype = factor(genotype, levels = strains),
@@ -395,7 +395,7 @@ strains<-c("N2", "rict-1(mg360)", "rict-1(ft7)")
 #dates<-c("12_5_14", "12_19_14", "1_19_15","3_22_14", "2_25_14", "4_11_14")
 dates<-c("12_5_14", "12_19_14","3_22_14", "2_25_14", "4_11_14")
 foods <- c("OP50", "HB101")
-rict1.food<-read.csv(file.path(pathname, "extdata", "1B_4A_rict-1_TORC2.csv"), header=TRUE) %>% format_dauer(p.dauer = "exclude") %>%
+rict1.food<-read.csv(file.path(pathname, "extdata", "1B_2D_rict-1_TORC2.csv"), header=TRUE) %>% format_dauer(p.dauer = "exclude") %>%
   dplyr::filter(day %in% dates) %>% mutate(logit.p = car::logit(pct, adjust=0.01), 
                                            plate.ID = interaction(food, plateID))
 
