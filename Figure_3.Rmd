@@ -31,6 +31,7 @@ library(rstan)
 library(rstanarm)
 library(MASS)
 devtools::install_github("mikeod38/dauergut")
+devtools::install_github("rasmusab/bayesian_first_aid")
 library(dauergut)
 library(plotly)
 
@@ -92,7 +93,7 @@ sjt.lm(lm.ASI.lin, depvar.labels = "log(GFP expression)", show.fstat = TRUE)
 tempdays<-c("1", "4", "6", "8", "10")
 foods <- "OP50"
 strains <- "N2"
-d28<-read.csv(file.path(pathname,'extdata','2D_3B_4B_daf-28_GFP_rict-1.csv')) %>%
+d28<-read.csv(file.path(pathname,'extdata','3BEF_daf-28_GFP_rict-1.csv')) %>%
 separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>%
   subset(pheromone == 0) %>% 
   mutate(day = as.factor(day), genotype = factor(genotype, levels = strains),
@@ -321,7 +322,7 @@ days = as.factor(8:10) # days containing N2 and ft7 27º data
 temps = c("25","27")
 strains = c("N2", "ft7")
 foods = "OP50"
-d28<-read.csv(file.path(pathname,'extdata', '2D_3B_4B_daf-28_GFP_rict-1.csv')) %>%
+d28<-read.csv(file.path(pathname,'extdata', '3BEF_daf-28_GFP_rict-1.csv')) %>%
 separate(ID, c("ID.A", "ID.B"), sep = ":", extra = "drop") %>%
   subset(mean!=4095 & food == foods &
            temp %in% temps &

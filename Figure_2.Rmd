@@ -177,7 +177,7 @@ p2
 ##2B
 
 ```{r daf7 FISH, results='hide', fig.keep='all'}
-daf7FISH<-read.csv("extdata","2B_daf7FISH_4frames.csv") %>%
+daf7FISH<-read.csv(file.path(pathname,"extdata","2B_daf7FISH_4frames.csv")) %>%
   separate(Label, c("method","group","sample"),sep = c("-"), extra = "drop") %>%
   separate(sample, c("sample", "type"),sep =":", extra = "drop") %>%
   mutate(genotype = data.frame(do.call(rbind, strsplit(as.vector(group), split = "daf7_mRNA_L1_27d_")))[,2],

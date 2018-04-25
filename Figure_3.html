@@ -21,8 +21,8 @@
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
-<link href="site_libs/highlightjs-1.1/textmate.css" rel="stylesheet" />
-<script src="site_libs/highlightjs-1.1/highlight.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -31,10 +31,12 @@
   }
 </style>
 <script type="text/javascript">
-if (window.hljs && document.readyState && document.readyState === "complete") {
-   window.setTimeout(function() {
-      hljs.initHighlighting();
-   }, 0);
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
 }
 </script>
 
@@ -392,7 +394,7 @@ F-statistics
 <pre class="r"><code>tempdays&lt;-c(&quot;1&quot;, &quot;4&quot;, &quot;6&quot;, &quot;8&quot;, &quot;10&quot;)
 foods &lt;- &quot;OP50&quot;
 strains &lt;- &quot;N2&quot;
-d28&lt;-read.csv(file.path(pathname,&#39;extdata&#39;,&#39;2D_3B_4B_daf-28_GFP_rict-1.csv&#39;)) %&gt;%
+d28&lt;-read.csv(file.path(pathname,&#39;extdata&#39;,&#39;3BEF_daf-28_GFP_rict-1.csv&#39;)) %&gt;%
 separate(ID, c(&quot;ID.A&quot;, &quot;ID.B&quot;), sep = &quot;:&quot;, extra = &quot;drop&quot;) %&gt;%
   subset(pheromone == 0) %&gt;% 
   mutate(day = as.factor(day), genotype = factor(genotype, levels = strains),
@@ -751,7 +753,7 @@ p &lt;- ggplot(daf28, aes(x = temp)) + # x-layer
 temps = c(&quot;25&quot;,&quot;27&quot;)
 strains = c(&quot;N2&quot;, &quot;ft7&quot;)
 foods = &quot;OP50&quot;
-d28&lt;-read.csv(file.path(pathname,&#39;extdata&#39;, &#39;2D_3B_4B_daf-28_GFP_rict-1.csv&#39;)) %&gt;%
+d28&lt;-read.csv(file.path(pathname,&#39;extdata&#39;, &#39;3BEF_daf-28_GFP_rict-1.csv&#39;)) %&gt;%
 separate(ID, c(&quot;ID.A&quot;, &quot;ID.B&quot;), sep = &quot;:&quot;, extra = &quot;drop&quot;) %&gt;%
   subset(mean!=4095 &amp; food == foods &amp;
            temp %in% temps &amp;

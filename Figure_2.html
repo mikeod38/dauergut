@@ -21,8 +21,8 @@
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
-<link href="site_libs/highlightjs-1.1/textmate.css" rel="stylesheet" />
-<script src="site_libs/highlightjs-1.1/highlight.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -31,10 +31,12 @@
   }
 </style>
 <script type="text/javascript">
-if (window.hljs && document.readyState && document.readyState === "complete") {
-   window.setTimeout(function() {
-      hljs.initHighlighting();
-   }, 0);
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
 }
 </script>
 
@@ -600,7 +602,7 @@ F-statistics
 <td align="right">0.0343846</td>
 <td align="right">256</td>
 <td align="right">2.4129517</td>
-<td align="right">0.1502563</td>
+<td align="right">0.1503084</td>
 <td align="left">p~0.15</td>
 </tr>
 <tr class="odd">
@@ -609,7 +611,7 @@ F-statistics
 <td align="right">0.0358656</td>
 <td align="right">256</td>
 <td align="right">4.5804970</td>
-<td align="right">0.0000990</td>
+<td align="right">0.0001141</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -618,7 +620,7 @@ F-statistics
 <td align="right">0.0336587</td>
 <td align="right">256</td>
 <td align="right">-5.1423072</td>
-<td align="right">0.0000072</td>
+<td align="right">0.0000054</td>
 <td align="left">***</td>
 </tr>
 <tr class="odd">
@@ -645,7 +647,7 @@ F-statistics
 <td align="right">0.0421934</td>
 <td align="right">256</td>
 <td align="right">-4.2691946</td>
-<td align="right">0.0003914</td>
+<td align="right">0.0004005</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -654,7 +656,7 @@ F-statistics
 <td align="right">0.0349688</td>
 <td align="right">256</td>
 <td align="right">-4.8573587</td>
-<td align="right">0.0000314</td>
+<td align="right">0.0000313</td>
 <td align="left">***</td>
 </tr>
 <tr class="odd">
@@ -663,7 +665,7 @@ F-statistics
 <td align="right">0.0345066</td>
 <td align="right">256</td>
 <td align="right">-2.5607400</td>
-<td align="right">0.1068342</td>
+<td align="right">0.1068440</td>
 <td align="left">p~0.107</td>
 </tr>
 <tr class="even">
@@ -681,7 +683,7 @@ F-statistics
 <td align="right">0.0420256</td>
 <td align="right">256</td>
 <td align="right">1.9391429</td>
-<td align="right">0.3713964</td>
+<td align="right">0.3714182</td>
 <td align="left">p~0.37</td>
 </tr>
 <tr class="even">
@@ -690,7 +692,7 @@ F-statistics
 <td align="right">0.0432458</td>
 <td align="right">256</td>
 <td align="right">3.7647094</td>
-<td align="right">0.0026548</td>
+<td align="right">0.0027559</td>
 <td align="left">**</td>
 </tr>
 <tr class="odd">
@@ -699,7 +701,7 @@ F-statistics
 <td align="right">0.0428729</td>
 <td align="right">256</td>
 <td align="right">1.8966308</td>
-<td align="right">0.3971483</td>
+<td align="right">0.3971296</td>
 <td align="left">p~0.4</td>
 </tr>
 </tbody>
@@ -773,7 +775,7 @@ F-statistics
 </div>
 <div id="b" class="section level2">
 <h2>2B</h2>
-<pre class="r"><code>daf7FISH&lt;-read.csv(&quot;extdata/2B_daf7FISH_4frames.csv&quot;) %&gt;%
+<pre class="r"><code>daf7FISH&lt;-read.csv(file.path(pathname,&quot;extdata&quot;,&quot;2B_daf7FISH_4frames.csv&quot;)) %&gt;%
   separate(Label, c(&quot;method&quot;,&quot;group&quot;,&quot;sample&quot;),sep = c(&quot;-&quot;), extra = &quot;drop&quot;) %&gt;%
   separate(sample, c(&quot;sample&quot;, &quot;type&quot;),sep =&quot;:&quot;, extra = &quot;drop&quot;) %&gt;%
   mutate(genotype = data.frame(do.call(rbind, strsplit(as.vector(group), split = &quot;daf7_mRNA_L1_27d_&quot;)))[,2],
@@ -1000,7 +1002,7 @@ F-statistics
 <td align="right">7.293687</td>
 <td align="right">73</td>
 <td align="right">-2.5137625</td>
-<td align="right">0.0400212</td>
+<td align="right">0.0400913</td>
 <td align="left">p~0.04</td>
 </tr>
 <tr class="even">
@@ -1009,7 +1011,7 @@ F-statistics
 <td align="right">7.674908</td>
 <td align="right">73</td>
 <td align="right">-2.5989094</td>
-<td align="right">0.0322919</td>
+<td align="right">0.0321850</td>
 <td align="left">p~0.032</td>
 </tr>
 <tr class="odd">
@@ -1018,7 +1020,7 @@ F-statistics
 <td align="right">9.629102</td>
 <td align="right">73</td>
 <td align="right">0.2302064</td>
-<td align="right">0.9930289</td>
+<td align="right">0.9930297</td>
 <td align="left">p~1</td>
 </tr>
 </tbody>
@@ -1039,35 +1041,35 @@ F-statistics
 <tbody>
 <tr class="odd">
 <td align="left">N2</td>
-<td align="right">66.18412</td>
-<td align="right">56.79098</td>
-<td align="right">75.74542</td>
-<td align="right">63.04160</td>
-<td align="right">69.23995</td>
+<td align="right">66.25683</td>
+<td align="right">57.16596</td>
+<td align="right">75.56527</td>
+<td align="right">63.21455</td>
+<td align="right">69.29096</td>
 </tr>
 <tr class="even">
 <td align="left">ft7</td>
-<td align="right">48.13728</td>
-<td align="right">33.32008</td>
-<td align="right">62.50245</td>
-<td align="right">43.28515</td>
-<td align="right">52.95501</td>
+<td align="right">48.22001</td>
+<td align="right">33.69266</td>
+<td align="right">62.13809</td>
+<td align="right">43.43938</td>
+<td align="right">53.10734</td>
 </tr>
 <tr class="odd">
 <td align="left">mg360</td>
-<td align="right">46.58080</td>
-<td align="right">31.83688</td>
-<td align="right">61.77643</td>
-<td align="right">41.42211</td>
-<td align="right">51.54383</td>
+<td align="right">46.56616</td>
+<td align="right">31.47322</td>
+<td align="right">61.97994</td>
+<td align="right">41.22452</td>
+<td align="right">51.73892</td>
 </tr>
 <tr class="even">
 <td align="left">mg360resc</td>
-<td align="right">68.51699</td>
-<td align="right">48.63158</td>
-<td align="right">88.26579</td>
-<td align="right">61.93467</td>
-<td align="right">75.20053</td>
+<td align="right">68.64879</td>
+<td align="right">49.47751</td>
+<td align="right">86.79210</td>
+<td align="right">62.37245</td>
+<td align="right">74.97362</td>
 </tr>
 </tbody>
 </table>
@@ -1078,7 +1080,7 @@ F-statistics
 dates = c(&quot;12_1_16&quot;,  &quot;12_20_17&quot;, &quot;12_21_17&quot;, &quot;12_6_16&quot;,  &quot;9_21_16&quot; )
 strains = c(&quot;N2&quot;, &quot;ft7&quot;, &quot;ft7exifb2&quot;, &quot;ft7exgpa4&quot;)
 foods = &quot;OP50&quot;
-d28&lt;-read.csv(&#39;extdata/2B_Daf28GFP_rescue.csv&#39;) %&gt;%
+d28&lt;-read.csv(&#39;extdata/2C_Daf28GFP_rescue.csv&#39;) %&gt;%
 separate(ID, c(&quot;ID.A&quot;, &quot;ID.B&quot;), sep = &quot;:&quot;, extra = &quot;drop&quot;) %&gt;%
   subset(mean!=4095 &amp; food == foods &amp; temp == &quot;27&quot; &amp; genotype %in% strains &amp; pheromone == 0) %&gt;%
   mutate(genotype = factor(genotype, levels = strains),
@@ -1127,10 +1129,107 @@ df %&lt;&gt;% flag_outliers(lin.mod=lm1, threshold = 4, df = ., noplot=TRUE)
 
 # linear MM
 lm &lt;- with(log.tran, lm(linkfun(cell.norm) ~ neuron * genotype, data = df[df$outlier.status==FALSE,]))
-stanlmer &lt;- with(log.tran, stan_lmer(linkfun(cell.norm) ~ 1 + group.id + (1|date) + (1:group.id:date), data = df[df$outlier.status==FALSE,]))
-
-
-contrasts&lt;-summary(lsmeans::lsmeans(lm, pairwise ~ genotype | neuron)$contrasts) %&gt;% dauergut::prange()
+stanlmer &lt;- with(log.tran, stan_lmer(linkfun(cell.norm) ~ 1 + group.id + (1|date) + (1:group.id:date), data = df[df$outlier.status==FALSE,]))</code></pre>
+<pre><code>## 
+## SAMPLING FOR MODEL &#39;continuous&#39; NOW (CHAIN 1).
+## 
+## Gradient evaluation took 0.000112 seconds
+## 1000 transitions using 10 leapfrog steps per transition would take 1.12 seconds.
+## Adjust your expectations accordingly!
+## 
+## 
+## Iteration:    1 / 2000 [  0%]  (Warmup)
+## Iteration:  200 / 2000 [ 10%]  (Warmup)
+## Iteration:  400 / 2000 [ 20%]  (Warmup)
+## Iteration:  600 / 2000 [ 30%]  (Warmup)
+## Iteration:  800 / 2000 [ 40%]  (Warmup)
+## Iteration: 1000 / 2000 [ 50%]  (Warmup)
+## Iteration: 1001 / 2000 [ 50%]  (Sampling)
+## Iteration: 1200 / 2000 [ 60%]  (Sampling)
+## Iteration: 1400 / 2000 [ 70%]  (Sampling)
+## Iteration: 1600 / 2000 [ 80%]  (Sampling)
+## Iteration: 1800 / 2000 [ 90%]  (Sampling)
+## Iteration: 2000 / 2000 [100%]  (Sampling)
+## 
+##  Elapsed Time: 2.46683 seconds (Warm-up)
+##                1.24276 seconds (Sampling)
+##                3.70959 seconds (Total)
+## 
+## 
+## SAMPLING FOR MODEL &#39;continuous&#39; NOW (CHAIN 2).
+## 
+## Gradient evaluation took 4.7e-05 seconds
+## 1000 transitions using 10 leapfrog steps per transition would take 0.47 seconds.
+## Adjust your expectations accordingly!
+## 
+## 
+## Iteration:    1 / 2000 [  0%]  (Warmup)
+## Iteration:  200 / 2000 [ 10%]  (Warmup)
+## Iteration:  400 / 2000 [ 20%]  (Warmup)
+## Iteration:  600 / 2000 [ 30%]  (Warmup)
+## Iteration:  800 / 2000 [ 40%]  (Warmup)
+## Iteration: 1000 / 2000 [ 50%]  (Warmup)
+## Iteration: 1001 / 2000 [ 50%]  (Sampling)
+## Iteration: 1200 / 2000 [ 60%]  (Sampling)
+## Iteration: 1400 / 2000 [ 70%]  (Sampling)
+## Iteration: 1600 / 2000 [ 80%]  (Sampling)
+## Iteration: 1800 / 2000 [ 90%]  (Sampling)
+## Iteration: 2000 / 2000 [100%]  (Sampling)
+## 
+##  Elapsed Time: 2.87428 seconds (Warm-up)
+##                1.30625 seconds (Sampling)
+##                4.18052 seconds (Total)
+## 
+## 
+## SAMPLING FOR MODEL &#39;continuous&#39; NOW (CHAIN 3).
+## 
+## Gradient evaluation took 4.9e-05 seconds
+## 1000 transitions using 10 leapfrog steps per transition would take 0.49 seconds.
+## Adjust your expectations accordingly!
+## 
+## 
+## Iteration:    1 / 2000 [  0%]  (Warmup)
+## Iteration:  200 / 2000 [ 10%]  (Warmup)
+## Iteration:  400 / 2000 [ 20%]  (Warmup)
+## Iteration:  600 / 2000 [ 30%]  (Warmup)
+## Iteration:  800 / 2000 [ 40%]  (Warmup)
+## Iteration: 1000 / 2000 [ 50%]  (Warmup)
+## Iteration: 1001 / 2000 [ 50%]  (Sampling)
+## Iteration: 1200 / 2000 [ 60%]  (Sampling)
+## Iteration: 1400 / 2000 [ 70%]  (Sampling)
+## Iteration: 1600 / 2000 [ 80%]  (Sampling)
+## Iteration: 1800 / 2000 [ 90%]  (Sampling)
+## Iteration: 2000 / 2000 [100%]  (Sampling)
+## 
+##  Elapsed Time: 2.80159 seconds (Warm-up)
+##                1.36659 seconds (Sampling)
+##                4.16818 seconds (Total)
+## 
+## 
+## SAMPLING FOR MODEL &#39;continuous&#39; NOW (CHAIN 4).
+## 
+## Gradient evaluation took 4.7e-05 seconds
+## 1000 transitions using 10 leapfrog steps per transition would take 0.47 seconds.
+## Adjust your expectations accordingly!
+## 
+## 
+## Iteration:    1 / 2000 [  0%]  (Warmup)
+## Iteration:  200 / 2000 [ 10%]  (Warmup)
+## Iteration:  400 / 2000 [ 20%]  (Warmup)
+## Iteration:  600 / 2000 [ 30%]  (Warmup)
+## Iteration:  800 / 2000 [ 40%]  (Warmup)
+## Iteration: 1000 / 2000 [ 50%]  (Warmup)
+## Iteration: 1001 / 2000 [ 50%]  (Sampling)
+## Iteration: 1200 / 2000 [ 60%]  (Sampling)
+## Iteration: 1400 / 2000 [ 70%]  (Sampling)
+## Iteration: 1600 / 2000 [ 80%]  (Sampling)
+## Iteration: 1800 / 2000 [ 90%]  (Sampling)
+## Iteration: 2000 / 2000 [100%]  (Sampling)
+## 
+##  Elapsed Time: 2.00864 seconds (Warm-up)
+##                1.32273 seconds (Sampling)
+##                3.33137 seconds (Total)</code></pre>
+<pre class="r"><code>contrasts&lt;-summary(lsmeans::lsmeans(lm, pairwise ~ genotype | neuron)$contrasts) %&gt;% dauergut::prange()
 mixed &lt;- stanlmer %&gt;% getStan_CIs(type = &quot;log&quot;, group = &quot;neuron&quot;, base = 10, compare_gt = TRUE) %&gt;% 
   mutate(x.pos = rep(c(1.3,2.3,3.3,4.3),2))
 plot.contrasts&lt;-c(&quot;&quot;,contrasts$prange[1:3],
@@ -1433,67 +1532,67 @@ F-statistics
 <tbody>
 <tr class="odd">
 <td align="left">N2</td>
-<td align="right">1299.9996</td>
-<td align="right">1145.1797</td>
-<td align="right">1476.4038</td>
-<td align="right">1250.1317</td>
-<td align="right">1351.6646</td>
+<td align="right">1300.7857</td>
+<td align="right">1128.8253</td>
+<td align="right">1489.9978</td>
+<td align="right">1251.6017</td>
+<td align="right">1351.3110</td>
 </tr>
 <tr class="even">
 <td align="left">ft7</td>
-<td align="right">859.6033</td>
-<td align="right">771.1694</td>
-<td align="right">960.9788</td>
-<td align="right">828.8505</td>
-<td align="right">890.9147</td>
+<td align="right">860.6204</td>
+<td align="right">774.7595</td>
+<td align="right">956.0834</td>
+<td align="right">830.2044</td>
+<td align="right">891.7149</td>
 </tr>
 <tr class="odd">
 <td align="left">ft7exifb2</td>
-<td align="right">1261.4649</td>
-<td align="right">1107.9557</td>
-<td align="right">1440.1995</td>
-<td align="right">1203.4325</td>
-<td align="right">1321.1010</td>
+<td align="right">1266.4825</td>
+<td align="right">1103.2510</td>
+<td align="right">1450.5979</td>
+<td align="right">1208.4965</td>
+<td align="right">1327.0063</td>
 </tr>
 <tr class="even">
 <td align="left">ft7exgpa4</td>
-<td align="right">783.6498</td>
-<td align="right">694.9744</td>
-<td align="right">882.2992</td>
-<td align="right">753.2274</td>
-<td align="right">815.7616</td>
+<td align="right">785.8599</td>
+<td align="right">697.1529</td>
+<td align="right">887.8622</td>
+<td align="right">754.0258</td>
+<td align="right">817.6353</td>
 </tr>
 <tr class="odd">
 <td align="left">N2</td>
-<td align="right">815.4582</td>
-<td align="right">739.2843</td>
-<td align="right">898.4758</td>
-<td align="right">788.3573</td>
-<td align="right">842.9461</td>
+<td align="right">816.0588</td>
+<td align="right">739.2383</td>
+<td align="right">904.7417</td>
+<td align="right">787.8199</td>
+<td align="right">845.0310</td>
 </tr>
 <tr class="even">
 <td align="left">ft7</td>
-<td align="right">629.5631</td>
-<td align="right">566.2970</td>
-<td align="right">699.1982</td>
-<td align="right">607.4122</td>
-<td align="right">651.7286</td>
+<td align="right">630.7279</td>
+<td align="right">568.3796</td>
+<td align="right">700.2211</td>
+<td align="right">607.9657</td>
+<td align="right">654.3603</td>
 </tr>
 <tr class="odd">
 <td align="left">ft7exifb2</td>
-<td align="right">823.3521</td>
-<td align="right">722.0930</td>
-<td align="right">941.9255</td>
-<td align="right">786.8196</td>
-<td align="right">861.3586</td>
+<td align="right">826.5475</td>
+<td align="right">725.6929</td>
+<td align="right">946.0271</td>
+<td align="right">789.0735</td>
+<td align="right">865.8886</td>
 </tr>
 <tr class="even">
 <td align="left">ft7exgpa4</td>
-<td align="right">645.7176</td>
-<td align="right">577.1610</td>
-<td align="right">722.8234</td>
-<td align="right">620.9294</td>
-<td align="right">672.1539</td>
+<td align="right">647.4827</td>
+<td align="right">579.8018</td>
+<td align="right">724.4019</td>
+<td align="right">623.0158</td>
+<td align="right">673.2694</td>
 </tr>
 </tbody>
 </table>
@@ -1642,7 +1741,7 @@ F-statistics
 #dates&lt;-c(&quot;12_5_14&quot;, &quot;12_19_14&quot;, &quot;1_19_15&quot;,&quot;3_22_14&quot;, &quot;2_25_14&quot;, &quot;4_11_14&quot;)
 dates&lt;-c(&quot;12_5_14&quot;, &quot;12_19_14&quot;,&quot;3_22_14&quot;, &quot;2_25_14&quot;, &quot;4_11_14&quot;)
 foods &lt;- c(&quot;OP50&quot;, &quot;HB101&quot;)
-rict1.food&lt;-read.csv(file.path(pathname, &quot;extdata&quot;, &quot;1B_4A_rict-1_TORC2.csv&quot;), header=TRUE) %&gt;% format_dauer(p.dauer = &quot;exclude&quot;) %&gt;%
+rict1.food&lt;-read.csv(file.path(pathname, &quot;extdata&quot;, &quot;1B_2D_rict-1_TORC2.csv&quot;), header=TRUE) %&gt;% format_dauer(p.dauer = &quot;exclude&quot;) %&gt;%
   dplyr::filter(day %in% dates) %&gt;% mutate(logit.p = car::logit(pct, adjust=0.01), 
                                            plate.ID = interaction(food, plateID))
 
@@ -1936,7 +2035,7 @@ pairwise comparisons by food (ANOVA)
 <td align="right">0.0523074</td>
 <td align="right">46</td>
 <td align="right">4.1876156</td>
-<td align="right">0.0003681</td>
+<td align="right">0.0003777</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -2626,7 +2725,7 @@ F-statistics
 <td align="right">0.1343472</td>
 <td align="right">23</td>
 <td align="right">-6.6117898</td>
-<td align="right">0.0000093</td>
+<td align="right">0.0000051</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -2635,7 +2734,7 @@ F-statistics
 <td align="right">0.1343472</td>
 <td align="right">23</td>
 <td align="right">-1.7470673</td>
-<td align="right">0.4257293</td>
+<td align="right">0.4257965</td>
 <td align="left">p~0.43</td>
 </tr>
 <tr class="odd">
@@ -2653,7 +2752,7 @@ F-statistics
 <td align="right">0.1343472</td>
 <td align="right">23</td>
 <td align="right">-2.7450829</td>
-<td align="right">0.0773094</td>
+<td align="right">0.0772061</td>
 <td align="left">p~0.077</td>
 </tr>
 <tr class="odd">
@@ -2662,7 +2761,7 @@ F-statistics
 <td align="right">0.1343472</td>
 <td align="right">23</td>
 <td align="right">4.8647225</td>
-<td align="right">0.0006081</td>
+<td align="right">0.0005926</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -2671,7 +2770,7 @@ F-statistics
 <td align="right">0.1502047</td>
 <td align="right">23</td>
 <td align="right">5.9506630</td>
-<td align="right">0.0000342</td>
+<td align="right">0.0000548</td>
 <td align="left">***</td>
 </tr>
 <tr class="odd">
@@ -2680,7 +2779,7 @@ F-statistics
 <td align="right">0.1343472</td>
 <td align="right">23</td>
 <td align="right">3.8667069</td>
-<td align="right">0.0063190</td>
+<td align="right">0.0063407</td>
 <td align="left">**</td>
 </tr>
 <tr class="even">
@@ -2689,7 +2788,7 @@ F-statistics
 <td align="right">0.1502047</td>
 <td align="right">23</td>
 <td align="right">1.5995230</td>
-<td align="right">0.5114602</td>
+<td align="right">0.5115664</td>
 <td align="left">p~0.51</td>
 </tr>
 <tr class="odd">
@@ -2698,7 +2797,7 @@ F-statistics
 <td align="right">0.1343472</td>
 <td align="right">23</td>
 <td align="right">-0.9980156</td>
-<td align="right">0.8530360</td>
+<td align="right">0.8530388</td>
 <td align="left">p~0.85</td>
 </tr>
 <tr class="even">
@@ -2707,7 +2806,7 @@ F-statistics
 <td align="right">0.1502047</td>
 <td align="right">23</td>
 <td align="right">-2.4921752</td>
-<td align="right">0.1267610</td>
+<td align="right">0.1268386</td>
 <td align="left">p~0.127</td>
 </tr>
 </tbody>
@@ -2960,7 +3059,7 @@ F-statistics
 <td align="right">0.0585246</td>
 <td align="right">15</td>
 <td align="right">-7.450922</td>
-<td align="right">0.0000116</td>
+<td align="right">0.0000026</td>
 <td align="left">***</td>
 </tr>
 <tr class="odd">
@@ -2969,7 +3068,7 @@ F-statistics
 <td align="right">0.0585246</td>
 <td align="right">15</td>
 <td align="right">4.953954</td>
-<td align="right">0.0004648</td>
+<td align="right">0.0005358</td>
 <td align="left">***</td>
 </tr>
 </tbody>
