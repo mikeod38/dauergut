@@ -5,7 +5,6 @@ output:
     code_folding: hide
     fig_height: 5
     fig_width: 7
-  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -543,7 +542,7 @@ sjt.lm(lm2, depvar.labels = "proportion of dauers", show.se = TRUE, show.fstat =
 ```{r rict-1 pheromone response}
 strains <- c("N2", "rict-1(ft7)")
 foods <- "OP50"
-rictC3 <- read.csv(file.path(pathname, 'extdata','S3C_rict1Pheromone.csv')) %>% format_dauer(p.dauer = "exclude") %>% mutate(plateID = interaction(plateID,concentration.uM.)) 
+rictC3 <- read.csv(file.path(pathname, 'extdata','S1C_rict1Pheromone.csv')) %>% format_dauer(p.dauer = "exclude") %>% mutate(plateID = interaction(plateID,concentration.uM.)) 
 
 # for glm fit
 glm <- glm(data = rictC3, cbind(dauer, non) ~ concentration.uM. + genotype + concentration.uM. * genotype, family = binomial)
@@ -598,7 +597,7 @@ sjt.glm(glm, depvar.labels = "proportion of dauers", show.se = TRUE, show.chi2 =
 ```{r daf7/daf28 suppress rict-1}
 foods <- "OP50"
 strains<-c("N2","rict-1(ft7)","rict-1(ft7); ex[ASI::daf7]","rict-1(ft7); ex[ASI::daf28]","rict-1(ft7); ex[ASJ::daf28]")
-daf7supp<-read.csv(file.path(pathname, "extdata","2C_daf7_daf28_suppression.csv")) %>% format_dauer(p.dauer = "non")
+daf7supp<-read.csv(file.path(pathname, "extdata","S1D_daf7_daf28_suppression.csv")) %>% format_dauer(p.dauer = "non")
 
 # daf7supp$genotype<- factor(daf7supp$genotype, levels = strains)
 # daf7supp$pct<-as.numeric(paste(daf7supp$dauer/(daf7supp$dauer+daf7supp$pd + daf7supp$non))) #omitted arrest
@@ -648,7 +647,7 @@ knitr::kable(mixed[,c(6,1:5)], caption = "Bayesian credible intervals")
 ```{r daf-16 suppression}
 strains<-c("N2","rict-1(mg360)","rict-1;daf-16")
 foods <- "OP50"
-daf16supp<-read.csv(file.path(pathname, "extdata","S1A_daf16_suppression.csv")) %>% format_dauer(.,p.dauer = "dauer")
+daf16supp<-read.csv(file.path(pathname, "extdata","S1E_daf16_suppression.csv")) %>% format_dauer(.,p.dauer = "dauer")
 
 # daf28supp$genotype<- factor(daf28supp$genotype, levels = strains)
 # daf28supp$pct<-as.numeric(paste(daf28supp$dauer/(daf28supp$dauer+daf28supp$pd + daf28supp$non))) #omitted arrest

@@ -1,3 +1,4 @@
+#simulate dauer requires dauergut package or to load all relevant functions into the global env
 
 ####### run test simulations ############################
 settings <- list(I = 0 #population control intercept (in logit). 0 = p(0.5)

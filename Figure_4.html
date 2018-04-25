@@ -21,8 +21,8 @@
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
-<link href="site_libs/highlightjs-1.1/textmate.css" rel="stylesheet" />
-<script src="site_libs/highlightjs-1.1/highlight.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -31,10 +31,12 @@
   }
 </style>
 <script type="text/javascript">
-if (window.hljs && document.readyState && document.readyState === "complete") {
-   window.setTimeout(function() {
-      hljs.initHighlighting();
-   }, 0);
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
 }
 </script>
 
@@ -632,7 +634,7 @@ odds.ratio &lt;- summary(stan.glmm)[2,1] %&gt;% exp()</code></pre>
 </div>
 <p><br> <br> </br></p>
 <p><strong>Figure 4D</strong><br />
-Quantification of roaming and dwelling states. <em>rict-1</em> mutants show increased roaming, corresponding to an odds ratio of 3.477. Dots show proportion of track time bins in which animals were roaming, with each dot reflecting one assay. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. P-value shown is with respect to wild-type (Welch’s t-test).</p>
+Quantification of roaming and dwelling states. <em>rict-1</em> mutants show increased roaming, corresponding to an odds ratio of 3.501. Dots show proportion of track time bins in which animals were roaming, with each dot reflecting one assay. Light gray thin and thick vertical bars at right indicate Bayesian 95% and 75% credible intervals, respectively. P-value shown is with respect to wild-type (Welch’s t-test).</p>
 </div>
 <div id="e" class="section level2">
 <h2>4E</h2>
@@ -951,7 +953,7 @@ Deviance
 <td align="right">0.0922775</td>
 <td align="right">NA</td>
 <td align="right">-3.6251984</td>
-<td align="right">0.0026596</td>
+<td align="right">0.0027081</td>
 <td align="left">**</td>
 </tr>
 <tr class="even">
@@ -1014,7 +1016,7 @@ Deviance
 <td align="right">0.1658743</td>
 <td align="right">NA</td>
 <td align="right">-0.8175773</td>
-<td align="right">0.9248565</td>
+<td align="right">0.9248561</td>
 <td align="left">p~0.92</td>
 </tr>
 <tr class="odd">
@@ -1023,7 +1025,7 @@ Deviance
 <td align="right">0.1413884</td>
 <td align="right">NA</td>
 <td align="right">-1.6282147</td>
-<td align="right">0.4775188</td>
+<td align="right">0.4774622</td>
 <td align="left">p~0.48</td>
 </tr>
 <tr class="even">
@@ -1032,7 +1034,7 @@ Deviance
 <td align="right">0.1430890</td>
 <td align="right">NA</td>
 <td align="right">-0.9361392</td>
-<td align="right">0.8821859</td>
+<td align="right">0.8821822</td>
 <td align="left">p~0.88</td>
 </tr>
 </tbody>
@@ -1300,7 +1302,7 @@ F-statistics
 <td align="right">0.0965166</td>
 <td align="right">13</td>
 <td align="right">-7.674941</td>
-<td align="right">0.0000032</td>
+<td align="right">0.0000736</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -1318,7 +1320,7 @@ F-statistics
 <td align="right">0.0901806</td>
 <td align="right">13</td>
 <td align="right">-1.145372</td>
-<td align="right">0.5037337</td>
+<td align="right">0.5037963</td>
 <td align="left">p~0.5</td>
 </tr>
 </tbody>

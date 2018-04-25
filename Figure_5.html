@@ -21,8 +21,8 @@
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
-<link href="site_libs/highlightjs-1.1/textmate.css" rel="stylesheet" />
-<script src="site_libs/highlightjs-1.1/highlight.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -31,10 +31,12 @@
   }
 </style>
 <script type="text/javascript">
-if (window.hljs && document.readyState && document.readyState === "complete") {
-   window.setTimeout(function() {
-      hljs.initHighlighting();
-   }, 0);
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
 }
 </script>
 
@@ -765,7 +767,7 @@ F-statistics
 <td align="right">0.0796411</td>
 <td align="right">141</td>
 <td align="right">-5.3944862</td>
-<td align="right">0.0000045</td>
+<td align="right">0.0000053</td>
 <td align="left">***</td>
 </tr>
 <tr class="odd">
@@ -783,7 +785,7 @@ F-statistics
 <td align="right">0.0687454</td>
 <td align="right">141</td>
 <td align="right">-5.9264755</td>
-<td align="right">0.0000003</td>
+<td align="right">0.0000004</td>
 <td align="left">***</td>
 </tr>
 <tr class="odd">
@@ -801,7 +803,7 @@ F-statistics
 <td align="right">0.0625903</td>
 <td align="right">141</td>
 <td align="right">-5.6135662</td>
-<td align="right">0.0000017</td>
+<td align="right">0.0000019</td>
 <td align="left">***</td>
 </tr>
 <tr class="odd">
@@ -810,7 +812,7 @@ F-statistics
 <td align="right">0.0603994</td>
 <td align="right">141</td>
 <td align="right">-4.1511991</td>
-<td align="right">0.0009154</td>
+<td align="right">0.0008539</td>
 <td align="left">***</td>
 </tr>
 <tr class="even">
@@ -819,7 +821,7 @@ F-statistics
 <td align="right">0.0603994</td>
 <td align="right">141</td>
 <td align="right">-3.5147202</td>
-<td align="right">0.0089789</td>
+<td align="right">0.0088605</td>
 <td align="left">**</td>
 </tr>
 <tr class="odd">
@@ -846,7 +848,7 @@ F-statistics
 <td align="right">0.0585877</td>
 <td align="right">141</td>
 <td align="right">-1.0427596</td>
-<td align="right">0.9856454</td>
+<td align="right">0.9856297</td>
 <td align="left">p~0.99</td>
 </tr>
 <tr class="even">
@@ -864,7 +866,7 @@ F-statistics
 <td align="right">0.0603994</td>
 <td align="right">141</td>
 <td align="right">1.0379262</td>
-<td align="right">0.9862401</td>
+<td align="right">0.9862469</td>
 <td align="left">p~0.99</td>
 </tr>
 <tr class="even">
@@ -873,7 +875,7 @@ F-statistics
 <td align="right">0.0585877</td>
 <td align="right">141</td>
 <td align="right">4.0321992</td>
-<td align="right">0.0014529</td>
+<td align="right">0.0014339</td>
 <td align="left">**</td>
 </tr>
 <tr class="odd">
